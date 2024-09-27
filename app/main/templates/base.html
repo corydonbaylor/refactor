@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Flask App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('main.static', filename='css/nav.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('main.index') }}" class="{% if request.path == url_for('main.index') %}active{% endif %}">Home</a>
+        <a href="{{ url_for('travel.travel') }}" class="{% if request.path == url_for('travel.travel') %}active{% endif %}">Travel</a>
+        <a href="{{ url_for('coding.coding') }}" class="{% if request.path == url_for('coding.coding') %}active{% endif %}">Coding</a>
+        <a href="{{ url_for('statistics.statistics') }}" class="{% if request.path == url_for('statistics.statistics') %}active{% endif %}">Statistics</a>
+        <a href="{{ url_for('tutorials.tutorials') }}" class="{% if request.path == url_for('tutorials.tutorials') %}active{% endif %}">Tutorials</a>
+    </nav>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
