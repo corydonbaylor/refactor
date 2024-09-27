@@ -1,0 +1,65 @@
+.hidden {
+    display: none;
+  }
+  
+.visible {
+    display: block;
+  }
+
+#intro {
+    font-size: clamp(24px, 8vw, 56px); /* Minimum size of 24px, maximum size of 48px */
+    font-weight: bolder;
+}
+
+#message {
+    font-size: clamp(20px, 8vw, 48px); /* Minimum size of 24px, maximum size of 48px */
+}
+
+#more-content {
+    font-size: medium;
+    font-size: clamp(20px, 8vw, 48px); /* Minimum size of 24px, maximum size of 48px */
+
+}
+
+.icon-container {
+    display: flex; /* Use flexbox to align items in a row */
+    align-items: center; /* Center the icons vertically */
+    gap: 20px; /* Space between icons */
+    margin-top: 8px;
+}
+
+.icon-container i {
+    font-size: clamp(30px, 2.5vw, 48px); /* Size relative to viewport width */
+    color: #333; /* Change icon color as needed */
+    opacity: 0; /* Start hidden */
+    animation: fadeIn 0.5s forwards; /* Apply fadeIn animation */
+}
+
+.icon-container i:hover {
+    color: #007BFF; /* Change color on hover (optional) */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0; /* Start fully transparent */
+    }
+    to {
+        opacity: 1; /* End fully opaque */
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Delay for each icon's animation */
+.icon-container i:nth-child(1) { animation-delay: 4s; }
+.icon-container i:nth-child(2) { animation-delay: 4.2s; }
+.icon-container i:nth-child(3) { animation-delay: 4.4s; }
+.icon-container i:nth-child(4) { animation-delay: 4.6s; }
+.icon-container i:nth-child(5) { animation-delay: 4.8s; }

@@ -3,6 +3,28 @@
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
-<h1>Home Page</h1>
-<p>Welcome to the homepage!</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="{{ url_for('main.static', filename='css/landing.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<div id="intro" class="visible">Hey!</div>
+<div id="message" class="hidden">my name is Corydon Baylor</div>
+<div id="more-content" class="hidden">
+    I am a data scientist based in Brooklyn, NY
+    <!-- Add more content as needed -->
+</div>
+<div class="icon-container"><i class="fa-brands fa-python"></i>
+    <i class="fa-brands fa-r-project"></i>
+    <i class="fa-brands fa-js"></i>
+    <i class="fa-brands fa-docker"></i>
+    <i class="fa-brands fa-git"></i>
+</div>
+
+<!-- Link to external JavaScript file -->
+<script src="{{ url_for('main.static', filename='js/intro.js') }}"></script>
 {% endblock %}
