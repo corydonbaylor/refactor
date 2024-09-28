@@ -10,12 +10,35 @@
 }
 
 .grid-item {
+    position: relative;
     padding: 50px;
     background-color: var(--ivory);
     border: 5px solid var(--secondary);
     text-align: center;
+    overflow: hidden; /* Ensures the pseudo-element doesn't extend beyond the grid item */
 }
 
+.grid-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3); /* Initial dark overlay */
+    opacity: 0; /* Start with no opacity */
+    transition: opacity 0.3s ease; /* Smooth transition for opacity change */
+    z-index: 1; /* Place it above the background image but below the content */
+}
+
+.grid-item > * {
+    position: relative;
+    z-index: 2; /* Ensure content stays above the overlay */
+}
+
+.grid-item:hover::before {
+    opacity: 1; /* Full opacity on hover */
+}
 .grid-item h3 {
     display: inline;
     background-color: var(--ivory); /* Yellow background */
@@ -25,6 +48,7 @@
 .grid-item.expanded {
     grid-column: span 2; /* Makes the box take full width of the two columns */
     text-align: center;
+    min-height: 40vh;
 
 }
 /* Set order based on classes */
@@ -37,6 +61,41 @@
     background-repeat: no-repeat;
 }
 
+#python-r .word-list {
+    text-align: right; /* Right-aligns the content within the ul */
+}
+
+#python-package {
+    background-image: url('../images/highbridge.png');
+    background-size: 80%;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+#webdev {
+    background-image: url('../images/manhatten.png');
+    background-size: 80%;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+#webdev .word-list {
+    text-align: left; /* Right-aligns the content within the ul */
+}
+
+#docker {
+    background-image: url('../images/brooklyn_bridge.png');
+    background-size: 80%;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+#docker .word-list {
+    text-align: left; /* Right-aligns the content within the ul */
+}
 .word-list a {
     text-decoration: none; /* Removes underline from links */
     color: #333; /* Sets link color */
@@ -50,9 +109,7 @@
 .word-list a:hover {
     text-decoration: underline; /* Removes underline from links */
 }
-#python-r .word-list {
-    text-align: right; /* Right-aligns the content within the ul */
-}
+
 
 .order-1 { order: 1; }
 .order-2 { order: 2; }

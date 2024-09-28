@@ -21,11 +21,37 @@
             <li><a href="{{ url_for('python_r.combining') }}">Combining Data Frames</a></li>
         </ul>
     </div>
-    <div class="grid-item order-2">Box 2</div>
-    <div class="grid-item order-3">Box 3</div>
-    <div class="grid-item order-4">Box 4</div>
-    <div class="grid-item order-5">Box 5</div>
-    <div class="grid-item order-6">Box 6</div>
+    <div class="grid-item order-2" id="python-package">
+        <h3>Building a Python Package</h3>
+        <ul class="word-list" style="display: none;">
+            <li><a href="{{ url_for('python_r.reticulate') }}">Using Python in R Studio</a></li>
+            <li><a href="{{ url_for('python_r.data_types') }}">Data Type Comparison</a></li>
+            <li><a href="{{ url_for('python_r.save') }}">Saving Your Data</a></li>
+            <li><a href="{{ url_for('python_r.pandas') }}">Intro into Pandas</a></li>
+            <li><a href="{{ url_for('python_r.filtering') }}">Advanced Filtering</a></li>
+            <li><a href="{{ url_for('python_r.groupby') }}">Advanced Group Bys</a></li>
+            <li><a href="{{ url_for('python_r.combining') }}">Combining Data Frames</a></li>
+        </ul>
+    </div>
+    <div class="grid-item order-3" id="webdev">
+        <h3>Flask on Raspberry Pi</h3>
+        <ul class="word-list" style="display: none;">
+            <li><a href="{{ url_for('python_r.reticulate') }}">Using Python in R Studio</a></li>
+            <li><a href="{{ url_for('python_r.data_types') }}">Data Type Comparison</a></li>
+            <li><a href="{{ url_for('python_r.save') }}">Saving Your Data</a></li>
+            <li><a href="{{ url_for('python_r.pandas') }}">Intro into Pandas</a></li>
+            <li><a href="{{ url_for('python_r.filtering') }}">Advanced Filtering</a></li>
+            <li><a href="{{ url_for('python_r.groupby') }}">Advanced Group Bys</a></li>
+            <li><a href="{{ url_for('python_r.combining') }}">Combining Data Frames</a></li>
+        </ul>
+    </div>
+    <div class="grid-item order-4" id="docker">
+        <h3>Docker and CI/CD</h3>
+        <ul class="word-list" style="display: none;">
+            <li><a href="{{ url_for('python_r.reticulate') }}">Using Python in R Studio</a></li>
+            <li><a href="{{ url_for('python_r.data_types') }}">Data Type Comparison</a></li>
+        </ul>
+    </div>
 </div>
 
 <script src="{{ url_for('tutorials.static', filename='js/grid.js') }}"></script>
