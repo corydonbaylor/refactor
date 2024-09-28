@@ -1,0 +1,574 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1 id='combining-dataframes'>Combining Dataframes</h1>
+<p>Pretty much any complex analysis is going to require you to combine different datasets. Here is how to do that in python.</p>
+<p>I am going to create two dataframes based around Pokemon. Unfortunately, I am going to make up the data, so don&#39;t use this for official pokemon reporting.</p>
+<p>R equivalents:</p>
+<ul>
+<li><code>inner_join()</code> = <code>pd.merge(df1, df2, on = &#39;id&#39;)</code></li>
+<li><code>left_join()</code> = <code>pd.merge(df1, df2, on = &#39;id&#39;, how = &#39;left&#39;)</code></li>
+<li><code>right_join()</code> = <code>pd.merge(df1, df2, on = &#39;id&#39;, how = &#39;right&#39;)</code></li>
+<li><code>outer_join()</code> = <code>pd.merge(df1, df2, on = &#39;id&#39;, how = &#39;outer&#39;)</code></li>
+<li><code>rbind()</code> = <code>pd.concat([df1, df2])</code></li>
+
+</ul>
+<pre><code class='language-python' lang='python'># first we are going to create two datasets.
+
+import pandas as pd
+
+# this is based on the games and 
+df1 = pd.DataFrame({
+    &quot;id&quot; : [25, 9, 59, 56, 104],
+    &quot;pokemon&quot; : [&#39;Pikachu&#39;, &#39;Blastoise&#39;, &#39;Arcanine&#39;, &#39;Mankey&#39;, &#39;Cubone&#39;],
+    &quot;type&quot; : [&#39;Electric&#39;, &#39;Water&#39;, &#39;Fire&#39;, &#39;Fighting&#39;, &#39;Ground&#39;],
+    &quot;hp&quot; : [35, 79, 90, 40, 60]
+})
+
+# this one is missing the pokemon column 
+# but has two additional rows: alakazam and gengar
+# the notes refer to show notes
+df2 = pd.DataFrame({
+    &quot;id&quot;: [25, 9, 59, 56, 65, 94],
+    &quot;episode&quot;: [1,15, 38, 12, 104, 16],
+    &quot;type&quot; : [&#39;Electric&#39;, &#39;Water&#39;, &#39;Fire&#39;, &#39;Fighting&#39;, &#39;Psychic&#39;, &#39;Ghost&#39;],
+    &quot;notes&quot;: [&#39;main character&#39;, &#39;not on ashes team&#39;, &#39;in credits&#39;, 
+              &#39;idk&#39;, &#39;magician&#39;, &#39;ghost&#39;]
+
+})
+
+# same info as df1 but different column name
+# the notes refer to game notes
+df3 = pd.DataFrame({
+    &quot;ids&quot; : [25, 9, 59, 56, 104],
+    &quot;pokemon&quot; : [&#39;Pikachu&#39;, &#39;Blastoise&#39;, &#39;Arcanine&#39;, &#39;Mankey&#39;, &#39;Cubone&#39;],
+    &quot;hp&quot; : [50, 150, 90, 35, 60],
+    &quot;notes&quot;: [&#39;fast but low hp&#39;, &#39;slow, lotsa hp&#39;, &#39;doggie!&#39;, &#39;monkey!&#39;, &#39;cool hat&#39;]
+
+    
+})
+</code></pre>
+<h2 id='innerjoin-merge-method'><code>inner_join()</code>: Merge Method</h2>
+<p>The first method we are going to use is the merge method. If we simply use <code>pd.merge()</code> it will perform an inner join, which as you can see will drop poor cubone since he isn&#39;t in the first dataframe.</p>
+<pre><code class='language-python' lang='python'>pd.merge(df1, df2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>pokemon</th>
+      <th>type</th>
+      <th>hp</th>
+      <th>episode</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>Electric</td>
+      <td>35</td>
+      <td>1</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>79</td>
+      <td>15</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>Fire</td>
+      <td>90</td>
+      <td>38</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>Fighting</td>
+      <td>40</td>
+      <td>12</td>
+      <td>idk</td>
+    </tr>
+  </tbody>
+</table>
+<p>It is usually good pratice to specify the column you are joining on (which sometimes will have different names).</p>
+<pre><code class='language-python' lang='python'># its good practice to specify the name you are merging on
+pd.merge(df1, df2, on =&#39;id&#39;)
+
+# here is how to merge when the dfs have different column names
+# notice how it keeps both id columns
+pd.merge(df3, df2, left_on =&#39;ids&#39;, right_on=&#39;id&#39;)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ids</th>
+      <th>pokemon</th>
+      <th>hp</th>
+      <th>notes_x</th>
+      <th>id</th>
+      <th>episode</th>
+      <th>type</th>
+      <th>notes_y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>50</td>
+      <td>fast but low hp</td>
+      <td>25</td>
+      <td>1</td>
+      <td>Electric</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>150</td>
+      <td>slow, lotsa hp</td>
+      <td>9</td>
+      <td>15</td>
+      <td>Water</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>90</td>
+      <td>doggie!</td>
+      <td>59</td>
+      <td>38</td>
+      <td>Fire</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>35</td>
+      <td>monkey!</td>
+      <td>56</td>
+      <td>12</td>
+      <td>Fighting</td>
+      <td>idk</td>
+    </tr>
+  </tbody>
+</table>
+<p>If we had tried to join df3 and df2 without specifying the column, than it would have tried to join it on notes as well and not found any matches, but because we specified that we just wanted it joined on the id columns, it appended an <code>_x</code> and <code>_y</code> to indicate which df each came from.</p>
+<p>You can specify what you want appended as seen below:</p>
+<pre><code class='language-python' lang='python'>pd.merge(df3, df2, left_on =&#39;ids&#39;, right_on=&#39;id&#39;, suffixes = [&#39;_left&#39;, &#39;_right&#39;])
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ids</th>
+      <th>pokemon</th>
+      <th>hp</th>
+      <th>notes_left</th>
+      <th>id</th>
+      <th>episode</th>
+      <th>type</th>
+      <th>notes_right</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>50</td>
+      <td>fast but low hp</td>
+      <td>25</td>
+      <td>1</td>
+      <td>Electric</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>150</td>
+      <td>slow, lotsa hp</td>
+      <td>9</td>
+      <td>15</td>
+      <td>Water</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>90</td>
+      <td>doggie!</td>
+      <td>59</td>
+      <td>38</td>
+      <td>Fire</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>35</td>
+      <td>monkey!</td>
+      <td>56</td>
+      <td>12</td>
+      <td>Fighting</td>
+      <td>idk</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='leftjoin-merge-method-cont'><code>left_join()</code>: Merge Method Cont.</h2>
+<p>The merge method actually just has an argument that allows us to specify what type of join we want to do:</p>
+<pre><code class='language-python' lang='python'># outer join: keeps everything
+pd.merge(df1, df2, on = [&#39;id&#39;, &#39;type&#39;], how = &#39;outer&#39;)
+
+# right join: keeps everything on right, drops extras on left
+pd.merge(df1, df2, on = [&#39;id&#39;, &#39;type&#39;], how = &#39;right&#39;)
+
+# left join: keeps everything on left, drops extras on right
+pd.merge(df1, df2, on = [&#39;id&#39;, &#39;type&#39;], how = &#39;left&#39;)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>pokemon</th>
+      <th>type</th>
+      <th>hp</th>
+      <th>episode</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>Electric</td>
+      <td>35</td>
+      <td>1.0</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>79</td>
+      <td>15.0</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>Fire</td>
+      <td>90</td>
+      <td>38.0</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>Fighting</td>
+      <td>40</td>
+      <td>12.0</td>
+      <td>idk</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>104</td>
+      <td>Cubone</td>
+      <td>Ground</td>
+      <td>60</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='rbind-stacking-data-on-top-of-eachother'><code>rbind()</code>: Stacking Data On Top of Eachother</h2>
+<p>Unlike in R, Python doesn&#39;t really seem to care if two dataframes have different column names. It will just let you join them and fill in the blanks with <code>NaN</code>.</p>
+<p>See below for two different methods to combine data:</p>
+<pre><code class='language-python' lang='python'>pd.concat([df1,df2])
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>pokemon</th>
+      <th>type</th>
+      <th>hp</th>
+      <th>episode</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>Electric</td>
+      <td>35.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>79.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>Fire</td>
+      <td>90.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>Fighting</td>
+      <td>40.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>104</td>
+      <td>Cubone</td>
+      <td>Ground</td>
+      <td>60.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>NaN</td>
+      <td>Electric</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>NaN</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>15.0</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>NaN</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>38.0</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>NaN</td>
+      <td>Fighting</td>
+      <td>NaN</td>
+      <td>12.0</td>
+      <td>idk</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>65</td>
+      <td>NaN</td>
+      <td>Psychic</td>
+      <td>NaN</td>
+      <td>104.0</td>
+      <td>magician</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>94</td>
+      <td>NaN</td>
+      <td>Ghost</td>
+      <td>NaN</td>
+      <td>16.0</td>
+      <td>ghost</td>
+    </tr>
+  </tbody>
+</table>
+<pre><code class='language-python' lang='python'>df1.append(df2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>pokemon</th>
+      <th>type</th>
+      <th>hp</th>
+      <th>episode</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>Pikachu</td>
+      <td>Electric</td>
+      <td>35.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>79.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>Arcanine</td>
+      <td>Fire</td>
+      <td>90.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>Mankey</td>
+      <td>Fighting</td>
+      <td>40.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>104</td>
+      <td>Cubone</td>
+      <td>Ground</td>
+      <td>60.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>NaN</td>
+      <td>Electric</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>main character</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>NaN</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>15.0</td>
+      <td>not on ashes team</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59</td>
+      <td>NaN</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>38.0</td>
+      <td>in credits</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>56</td>
+      <td>NaN</td>
+      <td>Fighting</td>
+      <td>NaN</td>
+      <td>12.0</td>
+      <td>idk</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>65</td>
+      <td>NaN</td>
+      <td>Psychic</td>
+      <td>NaN</td>
+      <td>104.0</td>
+      <td>magician</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>94</td>
+      <td>NaN</td>
+      <td>Ghost</td>
+      <td>NaN</td>
+      <td>16.0</td>
+      <td>ghost</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -36,7 +36,15 @@
 }
 
 .icon-container i:hover {
-    color: #007BFF; /* Change color on hover (optional) */
+    color: var(--light-blue); /* Change color on hover (optional) */
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease-in forwards; /* Fade in effect */
+}
+
+.fadeOut {
+    animation: fadeOut 0.5s ease-in forwards; /* Fade out effect */
 }
 
 @keyframes fadeIn {
@@ -58,8 +66,13 @@
 }
 
 /* Delay for each icon's animation */
-.icon-container i:nth-child(1) { animation-delay: 4s; }
-.icon-container i:nth-child(2) { animation-delay: 4.2s; }
-.icon-container i:nth-child(3) { animation-delay: 4.4s; }
-.icon-container i:nth-child(4) { animation-delay: 4.6s; }
-.icon-container i:nth-child(5) { animation-delay: 4.8s; }
+.icon-container i:nth-child(1) { animation-delay: 4000ms; } /* 4 seconds */
+.icon-container i:nth-child(2) { animation-delay: 4200ms; } /* 4.2 seconds */
+.icon-container i:nth-child(3) { animation-delay: 4400ms; } /* 4.4 seconds */
+.icon-container i:nth-child(4) { animation-delay: 4600ms; } /* 4.6 seconds */
+.icon-container i:nth-child(5) { animation-delay: 4800ms; } /* 4.8 seconds */
+
+.icon-container i.blue {
+    color: var(--light-blue); /* Blue color */
+}
+/* #007BFF */

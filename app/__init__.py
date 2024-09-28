@@ -4,6 +4,7 @@ from .coding import coding_bp
 from .statistics import statistics_bp
 from .tutorials import tutorials_bp
 from .main import main_bp
+from .tutorials.python_r import python_r_bp
 
 def create_app():
     app = Flask(__name__)
@@ -12,6 +13,7 @@ def create_app():
     app.register_blueprint(coding_bp, url_prefix='/coding')
     app.register_blueprint(statistics_bp, url_prefix='/statistics')
     app.register_blueprint(tutorials_bp, url_prefix='/tutorials')
+    app.register_blueprint(python_r_bp, url_prefix='/tutorials/python')
     app.register_blueprint(main_bp)  
 
     return app

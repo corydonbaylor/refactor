@@ -3,4 +3,4 @@ from . import tutorials_bp
 
 @tutorials_bp.route('/')
 def tutorials():
-    return render_template('tutorials.html')
+    return render_template('tutorials.html', bg_class='heroes')

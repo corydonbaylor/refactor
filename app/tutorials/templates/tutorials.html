@@ -3,6 +3,30 @@
 {% block title %}Tutorials{% endblock %}
 
 {% block content %}
-<h1>Tutorials Section</h1>
-<p>Welcome to the tutorials section!</p>
+<head>
+    <link rel="stylesheet" href="{{ url_for('tutorials.static', filename='css/tutorials.css') }}">
+</head>
+<h1 class="heroes">We got some learning to do</h1>
+
+<div class="grid-container">
+    <div class="grid-item order-1">
+        <h3>Python or R</h3>
+        <ul class="word-list" style="display: none;">
+            <li>Word 6A</li>
+            <li>Word 6B</li>
+            <li>Word 6C</li>
+        </ul>
+    </div>
+    <div class="grid-item order-2">Box 2</div>
+    <div class="grid-item order-3">Box 3</div>
+    <div class="grid-item order-4">Box 4</div>
+    <div class="grid-item order-5">Box 5</div>
+    <div class="grid-item order-6">Box 6</div>
+</div>
+
+
+<a href="{{ url_for('python_r.index') }}">Travel</a>
+
+<script src="{{ url_for('tutorials.static', filename='js/grid.js') }}"></script>
+
 {% endblock %}

@@ -1,0 +1,44 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 10px; /* Space between boxes */
+}
+
+.grid-item {
+    padding: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.hidden {
+    display: none; /* Hides the word list initially */
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 10px; /* Space between boxes */
+}
+
+.grid-item {
+    padding: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.grid-item.expanded {
+    grid-column: span 2; /* Makes the box take full width of the two columns */
+}
+/* Set order based on classes */
+.order-1 { order: 1; }
+.order-2 { order: 2; }
+.order-3 { order: 3; }
+.order-4 { order: 4; }
+.order-5 { order: 5; }
+.order-6 { order: 6; }
+
+.full-width {
+    grid-column: span 2; /* Makes the box take full width of the two columns */
+}

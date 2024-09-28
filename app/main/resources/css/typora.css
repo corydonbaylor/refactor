@@ -1,0 +1,78 @@
+pre, 
+code, 
+tt {
+    padding: 16px; /* Padding around the code */
+    overflow-x: auto; /* Enable horizontal scrolling for long lines */
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; /* Monospace font */
+    color: #24292e; /* Dark text color */
+}
+
+code {
+    background-color: #f3f3f3;
+    padding: 0 2px; /* Padding for inline code */
+}
+
+/* Optional: Style for line numbers if needed */
+.line-numbers {
+    counter-reset: line; /* Reset line counter for line numbers */
+}
+
+.line-numbers > div {
+    counter-increment: line; /* Increment line counter */
+}
+
+.line-numbers > div::before {
+    content: counter(line); /* Display line number */
+    display: inline-block;
+    width: 30px; /* Fixed width for line numbers */
+    padding-right: 10px; /* Spacing between line number and code */
+    color: #6a737d; /* Color for line numbers */
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #e1e4e8; /* Light gray border */
+    text-align: left;
+}
+
+th {
+    background-color: #f6f8fa; /* Light background for header */
+    color: #24292e; /* Dark text color */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for even rows */
+}
+
+tr:hover {
+    background-color: #f1f8ff; /* Light blue on hover */
+}
+
+@media (prefers-color-scheme: dark) {
+    table {
+        background-color: #2d2d2d; /* Dark background for tables in dark mode */
+        color: #ffffff; /* White text */
+    }
+
+    th {
+        background-color: #444444; /* Darker header background */
+        color: #ffffff; /* White text for header */
+    }
+
+    tr:nth-child(even) {
+        background-color: #3a3a3a; /* Dark gray for even rows */
+    }
+
+    tr:hover {
+        background-color: #555555; /* Darker hover effect */
+    }
+}
