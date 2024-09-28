@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Flask pt II: Templating with Jinja2</h2>
+<p><em>You can download the full code for this tutorial at my <a
+            href="https://github.com/corydonbaylor/website-tutorial">github</a> under release 1.3</em></p>
+<p>Writing the same thing over and over again sucks. Copy pasting file paths and managing a complicated directory
+    structure sucks even harder. Eventually, half the work of adding a new webpage is tied up in making sure that the
+    navigation bar at the top has links that work. There&#39;s got to be a better way!</p>
+<p>Oh there is. It&#39;s called templates, and if you have ever tried to maintain a pure CSS and HTML site, it will blow
+    your mind.</p>
+<p>When I first built my website, I had to hard code a navigation bar for ever single page, and if I decided to change
+    the structure of my web app, well that would mean that I would have to change the navigation bar on every single
+    page again, which I did multiple times.</p>
+<p>With templates, you can create reusable components and layouts, so that you only have to write code for things like
+    navbars only once. Flask, as well as <em>Django</em>, use the <strong>jinja2</strong> templating engine to
+    accomplish this.</p>
+<h3>Layouts, Pages, and Partials</h3>
+<p>In jinja2, templates have a few different components. Some pieces are shared across different webpages, like the head
+    of a html page, while some are unique to a particular page like the actual content of a page. We can think of these
+    elements as falling into three main groups:</p>
+<ul>
+    <li><strong>Layouts</strong>: the majority of web apps have a skeleton structure that is shared between pages. Think
+        a shared head or a content and side bar layout </li>
+    <li><strong>Page</strong>: typically this will be the parts of a page that are unique to that page. Think of this as
+        the content. </li>
+    <li><strong>Partial</strong>: a partial is a little snippet of code that will can be shared across the web app. For
+        example, if you are making a series of tutorials, you could store the table of contents in a partial, so you
+        don&#39;t have to rewrite it multiple times.</li>
+
+</ul>
+<p>For this tutorial, we are just going to be covering layouts and pages. </p>
+<h3>Structuring the App</h3>
+<p>Before we go any further, we need to go over how the app will be structured. Flask is <strong>opinionated</strong>,
+    meaning that certain folders must be named certain things, and certain files must go in certain folders. </p>
+<p>We are going to have a static folder where we will keep our static assets like pictures or CSS files, and we are
+    going to have a templates folder where we will keep the html for our website. </p>
+<p>Move the <code>index.html</code> and <code>second.html</code> from your archive folder and place it in a new
+    templates folder. Then move your <code>style.css</code> from the style folder and place it in a new static folder.
+    Afterwards your file structure should look something like this:</p>
+<pre><code>|----website tutorial
+    |---------app.py
+    |---------static
+    |--------------style.css
+    |---------templates
+    |--------------index.html
+    |--------------second.html
+    |---------venv
+</code></pre>
+<h3>Extending a Layout</h3>
+<p>The goal of templating is to cut down on the total amount of code. We are going to accomplish this by taking what is
+    common between <code>index.html</code> and <code>second.html</code> and putting it in a new file called
+    <code>layout.html</code>. </p>
+<p>Let&#39;s begin by creating <code>layout.html</code>, which will also go in the templates folder. This will be the
+    shared layout that is used by our entire website. </p>
+<p><strong>layout.html:</strong></p>
+{% raw %}
+
+<pre><code class='language-html' lang='html'>{% block head %}
+
+&lt;head&gt;
+
+    &lt;title&gt;Example&lt;/title&gt;
+    &lt;!-- Latest compiled and minified CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css&quot;&gt;
+    &lt;!-- jQuery library --&gt;
+    &lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Popper JS --&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Latest compiled JavaScript --&gt;
+    &lt;script src=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js&quot;&gt;&lt;/script&gt;
+
+    &lt;!-- Our CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{url_for(&#39;.static&#39;, filename=&#39;style.css&#39;)}}&quot;&gt;
+
+&lt;/head&gt;
+{% endblock %}
+
+&lt;body class=&quot;page-style&quot;&gt;
+    &lt;nav class=&quot;navbar navbar-expand-sm navbar-dark bg-dark&quot;&gt;
+        &lt;ul class=&quot;navbar-nav&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;{{ url_for(&#39;index&#39;) }}&quot;&gt;Home&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;{{ url_for(&#39;second&#39;) }}&quot;&gt;Second Page&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;container&quot;&gt;
+        {% block content %}
+        {% endblock %}
+    &lt;/div&gt;
+&lt;/body&gt;
+</code></pre>
+{% endraw %}
+
+<p>Then we will edit the html for both the homepage (index.html) and for the second page (second.html).</p>
+<p><strong>index.html:</strong></p>
+{% raw %}
+
+<pre><code>{% extends &quot;layout.html&quot; %}
+
+{% block content %}
+&lt;br&gt;
+&lt;h2&gt;Create Your Static Website&lt;/h2&gt;
+&lt;p&gt;Here is the content of your site.&lt;/p&gt;
+&lt;strong&gt;Using the Grid System&lt;/strong&gt;
+&lt;div class=&quot;row&quot;&gt;
+    &lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;row&quot;&gt;
+    &lt;div class=&quot;col-2 m-2 examples&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;col-5 m-2 examples&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;col-4 m-2 examples&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+{% endblock %}
+</code></pre>
+{% endraw %}
+
+<p><strong>second.html:</strong></p>
+{% raw %}
+<pre><code>{% extends &quot;layout.html&quot; %}
+
+{% block content %}
+&lt;h2&gt;Now you have a second page&lt;/h2&gt;
+&lt;p&gt;Isn&#39;t that nice?&lt;/p&gt;
+{% endblock %}
+</code></pre>
+{% endraw %}
+
+<h3>Wait, What Exactly is Extension?</h3>
+<p>Extension is taking the html from our pages (<code>index.html</code> and <code>second.html</code>) and injecting it
+    into the layout (<code>layout.html</code>). As a result, the html from the layout is extended with the html from the
+    pages. </p>
+<p>Remember writing cover letters when you were last applying for jobs? Instead of writing a cover letter for each firm,
+    you might write one template and replace the second paragraph with something particular to that firm. Thats all we
+    are doing here. We are injecting unique content for each page into a template, so that we don&#39;t have to rewrite
+    the boilerplate again and again. And if we need to change the boilerplate we only have to change it one place. </p>
+<p>But how does jinja know where things should be injected? You will notice that <code>layout.html</code> has a section
+    called {% raw %}<code>{% block content %}</code>{% endraw %}. Jinja will place the contents of
+    <code>index.html</code>
+    and
+    <code>second.html</code> here!</p>
+<p>Let&#39;s consider what the html for <code>second.html</code> will actually look like after this whole
+    injection/extension business, when it is rendered in the browser:</p>
+{% raw %}
+
+<pre><code>&lt;head&gt;
+
+    &lt;title&gt;Example&lt;/title&gt;
+    &lt;!-- Latest compiled and minified CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css&quot;&gt;
+    &lt;!-- jQuery library --&gt;
+    &lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Popper JS --&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Latest compiled JavaScript --&gt;
+    &lt;script src=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js&quot;&gt;&lt;/script&gt;
+
+    &lt;!-- Our CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{url_for(&#39;.static&#39;, filename=&#39;style.css&#39;)}}&quot;&gt;
+
+&lt;/head&gt;
+
+&lt;body class=&quot;page-style&quot;&gt;
+    &lt;nav class=&quot;navbar navbar-expand-sm navbar-dark bg-dark&quot;&gt;
+        &lt;ul class=&quot;navbar-nav&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;{{ url_for(&#39;index&#39;) }}&quot;&gt;Home&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;{{ url_for(&#39;second&#39;) }}&quot;&gt;Second Page&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;container&quot;&gt;
+				&lt;h2&gt;Now you have a second page&lt;/h2&gt;
+				&lt;p&gt;Isn&#39;t that nice?&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+</code></pre>
+{% endraw %}
+
+<p>Again, jinja2 injects the content of <code>second.html</code> between {% raw %}<code>{% block content %}</code> and
+    <code>{% endblock %}</code> {% endraw %}on the <code>layout.html</code> page. </p>
+<h3>Rendering the Templates</h3>
+<p>Now you may have been faithfully copy pasting all of this into your VS Code but found that when you run flask, you
+    get an error. Well unfortunately, as is too often the case, there is more work to do, but not much more so don&#39;t
+    despair. </p>
+<p>Next we need to update our <code>app.py</code> script so that it compiles our website. This part is pretty simple.
+</p>
+<p><strong>app.py</strong></p>
+
+<pre><code>from flask import Flask
+from flask import render_template
+
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def index():
+    return render_template(&#39;index.html&#39;)
+
+@app.route(&quot;/secondpage&quot;)
+def second():
+    return render_template(&#39;second.html&#39;)
+
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+</code></pre>
+<p>We aren&#39;t doing too much different here than what we have done before, but I did change some of the function
+    names for the routes. </p>
+<p>The big difference is the inclusion of this <code>render_template()</code> function. As you may be able to tell
+    (hopefully you can) by its name, this function renders your templates. Our <code>index()</code> method will now be
+    rendering <code>index.html</code> (by injecting it into <code>layout.html</code>), and our <code>second()</code>
+    method will be doing the same with <code>second.html</code>. </p>
+<p>If you app isn&#39;t working, make sure that you have the correct file structure. <strong>Again, flask is
+        opinionated. Your templates must be in the templates folder, and your css must be in the static folder.</strong>
+</p>
+<p>Oh and don&#39;t forget to <code>import render_templates</code> at the top of your script! </p>
+<h3>Referencing CSS and Creating Hyperlinks</h3>
+<p>Take a look at the links on the navbar section of the <code>layout.html</code>. You will notice that the
+    href/hyperlink isn&#39;t to a relative path anymore. Now it reads
+    {% raw %} <code>href=&quot;{{ url_for(&#39;index&#39;) }}&quot;</code> {% endraw %}. All this means is that this
+    hyperlink will be pointing
+    at the route for the <code>index</code> method. </p>
+<p>Similarly, look at how we load in our custom CSS. The hyperlink is as follows:
+    {% raw %}<code>href=&quot;{{url_for(&#39;.static&#39;, filename=&#39;style.css&#39;)}}&quot;</code> {% endraw %}
+    This is the same
+    concept
+    as before, but this time we are looking in the static folder for a file called style.css. </p>
+<p>There is more you can do with jinja2 like variables and for loops. But with just this bit, you have what you need to
+    make a significantly more maintainable website. You now know routing and templating. Next we will cover hosting and
+    port forwarding and enter the dark, dark world of linux. </p>
+<p>Prepare to sacrifice your sanity at the alter of command line computing (or not because you have this straight
+    forward guide to help you!)</p>
+<p>&nbsp;</p>
+{% endblock%}

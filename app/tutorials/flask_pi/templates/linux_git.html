@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Linux and Git: Setting Up Your Workspace</h2>
+<p>You can&#39;t work without a workspace, though I admit setting up your workspace is pretty boring. It&#39;s like
+    preparing to write the great American novel by flipping through a Sears catalogue for what writing desk to get. Now
+    I am not going to pretend that there is only one right set of tools for writing and maintaining code. But there
+    definitely are industry standards, and there are tools that I know will work for you if you are just beginning. </p>
+<p>If you know how to code, you will likely not need to read this tutorial. We are going to go over things like
+    installing a code editor, git, and linux. If you have a code editor, git and linux, you can skip this. If you are
+    missing any of these things, go to the relevant section (the git one is quite long).</p>
+<p>Additionally, if you just want to create a simple CSS and HTML website, and you don&#39;t want to do version control
+    (pls do version control), just download VS Code and go to the next tutorial. We won&#39;t need linux until we get to
+    flask, which is a bit aways as is. </p>
+<p><strong>I am very much of the opinion that if you feel like you are accomplishing something, you will keep
+        going</strong>. As such, as long as you have VS Code installed, you should be able to complete the first
+    tutorial. Having a hello world version of a website may be the motivation you need to keep going. </p>
+<p>Know thyself. </p>
+<p>If you need that, feel free to skip ahead. If you are willing to sit down for an hour and crank out getting git set
+    up, that is definitely the better path. </p>
+<h3>Visual Studio Code</h3>
+<p>For our project, I am going to suggest using Visual Studio Code. According to <a
+        href='https://www.software.com/src/ranking-the-top-5-code-editors-2019'>software.com</a>, it is the most popular
+    code editor and kind of like choosing an easel when painting, it doesn&#39;t make a huge difference what you pick.
+    Though I am sure that there are some people who have strong opinions on this. You can download VS Code <a
+        href='https://code.visualstudio.com/download'>here</a>.</p>
+<p>There is one feature of VS Code that I do want to point out before moving on to bigger and brighter things. By
+    clicking Terminal &gt; New Terminal, you can have a console running at the bottom of your code. This is really
+    helpful when submitting git commands or running flask. </p>
+<h3>Linux (if you have Windows)</h3>
+<p>The wonderful things about Macs is that, like linux, they are based on Unix, so you don&#39;t have to work as hard to
+    set them up to work. Plus, you can run Flask, which we will be doing in a few tutorials, right from the terminal.
+</p>
+<p>But even Microsoft paupers can get access to linux on their local machine without much hassle and without having to
+    doing something crazy like partitioning their drive. </p>
+<p>You can install Ubuntu as an app on your desktop <a
+        href='https://ubuntu.com/tutorials/ubuntu-on-windows#1-overview'>from this site</a>. Follow the instructions and
+    then launch the app. You will be greeted with a command line interface. </p>
+<p>Because this is command line, your mouse will not be of any use. Welcome to the hacker life. Doritos and Mountain Dew
+    should self-actualize by your mouse the second you open Ubuntu. </p>
+<p>Let&#39;s go over some commands and tricks to help you navigate this new world.</p>
+<ul>
+    <li><code>cd</code> means change directory and is how you change folders</li>
+    <li><code>pwd</code> means print working directory and will print to the console where you currently are</li>
+    <li><code>ls</code> lists all the files and folders in your current directory</li>
+    <li><code>..</code> takes you back one directory</li>
+    <li>Up on the keyboard will bring up the most recent command entered into the terminal</li>
+    <li>Tab will autocomplete things. This is especially useful when writing out long directory paths. </li>
+
+</ul>
+<p>We won&#39;t be using Linux/Ubuntu for a while (when we get to flask), so just know that you have done the right
+    thing and have a cool new icon on your task bar for now.</p>
+<h3>GitHub, Git, and Git Bash</h3>
+<p>While picking out a code editor is often a matter of preference, using git is not. Git is not a preference; its an
+    industry standard, and many times the only reasonable way to do things. Git is a version control system. It&#39;s
+    like track changes on steroids. Imagine if track changes had a master version that was online. You would write your
+    changes on your computer and then send them online, and as long as they didn&#39;t conflict with changes that
+    someone else had made, you could submit your changes. We will &quot;git&quot; into how git works a little later but
+    first lets &quot;git&quot; set up.</p>
+<p><strong>Installing Git</strong> </p>
+<p>Step one is to install git bash on your machine. You can install it <a
+        href='https://git-scm.com/download/win'>here</a>. </p>
+<p>To make sure you have it correctly installed on Windows, right click on the desktop, and you should see an option
+    that say &quot;Git Bash Here&quot;. </p>
+<p>To make sure you have it correctly installed on Mac (Mac often ships with Git, so you don&#39;t have to install it),
+    open up the terminal and type in: <code>git --version</code>. If you get back a version of git, then you have git,
+    and if you don&#39;t, than you don&#39;t. </p>
+<p>What we installed (if we are using Windows), is something called a <strong>bash terminal</strong>. This will let us
+    navigate our directories with linux commands. While that may sound scary, it isn&#39;t. You just need to know two or
+    three commands to navigate around and you can look up how to do things quite easily. We already covered 90 percent
+    of what you need above anyways!</p>
+<p><strong>Setting Up a GitHub Account</strong></p>
+<p>Next step is to set up a GitHub account. GitHub, believe it or not, is different than git, in the same way that java
+    and javascript are different things. If you use git and GitHub interchangeably, than the nerds will mock you and no
+    one wants to be mocked by nerds. </p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/git-linux/bazinga.gif')}}">
+
+<p>Bazinga indeed. </p>
+<p>The difference between git and GitHub isn&#39;t just linguistic. Git is the software and GitHub is a service for
+    storing your code on the cloud. Creating an account for GitHub is free and easy. Associating your GitHub account
+    with your git on your computer is free but not so easy. You will need an SSH key for that.</p>
+<h3>Creating an SSH Key</h3>
+<p>An SSH key is like a password that you computer will share with GitHub each time it tries to upload or download code
+    from it. Unlike other passwords, SSH keys are <strong>unique to individual computers</strong>, so we will need to
+    create one for each computer we are working from. </p>
+<p>We need to perform dark command line rituals to summon an SSH key, that is to say, you will need to enter the below
+    code, but I am not really sure what it is doing. An SSH key allows GitHub to verify that your computer has
+    permission to read and write to GitHub. </p>
+<p>I am pulling the instructions for doing this from <a
+        href='https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent'>github&#39;s
+        website</a>. If you have trouble, please refer to their material, which will be move involved then my own. </p>
+<p>In git bash, enter the following:</p>
+<pre><code>$ ssh-keygen -t rsa -b 4096 -C &quot;your_email@example.com&quot;
+</code></pre>
+<p>This will create a key. Next you will be prompted asking where you want to save your key. <strong>Just press enter so
+        it goes to the default location.</strong></p>
+<pre><code>&gt; Enter a file in which to save the key (/Users/you/.ssh/id_rsa): [Press enter]
+</code></pre>
+<p>Next it will ask for a password. You can leave this blank if you don&#39;t need that level of security (which you
+    probably do not)</p>
+<pre><code>&gt; Enter passphrase (empty for no passphrase): [Type a passphrase]
+&gt; Enter same passphrase again: [Type passphrase again]
+</code></pre>
+<p> At this point your ssh key is generated and is stored at <code>/Users/you/.ssh/id_ra</code>. All that is left is to
+    add this key to your GitHub account. First we will print the SSH key to our console.</p>
+<pre><code> cat ~/.ssh/id_rsa.pub
+</code></pre>
+<p>You should see quite the long string of text as output. This is your SSH key. Copy it to your clipboard. Next we need
+    to add it to your GitHub profile. </p>
+<p>Head over to the settings on the upper right corner of the page. </p>
+<img style='padding: 1rem;'
+    src="{{url_for('static', filename='images/tutorials/webdev/git-linux/userbar-account-settings.png')}}">
+
+<p>On the sidebar on the left, click SSH and GPG keys</p>
+<img style='padding: 1rem;'
+    src="{{url_for('static', filename='images/tutorials/webdev/git-linux/settings-sidebar-ssh-keys.png')}}">
+
+<p>Then Add SSH Key</p>
+<img style='padding: 1rem;'
+    src="{{url_for('static', filename='images/tutorials/webdev/git-linux/ssh-add-ssh-key.png')}}">
+
+<p>Then enter your key and information. For the title you can put something like the name and brand of your computer.
+    Paste the key into the Key field.</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/git-linux/ssh-key-paste.png')}}">
+
+<p>Follow the rest of the prompts are you are done. </p>
+<p><strong>Creating and Cloning a Git Project</strong></p>
+<p>Now that our computer can interact with GitHub, we need to actually interact with GitHub. On the top left corner of
+    your GitHub homepage. Click the button that says &quot;New&quot; to create your first repository.</p>
+<img style='padding: 1rem; max-height: 175px;'
+    src="{{url_for('static', filename='images/tutorials/webdev/git-linux/git-new.png')}}">
+
+<p>Then name your repository something like &quot;My New Website&quot; and initialize with a readme. </p>
+<p>Open up your new repository and click the green button that says &quot;Code&quot; and copy the highlighted text from
+    the picture. </p>
+<img style='padding: 1rem; max-height: 250px;'
+    src="{{url_for('static', filename='images/tutorials/webdev/git-linux/git-code.png')}}">
+
+<p>Create a folder in your documents called &quot;github&quot;.</p>
+<p>Right click inside this folder and click &quot;Open Git Bash Here&quot;. Type git clone and what you copied into the
+    console like so:</p>
+<pre><code>git clone git@github.com:yourusername/your-repo.git
+</code></pre>
+<p>If you don&#39;t have any errors, congratulations! You now have a working git repository. </p>
+<p>You now have to move into that directory to start working so do so now:</p>
+<pre><code>cd your-repo
+</code></pre>
+<p>And you can check if your git is working by typing:</p>
+<pre><code>git status
+</code></pre>
+<p><code>git status</code> will tell you if all your files are being tracked and if they have been modified, so feel
+    free to use it often. </p>
+<h3>The Git Factory </h3>
+<p>Ok so now we have git. But what does it actually do? </p>
+<p>Projects in git are called repositories or repos for short. A repository contains both the entire codebase for a
+    project and a history of all the changes to that codebase. These changes are tracked when the user
+    <strong>pushes</strong> the work to the repository. Each chunk of code that a user creates is usually tracked in
+    something called a <strong>commit</strong>. Each time a coder finishes some code (as coders are wont to do) they
+    will save a snapshot of their codebase in a commit.
+</p>
+<p>Imagine you are working in a factory hand making widgets. You finish one widget, and you pack it up in a box. This is
+    analogous to writing a chunk of code and <strong>adding</strong> it to a git repository. Next you put that box in a
+    truck. This is analogous to creating a <strong>commit</strong>. You do this for a few hours and have ten or so
+    widgets in your car. At this point, no one can see your widgets because they are still at the factory. </p>
+<p>So you do the next logical thing and drive your truck to the store and unload your widgets. This is analogous to
+    <strong>pushing</strong> your commits to the repo. Commits are you packing your work into the truck and pushing is
+    delivering it.
+</p>
+<p>Now lets say you are at a different factory and want to see the latest way widgets are being made. Well you would
+    have to drive to the store and check them out. This is analogous to <strong>pulling</strong> code from a repository.
+</p>
+<p>There is a lot more to git like branches and how to handling conflicting commits, but we will leave it to just
+    commits and pushing and pulling for now. </p>
+<p><strong>Testing It Out</strong></p>
+<p>Lets test this out. Open up a text file in notepad or VS Code if you want to feel like a hacker. Write in it
+    <code>test test test</code> and save it as <code>test.txt</code> in your project folder.
+</p>
+<p>First we need to pack up our commit by adding it to the project.</p>
+<pre><code>git add test.txt
+</code></pre>
+<p> Next we need to put our commit in a truck by committing it.</p>
+<pre><code>git commit -a -m &quot;new txt file ready for delivery&quot;
+</code></pre>
+<p>Finally we need to deliver the text file to GitHub by pushing it.</p>
+<pre><code>git push
+</code></pre>
+<p>Go to GitHub and look at your project. You should see that it now has your new file online.</p>
+<p><strong>Flask and Linux</strong></p>
+<p>You will not be running flask on your windows machine. You will be running flask within that ubuntu program you
+    installed earlier. To transfer files from windows to ubuntu, you will be pushing from your windows machine to GitHub
+    and then pulling down the changes into that ubuntu program </p>
+<p>As such, you will need to create an SSH key for your ubuntu install and clone the repo from GitHub. </p>
+<p>An example of your workflow may be as follows:</p>
+<ol>
+    <li>Write some code in VS Code</li>
+    <li>Commit and push it using git bash or the terminal in VS Code</li>
+    <li>Open up Ubuntu and navigate to the project </li>
+    <li>Pull the latest version from GitHub </li>
+    <li>Run Flask</li>
+
+</ol>
+<p>None of this is necessary if you have a Mac. You can run Flask directly from the terminal without any issues. Get a
+    Mac. It just works. </p>
+<p>&nbsp;</p>
+{% endblock %}

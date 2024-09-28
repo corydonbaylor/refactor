@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Local Hosting pt II: Flask and Apache</h2>
+<p>In part one, we went over how to host a website on your a raspberry pi in your home. Next, we need to take it to
+    the next level. Currently our self hosted website is just static assets--like css, html, and javascript. </p>
+<p>If we want our apache server to handle data, we need to have a backend. Enter flask and way too much time setting
+    up config stuff. </p>
+<p>Before we get started, we are assuming you have a linux machine set up and apache2 installed. Our linux machine
+    will be our raspberry pi. </p>
+<h3>Step One: Install and Enable mod_wsgi</h3>
+<p>WSGI (Web Server Gateway Interface) is an interface between web servers and web apps for python. Python is single
+    threaded, meaning that it can only do one thing at a time. As you can imagine, if one user had to wait for
+    another in order to do something on your website, then it wouldn&#39;t be a very popular site. WSGI fixes that
+    problem. </p>
+<p>Plus more importantly, its the needed add on to get your flask app working on an apache server, so we have to do
+    it, even if we were cool with having a single threaded web app. </p>
+<p>To install mod_wsgi, in the terminal type:</p>
+<pre><code class='language-shell' lang='shell'>sudo apt-get install libapache2-mod-wsgi python-dev
+    </code></pre>
+<p>Next, you need to enable mod_wsgi</p>
+<pre><code class='language-shell' lang='shell'>sudo a2enmod wsgi 
+    </code></pre>
+<h3>Step Two: Creating (or Moving) your Flask App</h3>
+<p>Next we need to have an app to actually serve on the server, and your static website won&#39;t work here. </p>
+<p>It is convention to store your app in the <em>/var/www</em> directory. If for whatever reason you don&#39;t have
+    permission to write in that folder use the following command:</p>
+<pre><code class='language-python' lang='python'>chmod -R &quot;USERNAME&quot; /var/www
+    </code></pre>
+<p>So lets move into this folder:</p>
+<pre><code class='language-shell' lang='shell'>cd /var/www
+    </code></pre>
+<p>If you have an app, move it into this folder now (preferably using git). Once its in there you can skip ahead to
+    Step Three. If not, lets create an app. </p>
+<p>Ok back to creating the app--</p>
+<p>Lets create a project folder and move into it:</p>
+<pre><code class='language-shell' lang='shell'>sudo mkdir proj
+    cd proj
+    </code></pre>
+<p>Create another folder called flaskapp and move into it:</p>
+<pre><code class='language-shell' lang='shell'>sudo mkdir flaskapp
+    cd flaskapp
+    </code></pre>
+<p> Next we are going to create some folders inside here:</p>
+<pre><code class='language-shell' lang='shell'>sudo mkdir static templates
+    </code></pre>
+<p>Your directory structure should look like the following:</p>
+<pre><code class='language-shell' lang='shell'>|----proj
+    |---------flaskapp
+    |--------------static
+    |--------------templates
+    </code></pre>
+<p><strong>You should currently be in the flaskapp directory</strong>. You can always check this with
+    <code>pwd</code>. Next we are going to add the barebones logic for our flask app.</p>
+<pre><code class='language-shell' lang='shell'>sudo nano __init__.py
+    </code></pre>
+<p>And within that file we just created, copy paste the following:</p>
+<pre><code class='language-python' lang='python'>from flask import Flask
+    app = Flask(__name__)
+    @app.route(&quot;/&quot;)
+    def hello():
+        return &quot;My first flask app&quot;
+    if __name__ == &quot;__main__&quot;:
+        app.run()
+    </code></pre>
+<p>Save and close!</p>
+<h3>Step Three: Install Flask and Create a Virtual Environment</h3>
+<p><strong>NOTE:</strong> if you used git to bring your app over into <em>/var/www</em> then you can skip this step.
+    Just check and make sure that venv has all the packages you need. We will cover this in Step Four. </p>
+<p>In general, you should set up a virtual environment to keep your application isolated from the rest of your
+    server. </p>
+<p><strong>Make sure you are using python3</strong>. To test enter the following:</p>
+<pre><code class='language-python' lang='python'>python3
+    </code></pre>
+<p>If you see <code>&gt;&gt;&gt; _</code> that means that you have python3 installed and working. Type in
+    <code>exit()</code> to leave. </p>
+<p>Python 3 is needed as it supports virtual environments out of the box. So we can use the following to create a
+    virtual environment:</p>
+<pre><code class='language-shell' lang='shell'>sudo virtualenv venv
+    </code></pre>
+<p>Next we need to activate the venv. </p>
+<pre><code class='language-shell' lang='shell'>source venv/bin/activate
+    </code></pre>
+<p>Once it is done your console will change from <code>$</code> to <code>(venv) $ _</code>. </p>
+<p>Python 3 comes with pip, which is python&#39;s package manager. We will use that to install flask. </p>
+<pre><code class='language-shell' lang='shell'>sudo pip install flask
+    </code></pre>
+<h3>Step Four: Checking our Progress</h3>
+<p>Let&#39;s stop and breathe for a second. Too dramatic? Probably. But let&#39;s stop anyways and make sure that we
+    have what we need. </p>
+<p>First let&#39;s look at directory structure:</p>
+<pre><code>|----proj
+    |---------flaskapp
+    |--------------static
+    |--------------templates
+    |--------------venv
+    </code></pre>
+<p>If yours looks like that, we are looking good thus far. Next let&#39;s make sure flask is in our virtual
+    environment. Let&#39;s cd into our virtual environment and make sure its there. </p>
+<pre><code class='language-shell' lang='shell'>cd /var/www/proj/flaskapp/venv/lib/python3.7/site-packages
+    ls
+    </code></pre>
+<p>You should see a bunch of packages here including flask. If you can&#39;t get to that directory it might be
+    because python 2 not 3.7 is installed in venv. Got to <code>venv/lib</code> to check. </p>
+<p>Next lets get back to where we should be:</p>
+<pre><code class='language-shell' lang='shell'>cd /var/www/proj/flaskapp/
+    </code></pre>
+<p>And see if we can run <code>__init__.py</code>. </p>
+<pre><code class='language-shell' lang='shell'>sudo python __init__.py
+    </code></pre>
+<p>It should display “Running on <a href='http://localhost:5000/' target='_blank'
+        class='url'>http://localhost:5000/</a>” or &quot;Running on <a href='http://127.0.0.1:5000/' target='_blank'
+        class='url'>http://127.0.0.1:5000/</a>&quot;. </p>
+<p>If not, check your folder structure and make sure they you have all the packages and stuff.</p>
+<p>Ok, lets get out of the virtual environment:</p>
+<pre><code class='language-shell' lang='shell'>deactivate
+    </code></pre>
+<h3>Step Five: Create the .wsgi File</h3>
+<p>This file will actually serve the flask app. </p>
+<p>We are going to store this in the proj folder:</p>
+<pre><code class='language-shell' lang='shell'>cd /var/www/proj
+    sudo nano config.wsgi
+    </code></pre>
+<p>Add the following:</p>
+<pre><code class='language-python' lang='python'>import sys
+    import logging
+    import site
+
+    # this tells wsgi where the libraries are
+    site.addsitedir(&#39;/var/www/proj/flaskapp/venv/lib/python3.7/site-packages&#39;)
+    logging.basicConfig(stream=sys.stderr)
+
+    # name of the top level folder for the project
+    sys.path.insert(0,&quot;/var/www/proj/&quot;)
+
+    # flaskapp will be the inner folder from your project folder
+    from flaskapp import app as application
+    application.secret_key = &#39;key&#39;
+    </code></pre>
+<p>So there are three comments here and three things you may want to change. Let&#39;s walk through all three. </p>
+<p><strong>Where your libraries are</strong></p>
+<pre><code class='language-python' lang='python'># this tells wsgi where the libraries are
+    site.addsitedir(&#39;/var/www/proj/flaskapp/venv/lib/python3.7/site-packages&#39;)
+    logging.basicConfig(stream=sys.stderr)
+    </code></pre>
+<p>This part tells WSGI where your virtual environment is. It should point to your venv folder in your project. </p>
+<p><strong>Where your project is</strong></p>
+<pre><code class='language-python' lang='python'># name of the top level folder for the project
+    sys.path.insert(0,&quot;/var/www/proj/&quot;)
+    </code></pre>
+<p>This tells python where the root directory is for the project. It should be the top level folder for your
+    project. </p>
+<p><strong>Where your app is</strong></p>
+<pre><code class='language-python' lang='python'># flaskapp will be the inner folder from your project folder
+    from flaskapp import app as application
+    application.secret_key = &#39;key&#39;
+    </code></pre>
+<p>On line 2 where it says <code>from flaskapp</code>, replace <code>flaskapp</code> with whatever the name of your
+    app is (its the folder within your proj folder). </p>
+<h3>Step Six: Configure and Enable Your Virtual Host</h3>
+<p>This is going to tell apache which app to run.</p>
+<pre><code class='language-shell' lang='shell'>sudo nano /etc/apache2/sites-available/FlaskApp.conf
+    </code></pre>
+<p>Add the following to the file:</p>
+<pre><code class='language-shell' lang='shell'>&lt;VirtualHost *:80&gt;
+            ServerName &lt;&lt;YOUR IP ADDRESS&gt;&gt;
+            WSGIScriptAlias / /var/www/proj/config.wsgi
+            &lt;Directory /var/www/proj/flaskapp/&gt;
+                Order allow,deny
+                Allow from all
+            &lt;/Directory&gt;
+            Alias /static /var/www/proj/flaskapp/static
+            &lt;Directory /var/www/proj/flaskapp/static/&gt;
+                Order allow,deny
+                Allow from all
+            &lt;/Directory&gt;
+            ErrorLog ${APACHE_LOG_DIR}/error.log
+            LogLevel warn
+            CustomLog ${APACHE_LOG_DIR}/access.log combined
+    &lt;/VirtualHost&gt;
+    </code></pre>
+<p>Save and close your file.</p>
+<p>Next enable the virtual host with the following command:</p>
+<pre><code class='language-shell' lang='shell'>sudo a2ensite FlaskApp
+    </code></pre>
+<h3>Step Seven: Restart Apache and Bask in Success</h3>
+<p>Finally, just restart apache to apply the changes. </p>
+<pre><code class='language-shell' lang='shell'>sudo service apache2 restart 
+    </code></pre>
+<p>You shouldn&#39;t get any error messages at this point! To check and make sure this worked go to a different
+    laptop and enter your IP address into your web browser, and you should see your flask app!</p>
+<p><strong>Just in Case:</strong></p>
+<p>Let&#39;s say that not everything is perfect, and you are getting a server 500 error at this point. Let&#39;s go
+    over how to check the error logs.</p>
+<p>To check the error logs:</p>
+<pre><code class='language-shell' lang='shell'>nano /var/log/apache2/error.log 
+    </code></pre>
+<p>If there is a bunch of information in there, you may want to clear out the logs first. </p>
+<pre><code class='language-shell' lang='shell'>sudo bash -c &#39;echo &gt; /var/log/apache2/error.log&#39;
+    </code></pre>
+<p>Then refresh the page and view the logs again.</p>
+<pre><code class='language-shell' lang='shell'>nano /var/log/apache2/error.log 
+    </code></pre>
+<p>&nbsp;</p>
+<p> </p>
+<p>&nbsp;</p>
+
+{% endblock %}

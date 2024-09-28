@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Bootstrap: A CSS Facelift</h2>
+<p><em>You can download the full code for this tutorial at my <a
+            href="https://github.com/corydonbaylor/website-tutorial">github</a> under release 1.1</em></p>
+<p>So let&#39;s say you want to make your website look professional with as little effort as possible. Use squarespace!
+</p>
+<p>Ok, so lets say you want to make your website look professional with some effort because you want to code it
+    yourself? Use Bootstrap!</p>
+<p>Bootstrap is CSS framework designed to create responsive, mobile first webpages. Responsive means that the layout of
+    the page responds to the size of the page, and mobile first means that it is originally designed to work with mobile
+    rather than porting a full sized webpage over to mobile. This is important because its usually easier to scale up to
+    desktops rather than down to mobile. </p>
+<p>We will be using Bootstrap 4 for our project. Let&#39;s start by loading it into the head: </p>
+<pre><code>&lt;head&gt;
+    &lt;title&gt;Example&lt;/title&gt;
+    &lt;!-- Latest compiled and minified CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css&quot;&gt;
+    &lt;!-- jQuery library --&gt;
+    &lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Popper JS --&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- Latest compiled JavaScript --&gt;
+    &lt;script src=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js&quot;&gt;&lt;/script&gt;
+    
+    &lt;!-- Our CSS --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;styles/style.css&quot;&gt;
+
+&lt;/head&gt;
+</code></pre>
+<p>We mentioned in the previous tutorial that you can load outside resources into your webpage. What we are doing is
+    loading four different scripts, which are hosted by bootstrap, into our document.</p>
+<p>It&#39;s important to note that our custom style sheet is still being loaded in <strong>after</strong> bootstrap.
+    Thats because if we using a conflicting class name, our class will overwrite theirs rather than vice versa. </p>
+<h3>So what did we just load in?</h3>
+<p>At its core, Bootstrap is a <em>ton</em> of CSS classes that work in concert as a framework, with each class
+    performing a common task rather than styling a set of HTML elements. Let me explain with pseudo code. </p>
+<p>Let&#39;s say you have a rather large website with hundreds of different elements. Some elements are large, some are
+    blue, some are large and blue. </p>
+<p>One way you could handle this is by creating three different classes, one for each type of element. Like so:</p>
+<pre><code>blue {
+	color: blue;
+}
+
+large {
+	size: large;
+}
+
+large_blue {
+	color: blue;
+	size: large;
+}
+</code></pre>
+<p>This would almost immediately become cumbersome, as the number of combinations would grow exponentially. What
+    Bootstrap (and other frameworks) does is create reusable components that aren&#39;t uniquely designed for a class of
+    elements but are designed to be combined. So in the framework version of our example, we would only have the first
+    two elements but would apply them like so:</p>
+<pre><code>&lt;div class =&quot;large&quot;&gt;&lt;/div&gt;
+&lt;div class =&quot;blue&quot;&gt;&lt;/div&gt;
+&lt;div class =&quot;large blue&quot;&gt;&lt;/div&gt;
+</code></pre>
+<p>By stacking classes we are able to write less code and achieve the same effect. Bootstrap doesn&#39;t have classes
+    for things like &quot;large&quot;. Instead, it has classes for common tasks like navigation bars or utilities like
+    creating a grid.</p>
+<h3>The Container Class</h3>
+<p>You may have noticed that our website, despite us adding some CSS, still doesn&#39;t look great. One of the reason is
+    that is kinda cramped. The container class comes to the rescue. It will add margins, padding, alignments, and more
+    to our HTML elements. Additionally, the container class is often the parent class to many different elements,
+    oftentimes to everything you see on the page.</p>
+<p>Let&#39;s add that class to our first div element. Container does not add top padding so we will add a
+    <code>&lt;br&gt;</code> as well. See below for the body of our index.html now:
+</p>
+<pre><code>&lt;body class=&quot;page-style&quot;&gt;
+    &lt;div class = &quot;container&quot;&gt;
+    		&lt;br&gt;
+        &lt;a href=&quot;pages/second.html&quot;&gt;Link to your second page&lt;/a&gt;
+        &lt;h2&gt;Create Your Static Website&lt;/h2&gt;
+        &lt;p&gt;Here is the content of your site.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+</code></pre>
+<p>Notice how we stack our elements here. We still have our <em>page-style</em> class after our <em>container</em>
+    class. </p>
+<p><em>Note: If you want to apply the styling to our second page, you will have to be a little careful with file paths.
+        This tutorial will just cover styling the homepage. See GitHub for the full code.</em> </p>
+<p>At this point your website should look like this:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/bootstrap/bootstrap-1.png')}}">
+
+<h3>Creating a Navigation Bar</h3>
+<p>Almost every website has a navigation bar. And you want to fit in, so let&#39;s add one to our website, that way
+    people can easily switch between our two pages. See below for the boilerplate for navigation bar in bootstrap.</p>
+<pre><code>    &lt;nav class=&quot;navbar navbar-expand-sm navbar-dark bg-dark&quot;&gt;
+        &lt;ul class=&quot;navbar-nav&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;index.html&quot;&gt;Home&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;
+                &lt;a class=&quot;nav-link&quot; href=&quot;pages/second.html&quot;&gt;Second Page&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+</code></pre>
+<p>You can see that we use a combination of HTML tags and bootstrap classes to pull this together. Just add another list
+    item to add a new link. At this point you will still have to manage all the different file paths between all your
+    pages. We will take care of that using flask eventually. </p>
+<p>At this point your website should look like this:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/bootstrap/bootstrap-2.png')}}">
+
+<p>&nbsp;</p>
+<h3>The Grid System: Rows and Columns</h3>
+<p>You know what surprisingly hard to do? Positioning things on a page using CSS, which many would say is a critical
+    element of front end design. There is a ton of things that you can when it comes to aligning columns on a webpage.
+    Let&#39;s start by dividing content into three columns.</p>
+<pre><code>&lt;div class=&quot;row&quot;&gt;
+	&lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+	&lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+	&lt;div class=&quot;col m-2 examples&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>First, we need to use the <em>row</em> class to align our three children elements in a row. Then we use the
+    <em>col</em> class to put each in a column. We are using the <em>m-2</em> class to add some margins around our
+    columns. (I wrote the <em>examples</em> class to add color, min-width, and height)
+</p>
+
+<pre><code>
+    .examples {
+        background-color: #6699cc;
+        color: white;
+        border-radius: 5px;
+        height: 100px;
+        min-width: 200px;
+    }
+</code></pre>
+<p><strong>Breakpoints</strong></p>
+<p>You will notice that these three columns will autofill the full width of its parent container. If you don&#39;t want
+    to fill the full width of the parent, you can add a breakpoint to it. Breakpoints determine how far across the page
+    the column will extend. For bootstrap, 100 percent of the page would be the 12th breakpoint, 50 percent would be the
+    6th breakpoint, and so on.</p>
+<p>You may be wondering why we use 12 instead of 10. Its because 12 has more factors than 10 and thus more possible
+    combinations. Here is an example of where one column with breakpoint 2, one with breakpoint 5, and one with
+    breakpoint 4. The breakpoints only add up to 11 because we are using margins and need to leave a little room for
+    that. </p>
+<pre><code>&lt;div class=&quot;row&quot;&gt;
+	&lt;div class=&quot;col-2 m-2 examples&quot;&gt;&lt;/div&gt;
+	&lt;div class=&quot;col-5 m-2 examples&quot;&gt;&lt;/div&gt;
+	&lt;div class=&quot;col-4 m-2 examples&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>Try making the page take less horizontal space. See how the elements will wrap underneath each other? </p>
+<p>At this point your website should look like this:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/bootstrap/bootstrap-3.png')}}">
+
+<h3>More Bootstrap!</h3>
+<p>Bootstrap has a <em>ton</em> of different classes that you can use. It has guides on how to do things like <a
+        href='https://getbootstrap.com/docs/4.0/utilities/flex/#align-self'>vertically center</a>, which is waaaay
+    trickier than you might imagine, and important components like <a
+        href='https://getbootstrap.com/docs/4.0/components/card/'>cards</a>, which makes your website standout. Try
+    playing around with the items on bootstraps site. Remember: copy paste is your friend.</p>
+<p>&nbsp;</p>
+
+{% endblock %}

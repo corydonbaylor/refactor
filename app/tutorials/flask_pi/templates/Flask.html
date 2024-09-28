@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Flask pt I: Creating Your First Flask App</h2>
+<p><em>You can download the full code for this tutorial at my <a
+            href="https://github.com/corydonbaylor/website-tutorial">github</a> under release 1.2</em></p>
+<p>Why should you use Flask instead of something else like Django? Well unlike Django, Flask is a micro framework which
+    sounds pretty close to a microservice which is all the rage in tech today. And nothing is more impressive then a
+    good buzzword. </p>
+<p>Another good reason is that Flask is a micro framework, meaning that it doesn&#39;t carry extra functionality that
+    you may not need to set up your website. Because of how lean Flask is, you can get up and running very,
+    <em>very</em> quickly. If you just want to set up a static website with reusable templates you can do that. If you
+    just need to create a small single purpose web app you can do that. </p>
+<p>If you want to make a full blown website with APIs, user profiles, and a database, you can do that as well. All is
+    possible with Flask. </p>
+<p>
+    For the moment, we are going to move everything that we have previously done into a folder called Archive. But don't
+    worry, we will return to it shortly.
+</p>
+<h3>Setting up the Environment</h3>
+<p>But before we will build the flask app, we need to set up the environment. First, we need to make sure your computer
+    has python3 and bash. <strong>If you don&#39;t have bash, you will need to <a
+            href='https://itsfoss.com/install-bash-on-windows/'>install it</a> .</strong> Assuming you have bash, open
+    up your terminal and type in the following:</p>
+<pre><code>$ python3
+</code></pre>
+<p>You should see:</p>
+<pre><code>Python 3.7.3 (default, Apr 24 2020, 18:51:23) 
+[Clang 11.0.3 (clang-1103.0.32.62)] on darwin
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; 
+</code></pre>
+<p>If you do, that means you have python3 installed! If not, you will need to <a
+        href='https://realpython.com/installing-python/'>install it</a>. </p>
+<p>Next we are going to create a virtual environment. This will essentially be a miniature installation of python that
+    will just be used for your project. </p>
+<pre><code>$ python3 -m venv venv
+</code></pre>
+<p>Next we are going to initiate the virtual environment:</p>
+<pre><code>$ source venv/bin/activate
+</code></pre>
+<p>You will see <code>(venv)</code> appended to the beginning of your console now. If you see this, you are working in
+    the virtual environment. Next you need to install flask into your virtual environment:</p>
+<pre><code>$ pip install flask
+</code></pre>
+<p>Congrats, you are now ready to create your first flask app.</p>
+<h3>Creating your First App</h3>
+<p>One of the best parts of flask is how little code is need to get a hello world version of an app up and running.
+    Create a new file called <em>app.py</em> and paste in the following code:</p>
+<pre><code>from flask import Flask
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def hello():
+    return &quot;Hello World!&quot;
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+</code></pre>
+<p>And run the following command in your terminal:</p>
+<pre><code>$ python app.py
+</code></pre>
+<p>You will see the following in the terminal:</p>
+<pre><code> * Serving Flask app &quot;app&quot; (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+</code></pre>
+<p>Congrats! Your website is now running at <a href='http://127.0.0.1:5000/' target='_blank'
+        class='url'>http://127.0.0.1:5000/</a>. Copy paste this into your browser, and you will see some text that says
+    &quot;Hello World!&quot;</p>
+<h3>What Does All This Mean?</h3>
+<p>Ok so now we have working code, but what does this code mean? Let&#39;s break it down. </p>
+<p><strong>Creating the app</strong></p>
+<p>In the first two lines, we load in the flask library using <code>from flask import Flask</code> and then create an
+    app object using <code>app = Flask(__name__)</code>. With just these two lines, we have a flask application, and
+    when we want to edit our app we will be editing this object.</p>
+<p>There are some additional parameters we can pass when initializing the app:</p>
+<pre><code>from flask import Flask
+
+app = Flask(
+    __name__,
+    instance_relative_config=False,
+    template_folder=&quot;templates&quot;,
+    static_folder=&quot;static&quot;
+)
+</code></pre>
+<p>As we will see later, we will use a <em>templates</em> and a <em>static</em> folder to organize our app. You can
+    change the name of these folder here. </p>
+<p><strong>Creating a route</strong></p>
+<p>Next we are going to create a route. A route directs traffic to a specific location or url. In our case, for the home
+    page or route <code>/</code> we are going to display, <em>hello world</em>, using the <em>hello</em> function.</p>
+<pre><code>@app.route(&quot;/&quot;)
+def hello():
+    return &quot;Hello World!&quot;
+</code></pre>
+<p>We will return to routes in a moment.</p>
+<p><strong>Running the app</strong></p>
+<p>On line 2, the <code>__name__</code> variable is a special variable that is given the value of <code>__main__</code>
+    when the script is executed. The following lines then tell the app to execute if <code>__name__</code> is equal to
+    <code>__main__</code>:</p>
+<pre><code>if __name__ == &quot;__main__&quot;:
+    app.run()
+</code></pre>
+<p>Basically, this part makes the app run when you enter <code>python app.py</code> in the console. </p>
+<h3>A Little More on Routes</h3>
+<p>Right now we have a function called hello which is wrapped by the route decorator. Its not particularly important to
+    know how decorators work, but it can be nice to know that <code>app.route</code> is a decorator when your Philz
+    drinking coworker is hovering over your shoulder and criticizing your code. Again, one of the big reasons we are
+    using flask is for the buzzwords.</p>
+<p>All you need to know is that the hello function will run when someone visits the homepage of your website. But what
+    if you wanted to create another page?</p>
+<p>You create another route! But this time let&#39;s include a little bit of python logic. </p>
+<pre><code>@app.route(&quot;/secondpage&quot;)
+def func():
+    var = &quot;return this variable&quot;
+    return var
+</code></pre>
+<p>So lets breakdown what we have here. When a user visits <em>yourwebsite.com/secondpage</em> the function called
+    <em>func()</em> will run and return <em>var</em>, which we set equal to &quot;return this variable&quot;. </p>
+<p>For each new page, you will need to create a new route. Our app currently has two routes and should look like the
+    following:</p>
+<pre><code>from flask import Flask
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def hello():
+    return &quot;Hello World!&quot;
+
+@app.route(&quot;/secondpage&quot;)
+def func():
+    var = &quot;return this variable&quot;
+    return var
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+</code></pre>
+<p> And there you go! We now have a working multipage Flask App. Next we are going to incorporate what we had made
+    before using templates.</p>
+{% endblock %}

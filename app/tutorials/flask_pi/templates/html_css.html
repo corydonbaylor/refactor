@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>HTML and CSS: Building a Static Website</h2>
+<p><em>You can download the full code for this tutorial at my <a
+      href="https://github.com/corydonbaylor/website-tutorial">github</a> under release 1.0</em></p>
+<p>Websites have come a very long way since the 90s when pretty much everything was pure HTML with maybe a little CSS
+  thrown in. Though that&#39;s not to say that a pure HTML website cannot be totally <a
+    href='http://nineties.website'>rad (nineties lingo on purpose)</a>. This series of tutorials will cover how to
+  make a basic two page website using flask and apache. But before we can go over the more advanced stuff, we need to
+  go over the basics. And the most basic component of any website is HTML and CSS. </p>
+<h3>What is HTML and CSS?</h3>
+<p> The best explanation I have heard for how a website is built is to compare it to a person. HTML is the bones. It
+  provides the underlying structure of the website. The CSS is the skin. It provides the appearance of the
+  website--and without it the website would not look very good, much like a human with no skin. This metaphor gets
+  dark quick. The final component is the javascript, which is the muscles of the site. It is what allows the website
+  to move and provides interactivity. We won&#39;t cover javascript in this series of tutorials. No muscles means no
+  movement, which is why this is a static website. </p>
+<h3>Let&#39;s lay out the HTML</h3>
+<p>Ok, now we know what HTML is conceptually, we need to lay the foundations of our website (I will abandon the bones
+  metaphor at this point).</p>
+<p>First let&#39;s create an HTML file called <em>index.html</em> in a new project folder. This is going to be the
+  homepage of our new site. It is convention to name a homepage <em>index.html</em>, but sometimes it is also
+  required. For instance, an Apache webserver will serve <em>index.html</em> as the homepage by default. </p>
+<p>So to create a new page, we need to use a text editor. You can use notepad to start, but I would recommend <a
+    href='https://code.visualstudio.com'>VS Code</a> as it has it more modern features that can make development
+  easier. </p>
+<p>In your new <em>index.html</em> file paste the following:</p>
+<pre><code class='language-html' lang='html'>&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Example&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div&gt;
+        &lt;p&gt;Create Your Static Website&lt;/p&gt;
+        &lt;p&gt;Here is the content of your site.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>If you open up your index.html file in chrome, you will see something like the below:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/html-css/html-css-1.png')}}">
+
+<p>And if you were to right click and press inspect in chrome you will see the html you just wrote!</p>
+<h3>What are HTML Tags?</h3>
+<p>Let&#39;s break down what we have here a little bit. </p>
+<p>Try and think of a html tags as sections of a webpage, with different tags creating different types of sections.
+  Each section has an opening and closing tag.</p>
+<p>So surrounding everything is an <code>&lt;html&gt;</code> tag meaning that everything is organized into an
+  <em>html</em> section. Within the <code>&lt;html&gt;</code> tags, you will see <code>&lt;head&gt;</code> and
+  <code>&lt;body&gt;</code> tags. These divide your html code into the head of the document and the body of the
+  document.
+</p>
+<p>The <strong>head</strong> contains the parts of the webpage that are not displayed. Instead it contains things like
+  the <code>&lt;title&gt;</code> and links to CSS and javascript. The <strong>body</strong> contains the part of the
+  webpage that you can see. Here are some common html tags that you will find within the body:</p>
+<ul>
+  <li><code>&lt;h1&gt; &lt;h2&gt; &lt;h3&gt;</code> - These are header tags, they create different headers size based
+    on the number that follows the <em>h</em>. <em>h1</em> is the largest, <em>h2</em> is the second largest and so
+    on. </li>
+  <li><code>&lt;div&gt;</code> - The div tag is a bit more conceptual. It separates the page into divisions but does
+    not have any properties of its own, like how an h tag makes text larger or smaller. As such, div tags are often
+    used as containers for CSS or javascript, which we will cover later. </li>
+  <li><code>&lt;p&gt;</code> - This is the paragraph tag. Within these tags, you can write text.</li>
+  <li><code>&lt;a href=&quot;yourlink.html&quot;&gt;</code> - the a tag creates hyperlinks to other webpages. </li>
+
+</ul>
+<p>Let&#39;s add these tags into our website. As you know the a tag links to other webpages, so we are going to make a
+  second page as well. To create this second page, we are going to create a new folder called <em>pages</em> and put
+  it in there. </p>
+<p><strong>Homepage</strong></p>
+<pre><code class='language-html' lang='html'>&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Example&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div&gt;
+        &lt;a href=&quot;pages/second.html&quot;&gt;Link to your second page&lt;/a&gt;
+        &lt;h2&gt;Create Your Static Website&lt;/h2&gt;
+        &lt;p&gt;Here is the content of your site.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p><strong>Second Page</strong></p>
+<pre><code class='language-html' lang='html'>&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Second Page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div&gt;
+        &lt;a href=&quot;../index.html&quot;&gt;Link to your homepage&lt;/a&gt;
+        &lt;h2&gt;Now you have two pages!&lt;/h2&gt;
+        &lt;p&gt;Isn&#39;t that nice&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>Take a look at how we did that link on the second page. To go back a folder, you use <code>..</code>. At this point
+  your website should look like this:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/html-css/html-css-2.png')}}">
+
+<h3>Applying CSS Styles</h3>
+<p>Ok, at this point, our website looks admittedly pretty bad. Thats because we have just built the bones (metaphor is
+  back), but not the skin! Let&#39;s add some skin (ok maybe we should retire it again).</p>
+<p>You can apply a style directly to a html tag using the <em>style argument</em>. For our example, we will be adding
+  a background color and a text color. To add style to a tag, just put the style tag within the opening tag, like so:
+</p>
+<pre><code class='language-html' lang='html'>&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Example&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body style=&quot;background-color:#f9fbfd; color:#2F4F4F;&quot;&gt;
+    &lt;div&gt;
+        &lt;a href=&quot;pages/second.html&quot;&gt;Link to your second page&lt;/a&gt;
+        &lt;h2&gt;Create Your Static Website&lt;/h2&gt;
+        &lt;p&gt;Here is the content of your site.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>Our website will now look like this:</p>
+<img style='padding: 1rem;' src="{{url_for('static', filename='images/tutorials/webdev/html-css/html-css-3.png')}}">
+
+<p>Interestingly, every tag within a tag will also have that enclosing tag&#39;s styles. This is called
+  <strong>inheritance</strong>. The enclosed tag will be called the child tag and the enclosing tag will be called a
+  parent tag. So in our example, every tag within the body tag will have the same background color and text color.
+</p>
+<h3>Using a Separate CSS Style Sheet</h3>
+<p>So for all the nerds reading this. I am aware CSS stands for Cascading Style Sheets, and that I just wrote
+  Cascading Style Sheets Style Sheet. But here is the thing, I don&#39;t care about that.</p>
+<p>Anyways, let&#39;s go over how to use a separate CSS style sheet. </p>
+<p>We mentioned earlier the head of the document can link to the CSS sheets. Doing this will accomplish a few things.
+  First, it will create a separation of concerns. In programming, we typically want to keep things as simple as
+  possible. Separating out the style from the structure can make it easier to track both. </p>
+<p>More relevantly for us, we can reuse the CSS style sheet for many different pages. This will allow us to reduce the
+  amount of code that we need to write overall. And if we want to update the styles for our website, we would only
+  need to update the shared style sheet rather than all the individual pages.</p>
+<p>We are going to have to work across a few different scripts to make this work. </p>
+<p>First, we will need to create a CSS sheet called <em>style.css</em>, and place it in a new folder called
+  <em>styles</em>. Our file structure should look like this:
+</p>
+<pre><code>|----index.html
+|---------pages
+|--------------second.html
+|---------styles
+|--------------style.css
+</code></pre>
+<p><strong>Creating a Style Sheet</strong></p>
+<p>In style.css, copy paste the following:</p>
+<pre><code class='language-css' lang='css'>.page-style {
+    background-color:#f9fbfd; 
+    color:#2F4F4F;
+}
+</code></pre>
+<p>We just created our first style! We named it <code>.page-style</code> and gave it two attributes, one for
+  <code>background-color</code> and one for <code>color</code>. All we had to do is take the text from within the
+  style argument we wrote earlier and define it as a class.
+</p>
+<p><strong>Adding it into the HTML</strong></p>
+<p>Now in our <em>index.html</em>, write the following:</p>
+<pre><code class='language-html' lang='html'>&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Example&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;styles/style.css&quot;&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;page-style&quot;&gt;
+    &lt;div&gt;
+        &lt;a href=&quot;pages/second.html&quot;&gt;Link to your second page&lt;/a&gt;
+        &lt;h2&gt;Create Your Static Website&lt;/h2&gt;
+        &lt;p&gt;Here is the content of your site.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>First, we need to load the CSS into the page by adding it to the head of our document. That is accomplished by this
+  line:</p>
+<pre><code class='language-html' lang='html'>    &lt;link rel=&quot;stylesheet&quot; href=&quot;styles/style.css&quot;&gt;
+</code></pre>
+<p>Note that in the href, which you may remember from the <code>&lt;a&gt;</code> tag from earlier, creates a
+  hyperlink. Right now we are linking to a local resource, because that style sheet is on your computer. But you can
+  also access online resources with this line. We will go over this more in the next tutorial when we cover bootstrap.
+</p>
+<p>Finally we need to apply our class to a html tag. We do that on this line:</p>
+<pre><code class='language-html' lang='html'>  &lt;body class = &quot;page-style&quot;&gt;
+</code></pre>
+<p>The great thing about css classes is that they can be stacked. So if we had a second stack called
+  <em>second-style</em>, we could apply both like so:
+</p>
+<pre><code class='language-html' lang='html'>  &lt;body class = &quot;page-style second-style&quot;&gt;
+</code></pre>
+<p>And there you go! Applying the concepts here will let you create a really good looking static website. </p>
+<p> </p>
+{% endblock %}

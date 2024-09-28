@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Local Hosting pt. III: Port Forwarding</h2>
+<p>Ok, so now we got the website running on your local server and even better, its running a flask server. Now if you
+    want to show it all you have to do is invite them over and then give the IP address, oh and yes they have to be on
+    the wifi...there&#39;s got to be a better way!</p>
+<p>Obviously there is. We now need to do some port forwarding. Which of course means even more time in configuration
+    files. </p>
+<h3>Step 1: Opening the Port</h3>
+<p>Before you do anything else, you need to go into your router&#39;s admin page and then open a port. I have a netgear
+    genie and will be walking through how to do port forwarding on that system. </p>
+<ol>
+    <li>Click on the Advanced Tab</li>
+    <li>Click on Advanced Set Up</li>
+    <li>Click on Port Forwarding</li>
+    <img style='width: 50%; padding: 1rem;'
+        src="{{url_for('static', filename='images/tutorials/webdev/port_forward_loc.png')}}">
+    <li>Change the Service Type to HTTP and enter the IP Address of the server that you are using</li>
+    <img style='width: 50%; padding: 1rem;'
+        src="{{url_for('static', filename='images/tutorials/webdev/port_forward.png')}}">
+
+    <li>Next check and see if port 80, which handles HTTP requests, is open on this <a
+            href='https://www.yougetsignal.com/tools/open-ports/'>site</a></li>
+
+</ol>
+<p>If your port is open and you put in the correct server. Apache should now be serving your webpage to the your
+    external IP address!</p>
+<h3>Step 2: Using Google Domains as your DNS</h3>
+<p>But you don&#39;t want to give people your external IP address in order for them to go to your website right? You
+    just want to give them a domain name and they can get there from that, you know like how every website works?</p>
+<p>You can buy a domain (really rent) from many different providers, but I choose google because I figured that they had
+    the whole website shebang down at this point. <strong>All you have to do at this point is enter your external IP
+        address as your existing website</strong> and google will forward traffic there whenever someone enters your web
+    address.</p>
+<h3>Step 3: Making Sure People See the Right Thing</h3>
+<p>At this point, it is most likely that people will see the apache test page when they go to your website, or even
+    worse some sort of error page. </p>
+<p>This is because your apache web server is still serving whatever file you have inside of <em>/var/www/html</em> at
+    this point. To remedy this (if this in fact something you want to remedy), you need to disable that default page and
+    restart your server.</p>
+<pre><code class='language-shell' lang='shell'>sudo a2dissite 000-default.conf
+sudo service apache2 restart
+</code></pre>
+<p>As long as you followed the steps in Local Hosting pt. II, your domain should now point to your flask app!</p>
+{% endblock %}

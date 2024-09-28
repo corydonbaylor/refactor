@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Local Hosting: Raspberry Pi as a Server</h2>
+<p>Raspberry Pi&#39;s are incredible devices. Kinda. </p>
+<p>The idea of having a tiny 30 dollar full fledged computer is really interesting, but if you are like me, once you
+    buy it, you may find yourself wondering what to do with it. Especially if you already have a home media player
+    (Apple TV) and don&#39;t want to make a magic mirror.</p>
+<p>Well one thing you can do is host a website! There is something very satisfying about putting together the
+    hardware and building the software for your own website, and raspberry pi lets you do that cheaply and
+    (somewhat) easily.</p>
+<h3>Time to Buy the Pi</h3>
+<p>If you have never bought a raspberry pi, you will be amazed by how cheap they are. You can buy a raspberry pi 0
+    for <em>just five dollars</em>. But don&#39;t be foolish. You can&#39;t just buy the pi itself. You need to get
+    a case, a power supply, and the accessories to interact with it. </p>
+<p>As such, I would recommend getting a kit instead of a pi itself. </p>
+<p>I got two. One to act as a development server and one as a production server. The development server is
+    <strong>very</strong> nice to have because there is a lot of trial and error that goes on when you are setting
+    up your network configuration. It feels much safer to do this on a server that you don&#39;t particularly care
+    about rather than one that is actively hosting your website.</p>
+<p>For the development server, I am using a <a
+        href='https://www.amazon.com/gp/product/B0748M1Z1B/ref=ppx_yo_dt_b_asin_title_o04_s01?ie=UTF8&amp;psc=1'>raspberry
+        pi zero kit</a>, which at the time of writing this cost 38 dollars, and for the production server I am using
+    a <a href='https://www.amazon.com/gp/product/B07XTRK8D4/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&amp;psc=1'>raspberry
+        pi 4 kit</a>, which costs 84 dollars. </p>
+<h3>Flashing the Pi</h3>
+<p>The raspberry pi zero comes with a micro SD card with noobs installed on it, so you just need to plug it in and
+    Raspbian, which is a linux distribution, will boot off of it. But for the raspberry pi 4, you will need to set
+    up the bootable micro SD card yourself. I would recommend following the tutorial on raspberry pi&#39;s <a
+        href='https://www.raspberrypi.org/documentation/installation/installing-images/'>website</a>. But its very
+    simple:</p>
+<ol>
+    <li><a href='https://www.raspberrypi.org/downloads/'>Download the Raspberry Pi Imager</a></li>
+    <li>Choose Raspbian or Raspberry Pi OS as your operating system</li>
+    <li>Write to your SD Card</li>
+
+</ol>
+<p>And with that you should be good to boot from that SD card. Plug your raspberry pi into your TV via HDMI and
+    follow the prompts to complete the installation. </p>
+<h3>Giving your Raspberry Pi a Static IP Address</h3>
+<p>For the most part, you will not be hooking up your raspberry pi to a monitor and accessing it that way. Instead
+    you will SSHing into it via a static IP address. Unfortunately, computers do not have one of those out of the
+    box, so you will need to set one up. </p>
+<p>As you might expect, your IP address is an address of sorts (shocking), telling your router where to send
+    internet traffic. Think of it like a street address and your router as the mail man. Without an address, he
+    wouldn&#39;t be able to deliver the mail.</p>
+<p>But unlike a street address, your router will periodically change your IP address. So in order for you to be able
+    to access your raspberry pi consistently, you will need to assign it a static one.</p>
+<p>First you need to find your current IP address:</p>
+<pre><code class='language-shell' lang='shell'>hostname -I
+</code></pre>
+<p>Next you need to edit the <code>dhcpcd.conf</code> file. Using the following line will open it in nano:</p>
+<pre><code class='language-shell' lang='shell'>sudo nano /etc/dhcpcd.conf
+</code></pre>
+<p>Next add the following chunks of code to the bottom of the file. If you are using a wired connection add the
+    following:</p>
+<pre><code class='language-shell' lang='shell'>interface eth0
+static ip_address=&lt;&lt;YOUR IP ADDRESS GOES HERE&gt;&gt;/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+</code></pre>
+<p>If you are using a wifi connection:</p>
+<pre><code class='language-shell' lang='shell'>interface wlan0
+static ip_address=&lt;&lt;YOUR IP ADDRESS GOES HERE&gt;&gt;/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+</code></pre>
+<p>So what do all these lines mean?</p>
+<ul>
+    <li><strong>interface</strong>: if its a wifi or ethernet connection</li>
+    <li><strong>static ip_address</strong>: this is the IP address that you will be using. Put /24 at the end</li>
+    <li><strong>static routers</strong>: this is the IP address of your router. It usually is
+        <code>192.168.0.1</code></li>
+    <li><strong>static domain_name_servers</strong>: this is IP address of your DNS, which is also most likely the
+        IP address of your router </li>
+
+</ul>
+<p>Now save and quit!</p>
+<p>Give your machine a reboot with the <code>reboot</code> command and then check its IP address with
+    <code>hostname -I</code> again to make sure it hasn&#39;t changed. If you have done this successfully, you will
+    now be able to SSH into your machine using your IP address with the following command:</p>
+<p>
+    Next you need to enable SSH on your raspberrypi. To do that, open the preferences menu, click over to interfaces, and then select "Enable" next to SSH.
+</p>
+<pre><code>ssh pi@ip.address
+</code></pre>
+<p>You will be prompted for a password, which will be whatever you entered when setting up the machine. The above
+    line assumes you went with the default (pi) as your username.</p>
+<h3>Setting Up Apache</h3>
+<p>To be completely frank, I was astonished by how easy this was. And it will work perfectly right out of the box
+    assuming that you just want to host static files. </p>
+<p>Its only two lines!</p>
+<pre><code class='language-shell' lang='shell'>sudo apt install apache2
+sudo service apache2 start
+</code></pre>
+<p>The first installs apache and the second starts the service. </p>
+<p>Next cd into the <em>/var/www/html</em> folder, and you will see a file called <em>index.html</em>. This is a
+    welcome page created by apache, and if you type in your IP address into your web browser you will see this page
+    rendered. If you just want to host a static website, ie one where only client side code is used, you can move
+    all your code into this folder, and it will serve it, assuming that you have a <em>index.html</em> inside that
+    <em>html</em> folder. </p>
+<p>Keep in mind that at this point, your website will only be available on that IP address as long as you are on
+    your network. To open it up to the world, you need to do some port forwarding, which we will cover later. </p>
+{% endblock %}
