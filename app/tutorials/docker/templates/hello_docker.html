@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Hello, Docker</h1>
+<p>Every journey begins with a single step, and every cloud journey begins with signing up for some pay-as-you-go cloud provider. For us, that will be digital ocean. </p>
+<p>You are going to create something called a &quot;droplet&quot;. Choose all of the cheapest options (at the time that amounts to about 4 dollars a month) and create the droplet. When you are configuring your droplet, it will ask if you want to use a password or SSH keys. That is up to you but I recommend using SSH keys.</p>
+<p><strong>This tutorial will be using CentOS 7 so make sure you select that option!</strong></p>
+<p>After the droplet is created, navigate to the <a href='https://cloud.digitalocean.com/'>DigitalOcean control panel</a> click your droplet. The Public IP address should be in the top left corner. You will need that to SSH into your droplet.</p>
+<p>In fact, we are going to be running everything from the command line for this series of tutorials so you will need to ssh into your server after you configure it. The <a href='https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/'>documentation</a> on digital oceans website explains how to do this well, but it should look something like the following:</p>
+<pre><code>ssh root@&lt;&lt;YOUR IP ADDRESS&gt;&gt;
+</code></pre>
+<p>Once you are in, congratulate yourself. You are now the proud renter of a computer. You actually became a proud renter the second you agreed to pay but don&#39;t worry about that.</p>
+<h2>Docker on CentOS</h2>
+<p>You may have noticed that we are using CentOS 7, and you may be wondering why? There is no reason, it&#39;s just what is happening. We will be using the <code>yum</code> package manager that comes with CentOS to install docker:</p>
+<pre><code class='language-shell' lang='shell'>sudo yum install -y device-mapper-persistent-data lvm2
+
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install -y docker-ce-18.09.5 docker-ce-cli-18.09.5 containerd.io
+</code></pre>
+<p>After it is installed, we need to start docker so we can actually use it. We also want to enable docker so that it runs on start up each time we use the server.</p>
+<pre><code class='language-shell' lang='shell'>sudo systemctl start docker
+sudo systemctl enable docker
+</code></pre>
+<p>Test that docker is installed by looking at the version.</p>
+<pre><code class='language-shell' lang='shell'>docker version
+</code></pre>
+<p>The above won&#39;t work if ---for some reason--- you are not the root user. In that case, you may need to add your user account to the docker. To fix this add the user to the docker group.</p>
+<pre><code class='language-shell' lang='shell'>sudo usermod -a -G docker &lt;&lt;USERNAME&gt;&gt;
+</code></pre>
+<p>Then logout and log back in.</p>
+<p>Now for what we have all been waiting for, the <code>hello world</code> command. </p>
+<pre><code class='language-shell' lang='shell'>docker run hello-world
+</code></pre>
+<h3></h3>
+
+
+{% endblock %}

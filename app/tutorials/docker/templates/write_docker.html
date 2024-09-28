@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Docker Images</h1>
+<p>We&#39;ve gotten this far without covering what a docker image is, but the free ride is over. Now we need to talk about it.</p>
+<p>A docker image is a file containing the code and components needed to run software in a container. An image uses a layered file system. </p>
+<p>Containers are created using read-only templates known as docker images. These layers form the back bone of docker. You then build new layers on top of them when making a new container. </p>
+<p>Each image layer represents an instruction in the <strong>Dockerfile</strong>, which is a text document containing all the commands needed to create the image. Only the top layer of the docker image has write permissions, ensuring that all the changes you make only affect that layer.</p>
+<p>If for some reason, you need to make a change to lower image layer, it will rewrite all the layers on top of it. </p>
+<p>The most bottom layer is created from the <strong>base image</strong>. If you don&#39;t feel like writing an operating system yourself, you can use an official docker image like Centos as your base image. When you create a new container, you also create a <strong>container layer</strong> which will host the changes made to your running container.</p>
+<p>All of this is stored in the <strong>docker manifest</strong>. It has a list of all the image layers.</p>
+<p>Now that we know all that makes up a docker image, lets make our first <strong>dockerfile</strong>.</p>
+<h2>Making a Basic <code>nginx</code> Image</h2>
+<p>Now that we understand what the basic components of a docker file are, we should create something that might be a little more useful&mdash; a custom <code>nginx</code> image.</p>
+<p>First let&#39;s create a new folder called server for this container:</p>
+<pre><code>mkdir server &amp;&amp; cd server
+</code></pre>
+<p>We are also going to create an index.html file that will be the main file for our nginx server.</p>
+<pre><code>vi index.html
+</code></pre>
+<p><em>index.html</em></p>
+<pre><code class='language-html' lang='html'>&lt;div&gt; hello world &lt;/div&gt;
+</code></pre>
+<p>We are going to then create a Dockerfile</p>
+<pre><code>vi Dockerfile
+</code></pre>
+<p>And add:</p>
+<pre><code class='language-dockerfile' lang='dockerfile'># Simple nginx image
+FROM ubuntu:bionic
+
+ENV NGINX_VERSION 1.14.0-0ubuntu1.11
+
+RUN apt-get update &amp;&amp; apt-get install -y curl
+RUN apt-get update &amp;&amp; apt-get install -y nginx=$NGINX_VERSION
+
+CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]
+</code></pre>
+<p>This is not to dissimilar from what we have previously done. There is a few new things to note:</p>
+<ul>
+<li><p><code>#</code> allows us to write comments</p>
+</li>
+<li><p><code>ENV</code> allows us to set environment variables. This variable is also available at run time when we run a container. In our example, we are using it to set the nginx version</p>
+</li>
+<li><p>The <code>FROM</code> directive allows us to specify our basic image, which in our case is going to be ubuntu bionic. This is coming from hub.docker.com </p>
+</li>
+<li><p><code>RUN</code> is an image build step, the state of the container will be committed to the image after it is run. In this case, we are using <code>RUN</code> to update ubuntu</p>
+</li>
+<li><p><code>CMD</code> specifies a default command to be run when you run the container. However, the container will <strong>only run the last <code>CMD</code> passed to it</strong></p>
+<ul>
+<li><code>CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</code> is also in the &quot;exec format&quot;. Basically, instead of writing it normally, we now put each word in the command in quotes and brackets. I have been <a href='https://emmer.dev/blog/docker-shell-vs.-exec-form/'>told</a> that this is the preferred format and now so have you.</li>
+<li>Instead of writing <code>CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</code> , we could have written <code>CMD nginx -g daemon off</code>, and it would have worked.</li>
+
+</ul>
+</li>
+
+</ul>
+<h3>Running and Building the Images</h3>
+<p>Once again we now have to run and build the images. First we build (don&#39;t forget to specify the directory with <code>.</code>):</p>
+<pre><code>docker build -t server .
+</code></pre>
+<p>Then we run:</p>
+<pre><code>docker run --name server -d -p 80:80 server
+</code></pre>
+<p>A couple things to note:</p>
+<ul>
+<li><code>--name server</code> names the container so you can manage it with <code>docker container stop</code></li>
+<li><code>server</code> at the end refers to the name of the image, which you specified in the build step. </li>
+
+</ul>
+<p>At this point, if you look at the droplet&#39;s IP address, you should see the nginx welcome screen. </p>
+<p>If you are following along from the previous lesson, don&#39;t forget to stop the old nginx image running on port 80 with <code>docker container stop docker-nginx</code>!</p>
+<h2>Making an Advanced <code>nginx</code> Image</h2>
+<p>You may remember that we wrote an <code>index.html</code> but have not used it yet. Well, patience. It soon will be time. We are now going to add in some more advanced commands for docker.</p>
+<p>Let&#39;s open back up our Dockerfile:</p>
+<pre><code>vi Dockerfile
+</code></pre>
+<p>And add the following:</p>
+<pre><code class='language-dockerfile' lang='dockerfile'># Simple nginx image
+FROM ubuntu:bionic
+
+ENV NGINX_VERSION 1.14.0-0ubuntu1.11
+
+RUN apt-get update &amp;&amp; apt-get install -y curl
+RUN apt-get update &amp;&amp; apt-get install -y nginx=$NGINX_VERSION
+
+WORKDIR /var/www/html
+ADD index.html ./
+
+EXPOSE 80
+
+CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]
+
+HEALTHCHECK CMD curl localhost:80
+</code></pre>
+<p>Here is what we added:</p>
+<ul>
+<li><p><code>EXPOSE</code> documents what port our image should be running on but remember, <code>docker run -p</code> actually specifies the port</p>
+</li>
+<li><p><code>WORKDIR</code> changes the working directory within the image for any commands that run after it. The final <code>WORKDIR</code> will set the directory for the <code>CMD</code> command</p>
+</li>
+<li><p><code>ADD</code> allows us to add files from the same directory that the Dockerfile is in and put them into the container. </p>
+<ul>
+<li>The syntax of <code>ADD</code> is as following: <code>ADD source destination</code> where source is the location outside of the container and destination is the location inside the container</li>
+<li>You can also use <code>COPY</code> to do the same thing, but <code>ADD</code> gives us the additional functionality of being able to download files from a url or a .zip file</li>
+
+</ul>
+</li>
+<li><p><code>HEALTHCHECK</code> checks (surprise, surprise) the health of the container. In our example, in nothing is returned from that curl statement, than docker knows that the container is unhealthy. </p>
+</li>
+
+</ul>
+<h3>Run and Build</h3>
+<p>Alright, here we are back again at the build and run steps. Let&#39;s build:</p>
+<pre><code class='language-docker' lang='docker'>docker build -t server .
+</code></pre>
+<p>And then run:</p>
+<pre><code>docker run --name server -d -p 80:80 server
+</code></pre>
+<p>And now navigate to the IP address of your droplet and you will see your &quot;hello world&quot; div in all its glory!</p>
+
+
+{% endblock %}

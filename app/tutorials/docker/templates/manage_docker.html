@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Run Docker Run</h1>
+<p>Ok, now at this point we have docker running and installed on a droplet. But before we start messing around with containers, we should go over what containers are used for (and what containers are).</p>
+<h3>A brief history of frustration</h3>
+<p>There is nothing more anticlimactic than, after hours of coding, after finally getting it work on your computer, sending your code over to a coworker, and it doesn&#39;t run on their computer.</p>
+<p>At some point, some said &quot;Fudge it&quot;, and just shipped their entire computer. And thus, docker was born. Docker is an open-source software designed to make shipping an application easier. It is a platform as a service product where you can package and run an application in a loosely isolated environment called a container. Everything that is needed for the application is within the container. Therefore, as long as you can &quot;run&quot; the container, you can run application. </p>
+<p>No more &quot;but it worked on my machine!&quot;</p>
+<h3>Docker Images and Containers </h3>
+<p>Before we get into containers, we need to cover docker images. Images are immutable, read-only files that contain the source code, libraries, dependencies, and whatever other files that are needed for an application to run.</p>
+<p>Think of docker images as <em>templates</em>. You don&#39;t run the image but you use that image as a set of instructions to build a container. A <strong>container</strong> therefore is just a running image. When you create a container, it creates a writable layer on top of the image, thus allowing modifications. </p>
+<h2>Running a Docker Container</h2>
+<p>Before we go into writing custom containers, we are going to go over different options for running and managing containers. We will be pulling different images from docker hub. The first is a web server called <strong>nginx</strong> (we are gonna specify which version using a colon):</p>
+<pre><code>docker run nginx:1.15.11
+</code></pre>
+<p>You will notice that nginx will download from a remote server and begin to run. Because nginx is now running on your droplet, you will no longer have control of the console. That&#39;s because nginx container is running continuously &mdash;as web servers do.</p>
+<p>Hit <code>control + C</code> to stop the process. </p>
+<p>Let&#39;s try using a different image in order to illustrate how to pass commands within our container. We are going to run a container with <strong>busybox</strong> installed. </p>
+<pre><code>docker run busybox echo hello world
+</code></pre>
+<p>You&#39;ll notice that hello world prints out to the console. So what is happening here?</p>
+<p>Within busybox, there is a command called &quot;echo&quot; and when we run the container that command is called and given the arguments &quot;hello world&quot;. And thus &quot;hello world&quot; is printed to the console. </p>
+<h3>Options for Running a Container</h3>
+<p>Lets cover the options for running a container:</p>
+<ul>
+<li><p><code>-d</code>: this runs the container in detached mode. The docker run command will exit immediately and the container will run <strong>in the background</strong>. This is useful for our nginx example. We want that to be running without occupying the shell.</p>
+</li>
+<li><p><code>--name</code>: this assigns a name to the container, which would otherwise be random</p>
+</li>
+<li><p><code>--restart</code>: this specifies when he container should restart</p>
+<ul>
+<li><code>no</code>: the default. Don&#39;t automatically restart the container</li>
+<li><code>on-failure</code>: only when the container fails</li>
+<li><code>always</code>: always restarts the container regardless of whether it succeeds or fails. Also starts on daemon start up.</li>
+<li><code>unless-stopped</code>: always restart the container unless you manually tell it to stop</li>
+
+</ul>
+</li>
+<li><p><code>-p</code>: allows you to specify a port for the container</p>
+</li>
+<li><p><code>--rm</code>: deletes the container once it stops. This isn&#39;t compatible with some <code>--restart</code> options for obvious reasons. </p>
+</li>
+<li><p><code>--memory</code>: this is how we set a hard limit for how much memory the container can use. </p>
+</li>
+<li><p><code>--memory-reservation</code>: a soft, almost suggested limit for when memory utilization is high on the server</p>
+</li>
+
+</ul>
+<p>Let&#39;s run the nginx container in detached mode and give it a name of &quot;server&quot;.</p>
+<pre><code>docker run -d --name server nginx
+</code></pre>
+<p>You will notice that when you run this in detached mode, it spits out a long string of letters. That is the id for the container. More on that later.</p>
+<h2>Managing Your Containers</h2>
+<p>At this point you might have a couple different containers running on your server. If you are paying for the cloud based on usage, this is not ideal. </p>
+<p>First we need to see what is running:</p>
+<pre><code>docker ps
+</code></pre>
+<p>If we wanted to see all the containers, including those that are stopped do the following:</p>
+<pre><code>docker ps -a
+</code></pre>
+<p>If we want to stop a container, we can do that using its name or id.</p>
+<pre><code>docker container stop server
+</code></pre>
+<p>This doesn&#39;t actually delete the container. Its image still exists. You can restart the container like so:</p>
+<pre><code>docker container start server
+</code></pre>
+<p>If you did want to delete a container/image, do this:</p>
+<pre><code>docker container stop server
+docker container rm server
+</code></pre>
+<h2>Example: Running <code>nginx</code> on Docker</h2>
+<p>Ok, now we may want to do something a little more fancy, like say: running a <code>nginx</code> on a docker image. This is actually going to be extremely simple (thanks to the Digital Ocean <a href='https://www.digitalocean.com/community/tutorials/how-to-run-nginx-in-a-docker-container-on-ubuntu-22-04'>documentation</a>). Run the below command:</p>
+<pre><code>docker run --name docker-nginx -p 80:80 -d nginx
+</code></pre>
+<ul>
+<li><code>run</code> actually runs the command to create the container</li>
+<li><code>--name</code> allows you to create a name</li>
+<li><code>-p 80:80</code> lets you specify the port, which in our case is port 80</li>
+<li><code>-d</code> lets you run in detached mode</li>
+<li><code>nginx</code> is the name of the image on Docker Hub</li>
+
+</ul>
+<p>Now you just need to navigate to the IP address of your droplet to look at it! This is going to be the same IP address as the one you ssh&#39;d into. </p>
+
+
+{% endblock %}

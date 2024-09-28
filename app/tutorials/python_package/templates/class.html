@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Classes</h1>
+<p>Classes are a piece of code that specifies both the data and behavior for an object. You can think of a class like a blueprint for a house with each <strong>instance</strong> of that blue print being a construction of that house. </p>
+<p>There are two types of things that can be found within a class: <strong>methods</strong> and <strong>attributes</strong>.</p>
+<ul>
+<li><strong>Methods</strong> are the functions contained within a class</li>
+<li><strong>Attributes</strong> are the variables contained within a class</li>
+
+</ul>
+<h3>Creating our First Class</h3>
+<p>Imagine you are an interesting person who goes on a lot of road trips. But you are also a boring person who tracks their road trips with python. One thing you could do is create a class to model your road trips. </p>
+<p>For example, you could look at is how long it takes to go a certain distance. In order to know that, we would need to know how fast the car is going (on average) and how many miles the car has to go.</p>
+<p>We are going to add a <strong>method</strong> to our class that determines the duration of a roadtrip based on the distance you plan on traveling and how fast you will be driving (on average). </p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+  # our first method
+  def duration(self, distance, speed):
+    return (distance/speed)*60
+	 
+</code></pre>
+<h3>Method</h3>
+<p>A method is a function attached to a class. In order to call a method, we first have to create an instance of the class. </p>
+<p>Remember how we said a class is like a blueprint and an instance is like a house built from that blueprint? Well, map that logic onto road trips somehow because we are make an instance of a trip from our roadtrip class:</p>
+<pre><code class='language-python' lang='python'>trip1 = RoadTrip()
+</code></pre>
+<p>Actually, calling a method is actually quite easy. In our case, all we have to do is the following:</p>
+<pre><code class='language-python' lang='python'>trip1.duration(20, 20)
+</code></pre>
+<h3>Attributes</h3>
+<p>But what if you want data attached to your class? You would use attributes. Attributes are like variables specific to your class or instance. </p>
+<p><strong>Instance attributes</strong> are attributes that belong a specific instance, not to the class in general. This is different from a <strong>class attribute</strong> that would be common across all given instances.</p>
+<p>For example, how far you drive on your <code>RoadTrip</code> and how fast you go will depend on each trip, but since you have no friends, a <strong>class attribute</strong> would be that you always drive alone. </p>
+<p>In order to make <strong>instance attributes</strong>, we need the  <code>__init__</code> method. This is called the <strong>constructor</strong> method and it is a special method specifically for creating and storing attributes that are specific to a given instance.</p>
+<p>See below for how to define our attributes:</p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+	
+  # a class attributes i.e. something that is true on all
+  # of your road trips
+  friends = 0
+  
+	# init lets you set up instance attributes
+  def __init__(self, speed, distance):
+    self.speed = speed
+    self.distance = distance
+  
+</code></pre>
+<p>You can also access instance attributes and use them in a method:</p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+	
+  # a class attributes i.e. something that is true on all
+  # of your road trips
+  friends = 0
+  
+	# init lets you set up instance attributes
+  def __init__(self, speed, distance):
+    self.speed = speed
+    self.distance = distance
+    
+  # our first method
+  def duration(self):
+    return (self.distance/self.speed)*60
+</code></pre>
+<p>We can also give default values to an instances attribute. Let&#39;s say that you typically drive a mazada. That could be a default value for a car attribute, but you could get in a different car, so technically you could override that value. </p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+	
+  # a class attributes i.e. something that is true on all
+  # of your road trips
+  friends = 0
+  
+	# init lets you set up instance attributes
+  def __init__(self, speed, distance):
+    self.speed = speed
+    self.distance = distance
+    self.car = &quot;Mazada&quot;
+  
+  # our first method
+  def duration(self):
+    return (self.distance/self.speed)*60
+</code></pre>
+<p>If you were to look run the following lines, you would see that the car defaults to Mazada for each trip instance:</p>
+<pre><code class='language-python' lang='python'># creating two instances
+trip1 = RoadTrip(20, 20)
+trip2 = RoadTrip(65, 120)
+
+# see the car attribute for both
+print(trip1.car)
+print(trip2.car)
+</code></pre>
+<p>You could dynamically change these attributes if you want. Let&#39;s say you make a friend and then drive their car:</p>
+<pre><code class='language-python' lang='python'># creating two instances
+trip1 = RoadTrip(20, 20)
+trip2 = RoadTrip(65, 120)
+
+# you made a friend for the second trip
+trip2.car = &quot;Benz&quot;
+trip2.friends = 1
+
+print(trip2.car)
+print(trip2.friends)
+</code></pre>
+<h3>So What is Self?</h3>
+<p>So far you might have noticed that we are using the term <strong>self</strong> quite a bit and have yet to explain what it is. </p>
+<p>Put simply but perhaps not clearly, <strong>self</strong> represents the instance of the class, allowing you to access variables, attributes, and methods of a defined class.</p>
+<p>You don&#39;t have to call it <strong>self</strong>&mdash; though you probably should since everyone else does &mdash; you can call it whatever you want. I actually think <strong>this_trip</strong> is a better keyword since it more closely hews to our RoadTrip analogy. </p>
+<p>Let&#39;s add another method to our class. One that describes our trip. </p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+	
+  # a class attributes i.e. something that is true on all
+  # of your road trips
+  friends = 0
+  
+	# init lets you set up instance attributes
+  def __init__(this_trip, speed, distance):
+    this_trip.speed = speed
+    this_trip.distance = distance
+    this_trip.car = &quot;Mazada&quot;
+  
+  # our first method
+  def duration(this_trip):
+    return (this_trip.distance/this_trip.speed)*60
+  
+  # our second method
+  def describe(this_trip):
+    duration = this_trip.duration()
+    print(&quot;&quot;&quot;We are going {} miles per hour for {} miles. 
+          It will take {} minutes.&quot;&quot;&quot;.format(
+      this_trip.speed,
+      this_trip.distance,
+      duration                                                                                                                   ))
+    
+trip = RoadTrip(20,20)
+trip.describe()
+</code></pre>
+<p>When we change the <strong>&quot;self&quot;</strong> keyword to <strong>&quot;this trip&quot;</strong> it hopefully becomes a little clearer than the <strong>self</strong> keyword represents the instance of the class.  </p>
+
+
+{% endblock %}

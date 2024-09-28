@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Packages</h1>
+<p>I have always found organizing python across functions to be a bit confusing. Luckily, <a href='https://dev.to/bowmanjd/python-module-vs-package-4m8e'>this tutorial</a> really helped me figure it out. Despite them doing a really excellent job explaining things, I am going to put this into my own words.</p>
+<p>Let&#39;s start with the most basic of organizing principles: the module.</p>
+<h3>Modules</h3>
+<p>Modules are a single python file that can contain multiple functions (or classes). First, let&#39;s create a folder and within it, let&#39;s have two python files&mdash; one with a script called &quot;test.py&quot; and one with our modules called &quot;funks.py&quot;. </p>
+<p>Our directory should be look like this:</p>
+<pre><code>root
+├── test.py
+├── funks.py
+</code></pre>
+<p>In our <code>funks.py</code> file, lets add two silly little functions:</p>
+<pre><code class='language-python' lang='python'>def hello():
+    return &quot;hello&quot;
+
+def goodbye():
+    return &quot;goodbye&quot;
+</code></pre>
+<p>We can now import the functions in <code>funks.py</code> into our <code>test.py</code> file like so:</p>
+<pre><code class='language-python' lang='python'>import funks
+
+funks.hello()
+</code></pre>
+<h3>Packages</h3>
+<p><em>Note: in common usage, a python package often refers to a distribution package but that&#39;s not what I am referring to here.</em></p>
+<p>A python package is a directory that can have any number of <code>.py</code> files containing code within it (including none at all). However, all python packages must have a <code>__init__.py</code> file. This special file is also called a <strong>dunder init</strong> file. </p>
+<p>Let&#39;s create our python package by creating a directory called &quot;pack&quot; and putting a <code>__init__.py</code> file within it:</p>
+<pre><code>pack
+└── __init__.py
+</code></pre>
+<p>Next, place this in the root folder of your project:</p>
+<pre><code>root
+├── test.py
+├── funks.py
+├── pack
+│   └── __init__.py
+</code></pre>
+<p>So far, our package does nothing. Let&#39;s fix that.</p>
+<p>You can put our functions from <code>funks.py</code> into that <code>__init__.py</code> file and then import them the same way as if you were just using a module. </p>
+<p>So in <code>__init__.py</code> put:</p>
+<pre><code class='language-python' lang='python'>def hello():
+    return &quot;hello&quot;
+
+def goodbye():
+    return &quot;goodbye&quot;
+</code></pre>
+<p>And then to use those functions, you would do:</p>
+<pre><code class='language-python' lang='python'>import pack
+
+pack.hello()
+</code></pre>
+<h3>Organizing a Package</h3>
+<p>Let&#39;s say that we wanted to have files specific to each function&mdash; one for goodbye and one for hello. </p>
+<p>We are allowed to do this. You will not be arrested for any python crime. Simply move the functions from the <code>__init__.py</code> into their own files, creating the below directory structure:</p>
+<pre><code>root
+├── test.py
+├── funks.py
+├── pack
+│   └── __init__.py
+│   └── hello_func.py
+│   └── goodbye_func.py
+</code></pre>
+<p>If you don&#39;t add anything to <code>__init__.py</code> than importing the functions will be a mess. You have to do something like the following:</p>
+<pre><code class='language-python' lang='python'>import pack.hello_func
+
+pack.hello_func.hello()
+</code></pre>
+<p>This kinda sucks. Instead you can add a little convenient way to interface with your functions to the <code>__init__.py</code>:</p>
+<pre><code class='language-python' lang='python'>from .hello_func import *
+from .goodbye_func import *
+</code></pre>
+<p>Then you just have to do the following to import them:</p>
+<pre><code class='language-python' lang='python'>import pack
+
+pack.hello()
+</code></pre>
+<h1></h1>
+
+
+{% endblock %}

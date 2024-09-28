@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Decorators</h1>
+<p>In python, functions are <strong>first class objects</strong>. <em>This mean that you can pass them as arugments into other functions</em>. To give an example of this, let&#39;s create the most basic function imaginable:</p>
+<pre><code class='language-python' lang='python'>def funk():
+  print(&quot;called funk&quot;)
+</code></pre>
+<p>Consider what happens when you run the below lines of code:</p>
+<pre><code class='language-python' lang='python'>funk()
+print(funk)
+</code></pre>
+<p>You will get two things:</p>
+<pre><code>&gt;&gt;&gt; called funk
+&gt;&gt;&gt; &lt;function funk at 0x7f0554f21800&gt;
+</code></pre>
+<p>The first one is the result of the function and is what we typically would want. The second is the address in memory at which our funk function is stored. This means it is an object just like anything else in python and can be called as an argument in another function.</p>
+<p>Let&#39;s call it within a second function to show what we are looking at:</p>
+<pre><code class='language-python' lang='python'>def funk():
+  print(&quot;called funk&quot;)
+
+# funk2 takes a function as an argument  
+def funk2(f): # the function is passed as f
+	f() # and called with f()
+
+funk2(funk)
+</code></pre>
+<p>We are now passing <code>funk</code> as an arugment into <code>funk2</code>. Do you think this will work?</p>
+<pre><code>&gt;&gt;&gt; called funk
+</code></pre>
+<p>Of course it does. We are passing the function <code>funk</code> into <code>funk2</code> as <code>f</code> and then calling it with the line <code>f()</code>. </p>
+<h3>Wrapper Functions</h3>
+<p>Now we are going to create a wrapper function:</p>
+<pre><code class='language-python' lang='python'>def f1(func):
+	def wrapper():
+		print(&quot;started&quot;)
+		func()
+		print(&quot;ended&quot;)
+  return wrapper
+
+def f2():
+  print(&quot;hello&quot;)
+  
+
+</code></pre>
+<p>Ideally, our output will first print <code>started</code>, then call whatever function is passed into <code>f1</code>, and finally print <code>ended</code>. </p>
+<p>So what happens when we call it like so:</p>
+<pre><code>f1(f2)
+</code></pre>
+<p>We get:</p>
+<pre><code>&gt;&gt;&gt;
+</code></pre>
+<p>That&#39;s right, nothing! Think about what we wrote here. The retun value of f1 function is the wrapper <em>function</em>, not the result of that function. </p>
+<p>So to get anything out of it we will need to do something a little bit silly:</p>
+<pre><code>f1(f2)()
+</code></pre>
+<p>We could save this as a new function like so:</p>
+<pre><code>x = f1(f2)
+x()
+</code></pre>
+<p>So what is <code>x</code>? It is a new function where in we passed <code>f2</code> into <code>f1</code>. So here is where the decorator comes in. </p>
+<p>We can write this like so:</p>
+<pre><code class='language-python' lang='python'>def f1(func):
+	def wrapper():
+		print(&quot;started&quot;)
+		func()
+		print(&quot;ended&quot;)
+  return wrapper
+
+@f1
+def f2():
+  print(&quot;hello&quot;)
+  
+f2()
+</code></pre>
+<h3>Args and Kwargs</h3>
+<p>That&#39;s all well and good but what if we want <code>f2</code> to have an argument? As it is currently written, <code>f1</code> cannot accept a function with arguments as an argument. But if we add the following it can:</p>
+<pre><code class='language-python' lang='python'>def f1(func):
+	def wrapper(*args, **kwargs):
+		print(&quot;started&quot;)
+		func(*args, **kwargs)
+		print(&quot;ended&quot;)
+  return wrapper
+
+@f1
+def f2(text):
+  print(text)
+  
+f2(&quot;say hi&quot;)
+</code></pre>
+<h3>Example: How long does a function take to run?</h3>
+<p>So basically, a decorator allows us to inject different functions into a larger function. When would this be useful? What if we wanted to see how long it takes for a function to run?</p>
+<pre><code class='language-python' lang='python'>import time
+
+# the decorator function
+def timer(func):
+    def wrap():
+        before = time.time()
+        func()
+        print(&quot;function took&quot;, time.time() -  before, &quot;seconds&quot;)
+    return wrap
+
+# the decorated function
+@timer
+def run():
+    time.sleep(2)
+
+run()
+</code></pre>
+<h1></h1>
+
+{% endblock %}

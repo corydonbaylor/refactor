@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Functions</h1>
+<p>Functions. We are all know them. We are love them. But what are they <em>really</em>. Functions are blocks of statements that return something specific. Let break it down:</p>
+<pre><code class='language-python' lang='python'>def function(input):
+	something = some_statements(input)
+	return something
+</code></pre>
+<p>You can all a function like so:</p>
+<pre><code class='language-python' lang='python'>function()
+</code></pre>
+<p>Wow, that was easy. We can also add some protections like type hinting. This will allow us to &quot;hint&quot; what type the input should be and what type the output of the function should be:</p>
+<pre><code class='language-python' lang='python'>def function(input: data_type) -&gt; return_type:
+	something = some_statements(input)
+	return something
+</code></pre>
+<h3>Variable Number of Arguments with <code>*arg</code> and <code>**kwargs</code></h3>
+<p>What if you had an indeterminate number of arguments that could be passed to a function. Let&#39;s look at an example:</p>
+<pre><code class='language-python' lang='python'>def print_stuff(*arg):
+    return(arg)
+
+print_stuff(&quot;test&quot;, &quot;this&quot;)
+</code></pre>
+<p>If we run this function, it will return a list containing whatever arguments were passed in <code>*arg</code> which in this case is <code>(&quot;test&quot;, &quot;this&quot;)</code>. </p>
+<p>We could run through each item in our list like so:</p>
+<pre><code class='language-python' lang='python'>def print_stuff(*arg):
+    for i in arg:
+        print(i)
+
+print_stuff(&quot;test&quot;, &quot;this&quot;)
+</code></pre>
+<p>Now when we run this function, it will first print <code>&quot;test&quot;</code> and then print <code>&quot;this&quot;</code>. </p>
+<p>However, if you add a return statement, it will just return the first value in the list:</p>
+<pre><code class='language-python' lang='python'>def print_stuff(*arg):
+	for i in arg:
+		return(i)
+  
+print_stuff(&quot;test&quot;, &quot;this&quot;)
+</code></pre>
+<p>We can use <code>**kwargs</code> when we are passing variable number of names arguments to a function, which will look a bit like passing items from a dictionary to a function. </p>
+<pre><code class='language-python' lang='python'>def print_stuff(**kwargs):
+    for key, value in kwargs.items():
+        print(&quot;%s == %s&quot; % (key, value))
+ 
+print_stuff(first=&#39;Geeks&#39;, mid=&#39;for&#39;, last=&#39;Geeks&#39;)
+</code></pre>
+
+
+{% endblock %}

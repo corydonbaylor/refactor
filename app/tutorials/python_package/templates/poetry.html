@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Poetry</h1>
+<p>So what is the point of poetry? It provides two main things:</p>
+<ul>
+<li>A dependency manager</li>
+<li>Set up tools to build a wheel file</li>
+
+</ul>
+<p>Before we get into all that, we need to do some initial set up. Specifically, we need to create a virtual environment and install poetry into it. Let&#39;s knock this out.</p>
+<p>First we create a venv:</p>
+<pre><code>python -m venv venv
+</code></pre>
+<p>Next, we activate the venv:</p>
+<pre><code>source venv/bin/activate
+</code></pre>
+<p>After that we are going to install poetry:</p>
+<pre><code>pip install poetry
+</code></pre>
+<p><strong>Activating poetry shell</strong></p>
+<p>Let&#39;s say that for whatever reason, you closed your project and need to access the poetry shell. Here is how you will do:</p>
+<pre><code>source venv/bin/activate
+</code></pre>
+<p>Then you will navigate over to the newly created <code>roadtrip</code> directory. And activate poetry shell:</p>
+<pre><code>cd roadtrip
+poetry shell
+</code></pre>
+<h3>Making a Poetry Project</h3>
+<p>Ok, now that we got the boring part out the way, let&#39;s make a poetry project like so:</p>
+<pre><code>poetry new roadtrip
+</code></pre>
+<p>This will create the following file structure:</p>
+<pre><code>roadtrip
+├── pyproject.toml
+├── README.md
+├── roadtrip
+│   └── __init__.py
+└── tests
+    └── __init__.py
+</code></pre>
+<h3>Adding the Code</h3>
+<p>We are going to be using the <code>RoadTrip</code> class that we wrote earlier as our code for this python project.</p>
+<p>The inner <code>roadtrip</code> directory is the heart of the package. Let&#39;s add a module there called <code>trip.py</code>:</p>
+<pre><code class='language-python' lang='python'>class RoadTrip:
+
+    # a class attributes i.e. something that is true on all
+    # of your road trips
+    friends = 0
+
+    # init lets you set up instance attributes
+    def __init__(self):
+        self.car = &quot;Mazada&quot;
+
+    # our first method
+    def duration(self, distance, speed):
+        return (distance/speed)*60
+</code></pre>
+<p>And let&#39;s add that convenience interface to the <code>__init__.py</code>:</p>
+<pre><code class='language-python' lang='python'>from .trip import RoadTrip
+</code></pre>
+<p>In the end our directory should look like this:</p>
+<pre><code>roadtrip
+├── pyproject.toml
+├── README.md
+├── roadtrip
+│   └── __init__.py
+│   └── trip.py
+└── tests
+    └── __init__.py
+</code></pre>
+<h3>Dependency Management</h3>
+<p>The main way that poetry manages dependencies is through the <code>pyproject.toml</code>. Here you will write everything that you need to configure the project. Let&#39;s take a look inside:</p>
+<pre><code class='language-toml' lang='toml'>[tool.poetry]
+name = &quot;roadtrip&quot;
+version = &quot;0.1.0&quot;
+description = &quot;&quot;
+authors = [&quot;Your Name &lt;you@example.com&gt;&quot;]
+readme = &quot;README.md&quot;
+
+[tool.poetry.dependencies]
+python = &quot;^3.9&quot;
+
+
+[build-system]
+requires = [&quot;poetry-core&quot;]
+build-backend = &quot;poetry.core.masonry.api&quot;
+</code></pre>
+<p>The first section has some info about the project, which I think is somewhat self evident, so I won&#39;t go into detail here.</p>
+<p>Next we have the dependencies. In order to add to the dependencies, you can use the <code>poetry add</code> command. Let&#39;s add <code>pandas</code>:</p>
+<pre><code>poetry add pandas
+</code></pre>
+<p>This will update the following line to our toml:</p>
+<pre><code class='language-toml' lang='toml'>[tool.poetry.dependencies]
+python = &quot;^3.9&quot;
+pandas = &quot;^2.2.0&quot;
+</code></pre>
+<p>When you use <code>poetry add</code>, it will automatically install the dependencies to your project. But you can also use <code>poetry install</code> to install them. You might do this if you just cloned this poetry project from GitHub.</p>
+<h3>Making a Wheel</h3>
+<p>In order for this to be a proper package, it has to become a wheel. It is very easy to do this. You just need to do the following in the root folder of your project:</p>
+<pre><code>poetry build
+</code></pre>
+<p>This will create a new folder called <code>dist</code>. In that folder, we will find our wheel file.</p>
+<p>So great, we have a wheel file. How will we use it? You can install wheel files on mirrors or directly on a cluster on data bricks. You can even use it locally.</p>
+<p>Let&#39;s create a new directory (outside of our <code>roadtrip</code> directory) and venv for that directory.</p>
+<pre><code>mkdir test
+cd test
+python -m venv venv 
+source venv/bin/activate
+</code></pre>
+<p>Then we will install our wheel into that new venv. We need to install the <code>wheel</code> package first:</p>
+<pre><code>pip install wheel
+</code></pre>
+<p>And then our wheel file (from the test directory):</p>
+<pre><code>pip install &lt;path-to-your-poetry-project&gt;/roadtrip/dist/roadtrip-0.1.0-py3-none-any.whl
+</code></pre>
+
+{% endblock %}

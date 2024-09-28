@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Inheritance </h1>
+<p>Inheritance allows you to reuse code by creating a hierarchy of classes. Let&#39;s say that you wanted to create two classes, one for baseball teams and one for football teams. There are going to be some attributes that are common between those classes. </p>
+<p>To save code, you might want to create a parent class that&#39;s for sports teams in general. It might have things that are common between baseball and football teams. </p>
+<pre><code class='language-python' lang='python'>class Sports:
+    def __init__(self, name, city):
+        self.name = name
+        self.city = city
+    
+    def go_team(self):
+        print(&quot;&quot;&quot;Let&#39;s go {} from the great city of {}.&quot;&quot;&quot;.format(
+          self.name,
+          self.city))
+</code></pre>
+<p>You can then pass <code>Sports</code> as an argument to new classes for both Baseball and Football and it will inherit its attributes and methods:</p>
+<pre><code class='language-python' lang='python'>class Baseball(Sports):
+    def homerun(self):
+        print(&quot;We hit a homerun!&quot;)
+
+class Football(Sports):
+    def touchdown(self):
+        print(&quot;We scored a touchdown!&quot;)
+</code></pre>
+<p>Try out using the <code>go_team()</code> method from the <code>Sports</code> class after initializing an object using the <code>Baseball</code> class:</p>
+<pre><code class='language-python' lang='python'>redsox = Baseball(&quot;Redsox&quot;, &quot;Boston&quot;)
+redsox.go_team()
+</code></pre>
+<h3>Using <code>super()</code></h3>
+<p>You can access the parent&#39;s class&#39;s method directly in the child&#39;s class by using <code>super()</code>. We are going to run away from our <code>sports</code> and <code>baseball</code> example to get a better hold of this. </p>
+<p>Imagine that you have a parent class for rectangles and child class for squares (since a square is just a special type of rectangle):</p>
+<pre><code class='language-python' lang='python'>class Rectangle:
+    def __init__(self, length, width):
+        self.length = length
+        self.width = width
+
+    def area(self):
+        return self.length * self.width
+        
+class Square:
+    def __init__(self, length_sq):
+        self.length_sq = length_sq
+
+    def area(self):
+        return self.length_sq * self.length_sq
+</code></pre>
+<p>The <code>area()</code> methods are very similar for both of these, and we could simplify this with <code>super()</code>. </p>
+<p>If only we could just barely change the <code>__init__</code> so instead of taking <code>length</code> and <code>width</code>, it would pass the <code>length_sq</code> into the constructor of its parent&#39;s class. </p>
+<pre><code class='language-python' lang='python'>class Rectangle:
+    def __init__(self, length, width):
+        self.length = length
+        self.width = width
+
+    def area(self):
+        return self.length * self.width
+        
+class Square(Rectangle):
+    def __init__(self, length_sq):
+        super().__init__(length_sq, length_sq)
+</code></pre>
+<p>That way when initializing the object, you just need to pass one variable into the <code>Square()</code> class.</p>
+<pre><code class='language-python' lang='python'>sq = Square(2)
+sq.area()
+</code></pre>
+<p>To be extra clear, here is what happens:</p>
+<ol>
+<li>The &quot;2&quot; from <code>Square(2)</code> is passed into the constructor of <code>Square</code> class: </li>
+
+</ol>
+<pre><code class='language-python' lang='python'>class Square(Rectangle):
+    def __init__(self, 2):
+        super().__init__(length_sq, length_sq)
+</code></pre>
+<ol start='2' >
+<li>It is then passed into the <code>super()</code> method as its arguments:</li>
+
+</ol>
+<pre><code class='language-python' lang='python'>class Square(Rectangle):
+    def __init__(self, length_sq):
+        super().__init__(2, 2)
+</code></pre>
+<ol start='3' >
+<li>Which then in turn passes the &quot;2&quot; to the constructor of the parent class:</li>
+
+</ol>
+<pre><code class='language-python' lang='python'>class Rectangle:
+    def __init__(self, 2, 2):
+        self.length = length
+        self.width = width
+</code></pre>
+<h3>Multiple Inheritance </h3>
+<p>What if you want a child class to inherit from two different parent classes? I actually think that this can be pretty challenging, but as it so often does, <a href='https://stackoverflow.com/questions/9575409/calling-parent-class-init-with-multiple-inheritance-whats-the-right-way'>stackoverlow comes to the rescue</a>. </p>
+<p>First, let&#39;s create a <code>Television</code> class:</p>
+<pre><code class='language-python' lang='python'>class Television:
+    def __init__(self, channel):
+        self.channel = channel
+    
+    def watch_tv(self):
+        print(&quot;Its on &quot; + self.channel)
+</code></pre>
+<p>A baseball class might want to inherit properties from both <code>Television</code> and <code>Sports</code>. The constructor in our new baseball class will become a bit more complicated.</p>
+<p><strong>Without Super</strong></p>
+<p>We are going to <strong>explicitly</strong> call the <strong>constructors</strong> from our <strong>parent classes</strong> and then pass in their arguments into them:</p>
+<pre><code class='language-python' lang='python'>class Baseball(Sports, Television):
+    def __init__(self, name, city, channel):
+        Sports.__init__(self, name, city)  # explicit calls without super
+        Television.__init__(self, channel)
+    
+    def homerun(self):
+        print(&quot;We hit a homerun!&quot;)
+</code></pre>
+<p>Let check and make sure that it worked:</p>
+<pre><code class='language-python' lang='python'>redsox = Baseball(&quot;redsox&quot;, &quot;boston&quot;, &quot;espn&quot;)
+
+# from the baseball class
+redsox.homerun()
+# from the sports parent class
+redsox.go_team()
+# from the television class
+redsox.watch_tv()
+</code></pre>
+<p><strong>With Super</strong></p>
+<p>With super, it is a little more complicated. The first super calls the first parent class, and then we have to explicitly tell it to find everything past the first parent class.</p>
+<pre><code class='language-python' lang='python'>class Baseball(Sports, Television):
+    def __init__(self, name, city, channel):
+        super().__init__(name, city)  # calls the constructor of Sports
+        super(Sports, self).__init__(channel) # constructors after Sports
+    
+    def homerun(self):
+        print(&quot;We hit a homerun!&quot;)
+</code></pre>
+<h1></h1>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Pytest</h1>
+<p>A hard truth in this world is that all of humanity is kind dumb. Even you&mdash; the coder &mdash; are dumb. We will cover how to harden your package against your dumb users, and then how to protect your package from your dumb self. </p>
+<h3>Protecting Yourself from the User</h3>
+<p>Let&#39;s focus on how we can make the <code>duration</code> method more stable. First thing first, let&#39;s add <a href='https://docs.python.org/3/library/typing.html'>type hints</a>:</p>
+<pre><code class='language-python' lang='python'>    def duration(self, distance: int, speed: int) -&gt; int:
+        return (distance/speed)*60
+</code></pre>
+<p>Next, we can add raise exceptions for user inputs that may not make sense. For example, if we wanted to prevent the user from inputting a speed over 100 mph we would do the following:</p>
+<pre><code class='language-python' lang='python'>    def duration(self, distance: int, speed: int) -&gt; int:
+        if speed &gt; 100:
+            raise Exception(&quot;Slow down!&quot;)
+
+        return (distance/speed)*60
+</code></pre>
+<h3>Protecting Yourself from Yourself</h3>
+<p>Now that we have protected our immaculate function from the users, we need to protect it from ourselves. Basically, we are going to see if the method works as we expect. </p>
+<p>Make sure you are in your <code>poetry shell</code>, and then we are going to first install <code>pytest</code>:</p>
+<pre><code>pip install pytest
+</code></pre>
+<p>If you recall, poetry automatically created a <code>tests</code> folder. In that folder, we are going to put our tests. In order for <code>pytest</code> to test the tests, each file needed to be prepended with <code>test_</code>. So let&#39;s add tests for our <code>RoadTrip</code> class. </p>
+<p>This will be the directory structure:</p>
+<pre><code>roadtrip
+├── pyproject.toml
+├── README.md
+├── roadtrip
+│   └── __init__.py
+│   └── trip.py
+└── tests
+    └── __init__.py
+    └── test_roadtrip.py
+</code></pre>
+<p>One thing we would want to do is make sure that the output of duration is what we expect it to be. If we are going 60 mph and going 60 miles, then it should take 60 minutes to get there. </p>
+<p>Let&#39;s write our duration function to do that and put it into <code>test_roadtrip.py</code>:</p>
+<pre><code class='language-python' lang='python'>import roadtrip
+
+def test_duration():
+    trip1 = roadtrip.RoadTrip()
+    assert 60.0 == trip1.duration(60, 60)
+</code></pre>
+<p>Now in the root folder of our poetry project run <code>pytest</code> like so:</p>
+<pre><code>pytest
+</code></pre>
+<p>It will run the test and should return something like the below if they pass:</p>
+<pre><code>========================== test session starts =============================
+platform darwin -- Python 3.9.7, pytest-8.0.0, pluggy-1.4.0
+rootdir: /Users/corydonbaylor/Documents/github/python_package/roadtrip
+collected 1 item                                                                                                                 
+
+tests/test_roadtrip.py .                                                                                                   [100%]
+
+========================== 1 passed in 0.02s ================================
+
+</code></pre>
+<p>Now let us write a test to make sure that our exception works:</p>
+<pre><code class='language-python' lang='python'>def test_exception():
+
+    # creating a instance of roadtrip
+    trip1 = roadtrip.RoadTrip()
+
+    # this will capture the execption as exc
+    with pytest.raises(Exception) as exc:
+        trip1.duration(60, 160)
+
+    # this will make sure that exc is equal to what it should be
+    assert str(exc.value) == &quot;Slow down!&quot;
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+{% endblock %}
