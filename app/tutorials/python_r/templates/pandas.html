@@ -1,0 +1,1955 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1 id='oh-how-i-will-miss-the-tidyverse'>Oh How I Will Miss the Tidyverse</h1>
+<p>I think the tidyverse is wonderful. I think it is easy, expressive, and legible. Not to dump on python, but I don&#39;t think the same is true for pandas. But regardless some people insist on using it. So if you are an avid R user, this guide is for you. </p>
+<p><strong>The <code>dplyr</code> Equivalents</strong></p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Description</th><th>R</th><th>Python</th></tr></thead>
+<tbody><tr><td>Select columns</td><td><code>select(x,y,z)</code></td><td><code>df[[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;]]</code></td></tr><tr><td>Filter rows</td><td><code>filter(col == &#39;xyz&#39;)</code></td><td><code>df[df[&quot;col&quot;]==&#39;xyz&#39;]</code></td></tr><tr><td>New column</td><td><code>mutate(col = x + y + z)</code></td><td><code>df[&quot;col&quot;] = df[&quot;x&quot;] + df[&quot;y&quot;] + df[&quot;z&quot;]</code></td></tr><tr><td>New conditional column</td><td><code>mutate(col = ifelse(cond, 1, 0))</code></td><td><code>df[&quot;col&quot;] = np.where(df[&quot;col&quot;] == &quot;cond&quot;, 1, 0])</code></td></tr><tr><td>Drop column</td><td><code>select(-col)</code></td><td><code>df.drop(columns=[&quot;col&quot;])</code></td></tr><tr><td>Sort rows</td><td><code>arrange()</code></td><td><code>df.sort_values()</code></td></tr><tr><td>Group By</td><td><code>group_by()%&gt;%summarise()</code></td><td><code>df.groupby([&quot;col&quot;]).sum()</code></td></tr></tbody>
+</table></figure>
+<p><strong>The <code>tidyr</code> Equivalents</strong></p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Description</th><th>R</th><th>Python</th></tr></thead>
+<tbody><tr><td>Make wide</td><td><code>spread()</code></td><td><code>pd.pivot(df, index= &quot;row&quot;, columns=&#39;cols&#39;, values=&#39;val&#39;)</code></td></tr><tr><td>Make long</td><td><code>melt()</code></td><td><code>pd.melt(df, id_vars=&#39;x&#39;, value_vars=[&#39;y&#39;, &#39;z&#39;], var_name=&#39;foo&#39;, value_name=&#39;bar&#39;)</code></td></tr></tbody>
+</table></figure>
+<p>&nbsp;</p>
+<pre><code class='language-python' lang='python'># lets start by loading library and data
+import pandas as pd
+import numpy as np
+df = pd.read_csv(&quot;http://www.corydonbaylor.io/pokemon&quot;)
+</code></pre>
+<h2 id='select-selecting-a-column'><code>select()</code>: Selecting a Column</h2>
+<p>Selecting a column is mostly done through dictionaries in python.</p>
+<pre><code class='language-python' lang='python'>df[[&quot;Name&quot;, &quot;HP&quot;]][0:3]
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>HP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Bulbasaur</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Ivysaur</td>
+      <td>60</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Venusaur</td>
+      <td>80</td>
+    </tr>
+  </tbody>
+</table>
+<p>However, with great effort, you can get columns via indexing.</p>
+<pre><code class='language-python' lang='python'># create a list of the columns
+cols = list(df.columns.values)
+
+# index that list
+# NOTE: if you are selecting a single column you have to surround it with brackets to coerce it into a list
+df[cols[0:3] + [cols[-1]] + cols[3:12]]
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Legendary</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>False</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>False</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Venusaur</td>
+      <td>Grass</td>
+      <td>False</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>82</td>
+      <td>83</td>
+      <td>100</td>
+      <td>100</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>VenusaurMega Venusaur</td>
+      <td>Grass</td>
+      <td>False</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>100</td>
+      <td>123</td>
+      <td>122</td>
+      <td>120</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>Charmander</td>
+      <td>Fire</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>39</td>
+      <td>52</td>
+      <td>43</td>
+      <td>60</td>
+      <td>50</td>
+      <td>65</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>795</th>
+      <td>719</td>
+      <td>Diancie</td>
+      <td>Rock</td>
+      <td>True</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>100</td>
+      <td>150</td>
+      <td>100</td>
+      <td>150</td>
+      <td>50</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>796</th>
+      <td>719</td>
+      <td>DiancieMega Diancie</td>
+      <td>Rock</td>
+      <td>True</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>160</td>
+      <td>110</td>
+      <td>160</td>
+      <td>110</td>
+      <td>110</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>797</th>
+      <td>720</td>
+      <td>HoopaHoopa Confined</td>
+      <td>Psychic</td>
+      <td>True</td>
+      <td>Ghost</td>
+      <td>80</td>
+      <td>110</td>
+      <td>60</td>
+      <td>150</td>
+      <td>130</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>798</th>
+      <td>720</td>
+      <td>HoopaHoopa Unbound</td>
+      <td>Psychic</td>
+      <td>True</td>
+      <td>Dark</td>
+      <td>80</td>
+      <td>160</td>
+      <td>60</td>
+      <td>170</td>
+      <td>130</td>
+      <td>80</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>799</th>
+      <td>721</td>
+      <td>Volcanion</td>
+      <td>Fire</td>
+      <td>True</td>
+      <td>Water</td>
+      <td>80</td>
+      <td>110</td>
+      <td>120</td>
+      <td>130</td>
+      <td>90</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>800 rows × 13 columns</p>
+<h2 id='filter-filtering-data'><code>filter()</code>: Filtering Data</h2>
+<p>The first method for filtering data is to use <code>df.loc[df[col]==&#39;condition&#39;]</code></p>
+<ul>
+<li>put string conditions in quotes</li>
+<li>and numeric conditions without quotes</li>
+
+</ul>
+<pre><code class='language-python' lang='python'># one for a character filter
+df[df[&quot;Type 1&quot;] == &quot;Grass&quot;]
+# one for a number filter
+df[df[&quot;HP&quot;] &gt; 100]
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>44</th>
+      <td>39</td>
+      <td>Jigglypuff</td>
+      <td>Normal</td>
+      <td>Fairy</td>
+      <td>115</td>
+      <td>45</td>
+      <td>20</td>
+      <td>45</td>
+      <td>25</td>
+      <td>20</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>40</td>
+      <td>Wigglytuff</td>
+      <td>Normal</td>
+      <td>Fairy</td>
+      <td>140</td>
+      <td>70</td>
+      <td>45</td>
+      <td>85</td>
+      <td>50</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>89</td>
+      <td>Muk</td>
+      <td>Poison</td>
+      <td>NaN</td>
+      <td>105</td>
+      <td>105</td>
+      <td>75</td>
+      <td>65</td>
+      <td>100</td>
+      <td>50</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>112</td>
+      <td>Rhydon</td>
+      <td>Ground</td>
+      <td>Rock</td>
+      <td>105</td>
+      <td>130</td>
+      <td>120</td>
+      <td>45</td>
+      <td>45</td>
+      <td>40</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>121</th>
+      <td>113</td>
+      <td>Chansey</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>250</td>
+      <td>5</td>
+      <td>5</td>
+      <td>35</td>
+      <td>105</td>
+      <td>50</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>753</th>
+      <td>683</td>
+      <td>Aromatisse</td>
+      <td>Fairy</td>
+      <td>NaN</td>
+      <td>101</td>
+      <td>72</td>
+      <td>72</td>
+      <td>99</td>
+      <td>89</td>
+      <td>29</td>
+      <td>6</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>769</th>
+      <td>699</td>
+      <td>Aurorus</td>
+      <td>Rock</td>
+      <td>Ice</td>
+      <td>123</td>
+      <td>77</td>
+      <td>72</td>
+      <td>99</td>
+      <td>92</td>
+      <td>58</td>
+      <td>6</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>792</th>
+      <td>716</td>
+      <td>Xerneas</td>
+      <td>Fairy</td>
+      <td>NaN</td>
+      <td>126</td>
+      <td>131</td>
+      <td>95</td>
+      <td>131</td>
+      <td>98</td>
+      <td>99</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>793</th>
+      <td>717</td>
+      <td>Yveltal</td>
+      <td>Dark</td>
+      <td>Flying</td>
+      <td>126</td>
+      <td>131</td>
+      <td>95</td>
+      <td>131</td>
+      <td>98</td>
+      <td>99</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>794</th>
+      <td>718</td>
+      <td>Zygarde50% Forme</td>
+      <td>Dragon</td>
+      <td>Ground</td>
+      <td>108</td>
+      <td>100</td>
+      <td>121</td>
+      <td>81</td>
+      <td>95</td>
+      <td>95</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>67 rows × 12 columns</p>
+<h2 id='mutate-creating-new-columns'><code>mutate()</code>: Creating New Columns</h2>
+<p>This is the equivalent of <code>mutate()</code> in R. </p>
+<p>The first method is more equivalent to <code>df$new = df$old1 + df$old2</code> in R</p>
+<pre><code class='language-python' lang='python'># method 1
+df[&quot;total&quot;] = df[&quot;HP&quot;] + df[&quot;Attack&quot;] + df[&quot;Defense&quot;] + df[&quot;Speed&quot;] + df[&quot;Sp. Atk&quot;] + df[&quot;Sp. Def&quot;]
+
+df.head(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+      <th>total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+      <td>318</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+      <td>405</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>The <code>iloc[]</code> Method to Sum Based on Interger Location</strong></p>
+<p>The second method using <code>iloc[]</code> to use the interger locations of the columns to sum them all together </p>
+<ul>
+<li><em>Note 1: if you want all the rows, put <code>:</code> in the row positions in <code>iloc[]</code></em></li>
+<li><em>Note 2: set axis = 1 to sum horizontally (0 for vertically)</em></li>
+<li><em>Note 3: remember that you want that the first index = 0 and the last index isnt included so for 5:9 in R you would do 4:10 in python</em></li>
+
+</ul>
+<pre><code class='language-python' lang='python'># note how i put the : in for the rows
+df[&quot;total_iloc&quot;]= df.iloc[:,4:10].sum(axis=1)
+
+df.head(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+      <th>total</th>
+      <th>total_iloc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+      <td>318</td>
+      <td>318</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+      <td>405</td>
+      <td>405</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id='deleting-a-column'>Deleting a Column</h3>
+<p>This is the equivalent of <code>select(-col)</code> in R</p>
+<pre><code class='language-python' lang='python'>df = df.drop(columns=[&quot;total&quot;, &quot;total_iloc&quot;])
+</code></pre>
+<h2 id='ifelse-to-replace-a-column'><code>ifelse()</code>: to replace a column</h2>
+<p>This is the first time where I feel the need to dip into <code>numpy</code> to save the day. The <code>where()</code> clause works very similarly to <code>ifelse()</code> in R. Importantly, you can set your default value to be original column. </p>
+<pre><code class='language-python' lang='python'>df[&quot;new&quot;] = np.where(df[&quot;Type 1&quot;] == &quot;Fire&quot;, &quot;Flamer&quot;, df[&quot;Type 1&quot;])
+df
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+      <th>new</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Grass</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Grass</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Venusaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>82</td>
+      <td>83</td>
+      <td>100</td>
+      <td>100</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Grass</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>VenusaurMega Venusaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>100</td>
+      <td>123</td>
+      <td>122</td>
+      <td>120</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Grass</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>Charmander</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>39</td>
+      <td>52</td>
+      <td>43</td>
+      <td>60</td>
+      <td>50</td>
+      <td>65</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Flamer</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>795</th>
+      <td>719</td>
+      <td>Diancie</td>
+      <td>Rock</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>100</td>
+      <td>150</td>
+      <td>100</td>
+      <td>150</td>
+      <td>50</td>
+      <td>6</td>
+      <td>True</td>
+      <td>Rock</td>
+    </tr>
+    <tr>
+      <th>796</th>
+      <td>719</td>
+      <td>DiancieMega Diancie</td>
+      <td>Rock</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>160</td>
+      <td>110</td>
+      <td>160</td>
+      <td>110</td>
+      <td>110</td>
+      <td>6</td>
+      <td>True</td>
+      <td>Rock</td>
+    </tr>
+    <tr>
+      <th>797</th>
+      <td>720</td>
+      <td>HoopaHoopa Confined</td>
+      <td>Psychic</td>
+      <td>Ghost</td>
+      <td>80</td>
+      <td>110</td>
+      <td>60</td>
+      <td>150</td>
+      <td>130</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+      <td>Psychic</td>
+    </tr>
+    <tr>
+      <th>798</th>
+      <td>720</td>
+      <td>HoopaHoopa Unbound</td>
+      <td>Psychic</td>
+      <td>Dark</td>
+      <td>80</td>
+      <td>160</td>
+      <td>60</td>
+      <td>170</td>
+      <td>130</td>
+      <td>80</td>
+      <td>6</td>
+      <td>True</td>
+      <td>Psychic</td>
+    </tr>
+    <tr>
+      <th>799</th>
+      <td>721</td>
+      <td>Volcanion</td>
+      <td>Fire</td>
+      <td>Water</td>
+      <td>80</td>
+      <td>110</td>
+      <td>120</td>
+      <td>130</td>
+      <td>90</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+      <td>Flamer</td>
+    </tr>
+  </tbody>
+</table>
+<p>800 rows × 13 columns</p>
+<h2 id='arrange-sorting-data'><code>arrange()</code>: Sorting Data</h2>
+<p>The equivalent for <code>arrange()</code> is <code>sort_values()</code>. You can sort by either ascending or descending by changing a boolean (by default it is true). </p>
+<p>A note on booleans: in python, they are written out as True and False. You can also use numbers with True = 1 and False = 0.</p>
+<pre><code class='language-python' lang='python'># sorting numerics
+df.sort_values(&quot;HP&quot;)
+df.sort_values(&quot;HP&quot;, ascending=False)
+
+# sorting characters
+df.sort_values(&quot;Name&quot;)
+
+# sorting by multiple things
+df.sort_values([&quot;Type 1&quot;, &quot;Type 2&quot;, &quot;HP&quot;], ascending=[1,1,0])
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+      <th>new</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>657</th>
+      <td>596</td>
+      <td>Galvantula</td>
+      <td>Bug</td>
+      <td>Electric</td>
+      <td>70</td>
+      <td>77</td>
+      <td>60</td>
+      <td>97</td>
+      <td>60</td>
+      <td>108</td>
+      <td>5</td>
+      <td>False</td>
+      <td>Bug</td>
+    </tr>
+    <tr>
+      <th>656</th>
+      <td>595</td>
+      <td>Joltik</td>
+      <td>Bug</td>
+      <td>Electric</td>
+      <td>50</td>
+      <td>47</td>
+      <td>50</td>
+      <td>57</td>
+      <td>50</td>
+      <td>65</td>
+      <td>5</td>
+      <td>False</td>
+      <td>Bug</td>
+    </tr>
+    <tr>
+      <th>231</th>
+      <td>214</td>
+      <td>Heracross</td>
+      <td>Bug</td>
+      <td>Fighting</td>
+      <td>80</td>
+      <td>125</td>
+      <td>75</td>
+      <td>40</td>
+      <td>95</td>
+      <td>85</td>
+      <td>2</td>
+      <td>False</td>
+      <td>Bug</td>
+    </tr>
+    <tr>
+      <th>232</th>
+      <td>214</td>
+      <td>HeracrossMega Heracross</td>
+      <td>Bug</td>
+      <td>Fighting</td>
+      <td>80</td>
+      <td>185</td>
+      <td>115</td>
+      <td>40</td>
+      <td>105</td>
+      <td>75</td>
+      <td>2</td>
+      <td>False</td>
+      <td>Bug</td>
+    </tr>
+    <tr>
+      <th>698</th>
+      <td>637</td>
+      <td>Volcarona</td>
+      <td>Bug</td>
+      <td>Fire</td>
+      <td>85</td>
+      <td>60</td>
+      <td>65</td>
+      <td>135</td>
+      <td>105</td>
+      <td>100</td>
+      <td>5</td>
+      <td>False</td>
+      <td>Bug</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>106</th>
+      <td>98</td>
+      <td>Krabby</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>105</td>
+      <td>90</td>
+      <td>25</td>
+      <td>25</td>
+      <td>50</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Water</td>
+    </tr>
+    <tr>
+      <th>125</th>
+      <td>116</td>
+      <td>Horsea</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>40</td>
+      <td>70</td>
+      <td>70</td>
+      <td>25</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Water</td>
+    </tr>
+    <tr>
+      <th>129</th>
+      <td>120</td>
+      <td>Staryu</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>45</td>
+      <td>55</td>
+      <td>70</td>
+      <td>55</td>
+      <td>85</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Water</td>
+    </tr>
+    <tr>
+      <th>139</th>
+      <td>129</td>
+      <td>Magikarp</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>20</td>
+      <td>10</td>
+      <td>55</td>
+      <td>15</td>
+      <td>20</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+      <td>Water</td>
+    </tr>
+    <tr>
+      <th>381</th>
+      <td>349</td>
+      <td>Feebas</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>20</td>
+      <td>15</td>
+      <td>20</td>
+      <td>10</td>
+      <td>55</td>
+      <td>80</td>
+      <td>3</td>
+      <td>False</td>
+      <td>Water</td>
+    </tr>
+  </tbody>
+</table>
+<p>800 rows × 13 columns</p>
+<h2 id='groupbysummarise-aggregating-data'><code>group_by()%&gt;%summarise()</code>: Aggregating Data</h2>
+<p>A common task in data manipulation is to aggregate data based on a particular variable or two. See below for how to do that for some common operations.</p>
+<pre><code class='language-python' lang='python'># to get the count
+df.groupby([&#39;Type 1&#39;]).count()
+# to get the mean
+df.groupby([&#39;Type 1&#39;]).mean()
+# to get the median
+df.groupby([&#39;Type 1&#39;]).median()
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+    <tr>
+      <th>Type 1</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Bug</th>
+      <td>291.0</td>
+      <td>60.0</td>
+      <td>65.0</td>
+      <td>60.0</td>
+      <td>50.0</td>
+      <td>60.0</td>
+      <td>60.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Dark</th>
+      <td>509.0</td>
+      <td>65.0</td>
+      <td>88.0</td>
+      <td>70.0</td>
+      <td>65.0</td>
+      <td>65.0</td>
+      <td>70.0</td>
+      <td>5.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Dragon</th>
+      <td>443.5</td>
+      <td>80.0</td>
+      <td>113.5</td>
+      <td>90.0</td>
+      <td>105.0</td>
+      <td>90.0</td>
+      <td>90.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Electric</th>
+      <td>403.5</td>
+      <td>60.0</td>
+      <td>65.0</td>
+      <td>65.0</td>
+      <td>95.0</td>
+      <td>79.5</td>
+      <td>88.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Fairy</th>
+      <td>669.0</td>
+      <td>78.0</td>
+      <td>52.0</td>
+      <td>66.0</td>
+      <td>75.0</td>
+      <td>79.0</td>
+      <td>45.0</td>
+      <td>6.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Fighting</th>
+      <td>308.0</td>
+      <td>70.0</td>
+      <td>100.0</td>
+      <td>70.0</td>
+      <td>40.0</td>
+      <td>63.0</td>
+      <td>60.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Fire</th>
+      <td>289.5</td>
+      <td>70.0</td>
+      <td>84.5</td>
+      <td>64.0</td>
+      <td>85.0</td>
+      <td>67.5</td>
+      <td>78.5</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Flying</th>
+      <td>677.5</td>
+      <td>79.0</td>
+      <td>85.0</td>
+      <td>75.0</td>
+      <td>103.5</td>
+      <td>80.0</td>
+      <td>116.0</td>
+      <td>5.5</td>
+      <td>0.5</td>
+    </tr>
+    <tr>
+      <th>Ghost</th>
+      <td>487.0</td>
+      <td>59.5</td>
+      <td>66.0</td>
+      <td>72.5</td>
+      <td>65.0</td>
+      <td>75.0</td>
+      <td>60.5</td>
+      <td>4.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Grass</th>
+      <td>372.0</td>
+      <td>65.5</td>
+      <td>70.0</td>
+      <td>66.0</td>
+      <td>75.0</td>
+      <td>66.0</td>
+      <td>58.5</td>
+      <td>3.5</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Ground</th>
+      <td>363.5</td>
+      <td>75.0</td>
+      <td>85.0</td>
+      <td>84.5</td>
+      <td>47.5</td>
+      <td>62.5</td>
+      <td>65.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Ice</th>
+      <td>371.5</td>
+      <td>70.0</td>
+      <td>67.0</td>
+      <td>75.0</td>
+      <td>77.5</td>
+      <td>70.0</td>
+      <td>62.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Normal</th>
+      <td>296.5</td>
+      <td>70.0</td>
+      <td>70.5</td>
+      <td>60.0</td>
+      <td>50.0</td>
+      <td>60.5</td>
+      <td>71.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Poison</th>
+      <td>139.5</td>
+      <td>67.5</td>
+      <td>74.0</td>
+      <td>67.0</td>
+      <td>60.0</td>
+      <td>60.5</td>
+      <td>62.5</td>
+      <td>1.5</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Psychic</th>
+      <td>386.0</td>
+      <td>68.0</td>
+      <td>57.0</td>
+      <td>65.0</td>
+      <td>95.0</td>
+      <td>90.0</td>
+      <td>80.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Rock</th>
+      <td>362.5</td>
+      <td>68.5</td>
+      <td>95.0</td>
+      <td>100.0</td>
+      <td>60.0</td>
+      <td>70.0</td>
+      <td>50.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Steel</th>
+      <td>379.0</td>
+      <td>60.0</td>
+      <td>89.0</td>
+      <td>120.0</td>
+      <td>55.0</td>
+      <td>80.0</td>
+      <td>50.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Water</th>
+      <td>275.0</td>
+      <td>70.0</td>
+      <td>72.0</td>
+      <td>70.0</td>
+      <td>70.0</td>
+      <td>65.0</td>
+      <td>65.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>A quirk that oftentimes has to be dealt with (if you are planning on doing further manipulations) is that whatever variable you grouped on becomes the index instead of another varaible. As such, you <strong>need to reset the index</strong> after grouping.</p>
+<p><em>Note: you dont need to reassign the df when you reset the index. It does it automatically</em></p>
+<pre><code class='language-python' lang='python'># first create the grouped by df
+grouped = df.groupby([&#39;Type 1&#39;]).sum()
+# then reset the index 
+grouped.reset_index(inplace = True)
+# no need to reassign
+grouped
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Type 1</th>
+      <th>#</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Bug</td>
+      <td>23080</td>
+      <td>3925</td>
+      <td>4897</td>
+      <td>4880</td>
+      <td>3717</td>
+      <td>4471</td>
+      <td>4256</td>
+      <td>222</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Dark</td>
+      <td>14302</td>
+      <td>2071</td>
+      <td>2740</td>
+      <td>2177</td>
+      <td>2314</td>
+      <td>2155</td>
+      <td>2361</td>
+      <td>125</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Dragon</td>
+      <td>15180</td>
+      <td>2666</td>
+      <td>3588</td>
+      <td>2764</td>
+      <td>3099</td>
+      <td>2843</td>
+      <td>2657</td>
+      <td>124</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Electric</td>
+      <td>15994</td>
+      <td>2631</td>
+      <td>3040</td>
+      <td>2917</td>
+      <td>3961</td>
+      <td>3243</td>
+      <td>3718</td>
+      <td>144</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Fairy</td>
+      <td>7642</td>
+      <td>1260</td>
+      <td>1046</td>
+      <td>1117</td>
+      <td>1335</td>
+      <td>1440</td>
+      <td>826</td>
+      <td>70</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Fighting</td>
+      <td>9824</td>
+      <td>1886</td>
+      <td>2613</td>
+      <td>1780</td>
+      <td>1434</td>
+      <td>1747</td>
+      <td>1784</td>
+      <td>91</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Fire</td>
+      <td>17025</td>
+      <td>3635</td>
+      <td>4408</td>
+      <td>3524</td>
+      <td>4627</td>
+      <td>3755</td>
+      <td>3871</td>
+      <td>167</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Flying</td>
+      <td>2711</td>
+      <td>283</td>
+      <td>315</td>
+      <td>265</td>
+      <td>377</td>
+      <td>290</td>
+      <td>410</td>
+      <td>22</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Ghost</td>
+      <td>15568</td>
+      <td>2062</td>
+      <td>2361</td>
+      <td>2598</td>
+      <td>2539</td>
+      <td>2447</td>
+      <td>2059</td>
+      <td>134</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Grass</td>
+      <td>24141</td>
+      <td>4709</td>
+      <td>5125</td>
+      <td>4956</td>
+      <td>5425</td>
+      <td>4930</td>
+      <td>4335</td>
+      <td>235</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Ground</td>
+      <td>11401</td>
+      <td>2361</td>
+      <td>3064</td>
+      <td>2715</td>
+      <td>1807</td>
+      <td>2008</td>
+      <td>2045</td>
+      <td>101</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Ice</td>
+      <td>10165</td>
+      <td>1728</td>
+      <td>1746</td>
+      <td>1714</td>
+      <td>1861</td>
+      <td>1831</td>
+      <td>1523</td>
+      <td>85</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Normal</td>
+      <td>31279</td>
+      <td>7573</td>
+      <td>7200</td>
+      <td>5865</td>
+      <td>5470</td>
+      <td>6245</td>
+      <td>7012</td>
+      <td>299</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Poison</td>
+      <td>7050</td>
+      <td>1883</td>
+      <td>2091</td>
+      <td>1927</td>
+      <td>1692</td>
+      <td>1803</td>
+      <td>1780</td>
+      <td>71</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Psychic</td>
+      <td>21706</td>
+      <td>4026</td>
+      <td>4073</td>
+      <td>3858</td>
+      <td>5609</td>
+      <td>4918</td>
+      <td>4645</td>
+      <td>193</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Rock</td>
+      <td>17280</td>
+      <td>2876</td>
+      <td>4086</td>
+      <td>4435</td>
+      <td>2787</td>
+      <td>3321</td>
+      <td>2460</td>
+      <td>152</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Steel</td>
+      <td>11957</td>
+      <td>1761</td>
+      <td>2503</td>
+      <td>3412</td>
+      <td>1823</td>
+      <td>2177</td>
+      <td>1492</td>
+      <td>104</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Water</td>
+      <td>33946</td>
+      <td>8071</td>
+      <td>8305</td>
+      <td>8170</td>
+      <td>8379</td>
+      <td>7898</td>
+      <td>7388</td>
+      <td>320</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<pre><code class='language-python' lang='python'># you can also do this for multiple groups
+grouped = df.groupby([&quot;Type 1&quot;, &quot;Type 2&quot;]).mean()
+grouped.reset_index(inplace = True)
+grouped
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>#</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Bug</td>
+      <td>Electric</td>
+      <td>595.500000</td>
+      <td>60.000000</td>
+      <td>62.000000</td>
+      <td>55.000000</td>
+      <td>77.000000</td>
+      <td>55.000000</td>
+      <td>86.500000</td>
+      <td>5.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Bug</td>
+      <td>Fighting</td>
+      <td>214.000000</td>
+      <td>80.000000</td>
+      <td>155.000000</td>
+      <td>95.000000</td>
+      <td>40.000000</td>
+      <td>100.000000</td>
+      <td>80.000000</td>
+      <td>2.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bug</td>
+      <td>Fire</td>
+      <td>636.500000</td>
+      <td>70.000000</td>
+      <td>72.500000</td>
+      <td>60.000000</td>
+      <td>92.500000</td>
+      <td>80.000000</td>
+      <td>80.000000</td>
+      <td>5.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Bug</td>
+      <td>Flying</td>
+      <td>286.285714</td>
+      <td>63.000000</td>
+      <td>70.142857</td>
+      <td>61.571429</td>
+      <td>72.857143</td>
+      <td>69.071429</td>
+      <td>82.857143</td>
+      <td>2.857143</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Bug</td>
+      <td>Ghost</td>
+      <td>292.000000</td>
+      <td>1.000000</td>
+      <td>90.000000</td>
+      <td>45.000000</td>
+      <td>30.000000</td>
+      <td>30.000000</td>
+      <td>40.000000</td>
+      <td>3.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>131</th>
+      <td>Water</td>
+      <td>Ice</td>
+      <td>103.000000</td>
+      <td>90.000000</td>
+      <td>83.333333</td>
+      <td>113.333333</td>
+      <td>80.000000</td>
+      <td>78.333333</td>
+      <td>66.666667</td>
+      <td>1.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>132</th>
+      <td>Water</td>
+      <td>Poison</td>
+      <td>118.666667</td>
+      <td>61.666667</td>
+      <td>68.333333</td>
+      <td>58.333333</td>
+      <td>61.666667</td>
+      <td>91.666667</td>
+      <td>85.000000</td>
+      <td>1.333333</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>133</th>
+      <td>Water</td>
+      <td>Psychic</td>
+      <td>111.800000</td>
+      <td>87.000000</td>
+      <td>73.000000</td>
+      <td>104.000000</td>
+      <td>94.000000</td>
+      <td>79.000000</td>
+      <td>44.000000</td>
+      <td>1.200000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>134</th>
+      <td>Water</td>
+      <td>Rock</td>
+      <td>430.000000</td>
+      <td>70.750000</td>
+      <td>82.750000</td>
+      <td>112.750000</td>
+      <td>61.500000</td>
+      <td>65.000000</td>
+      <td>36.000000</td>
+      <td>3.750000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>135</th>
+      <td>Water</td>
+      <td>Steel</td>
+      <td>395.000000</td>
+      <td>84.000000</td>
+      <td>86.000000</td>
+      <td>88.000000</td>
+      <td>111.000000</td>
+      <td>101.000000</td>
+      <td>60.000000</td>
+      <td>4.000000</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>136 rows × 11 columns</p>
+<h2 id='spread-reshape-from-long-to-wide'><code>spread()</code>: Reshape from Long to Wide</h2>
+<p>We are unforunately going to have to step away from our wonderful pokemon dataset for this last task, reshaping data. For this example, we are going to create a mock dataset which shows points per NBA team per year. We want to transform this so that the years are columns.</p>
+<pre><code class='language-python' lang='python'>#create DataFrame in long format
+df = pd.DataFrame({&#39;year&#39;: [&#39;2011&#39;, &#39;2011&#39;, &#39;2011&#39;, &#39;2011&#39;, &#39;2012&#39;, &#39;2012&#39;, &#39;2012&#39;, &#39;2012&#39;],
+                   &#39;team&#39;: [&#39;Celtics&#39;, &#39;Knicks&#39;, &#39;Lakers&#39;, &#39;Bulls&#39;, &#39;Celtics&#39;, &#39;Knicks&#39;, &#39;Lakers&#39;, &#39;Bulls&#39;],
+                   &#39;points&#39;: [11, 8, 10, 6, 12, 5, 9, 4]})
+df
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>team</th>
+      <th>points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2011</td>
+      <td>Celtics</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2011</td>
+      <td>Knicks</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2011</td>
+      <td>Lakers</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2011</td>
+      <td>Bulls</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2012</td>
+      <td>Celtics</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2012</td>
+      <td>Knicks</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2012</td>
+      <td>Lakers</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2012</td>
+      <td>Bulls</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<p>First we are going to pivot it. This takes three arguements:</p>
+<ul>
+<li>index: what will form the basis of the rows? In this case the teams</li>
+<li>columns: what column is being transformed into multiple columns (long to wide)</li>
+<li>values: what values will populate the new data frame</li>
+
+</ul>
+<pre><code class='language-python' lang='python'>table = pd.pivot(df, index= &quot;team&quot;, columns=&#39;year&#39;, values=&#39;points&#39;)
+table
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>year</th>
+      <th>2011</th>
+      <th>2012</th>
+    </tr>
+    <tr>
+      <th>team</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Bulls</th>
+      <td>6</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>Celtics</th>
+      <td>11</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>Knicks</th>
+      <td>8</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>Lakers</th>
+      <td>10</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>Finally, we have to clean up the indexes. First, we want to reset the index so that our two indexes become variables again. Next, we want to rename the first one so its the actual index again. We do this and we will have our data just how we wanted!</p>
+<pre><code class='language-python' lang='python'>table = table.reset_index().rename_axis(None, axis=1)
+table
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>team</th>
+      <th>2011</th>
+      <th>2012</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Bulls</td>
+      <td>6</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Celtics</td>
+      <td>11</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Knicks</td>
+      <td>8</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Lakers</td>
+      <td>10</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='melt-reshape-from-wide-to-long'><code>melt()</code>: Reshape from Wide to Long</h2>
+<p>Switching back from wide to long is actually pretty easy. All that is needed to identify what variable will remain as columns and what others will turn to values.</p>
+<pre><code class='language-python' lang='python'>pd.melt(table, id_vars=&#39;team&#39;, value_vars=[&#39;2011&#39;, &#39;2012&#39;], var_name=&#39;year&#39;, value_name=&#39;amount&#39;)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>team</th>
+      <th>year</th>
+      <th>amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Bulls</td>
+      <td>2011</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Celtics</td>
+      <td>2011</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Knicks</td>
+      <td>2011</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Lakers</td>
+      <td>2011</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Bulls</td>
+      <td>2012</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Celtics</td>
+      <td>2012</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Knicks</td>
+      <td>2012</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Lakers</td>
+      <td>2012</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

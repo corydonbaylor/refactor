@@ -1,0 +1,358 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1 id='importing-and-saving-data'>Importing and Saving Data</h1>
+<p>This is part two of my tutorial on learning python from the perspective of an R user. In this lesson, I will cover how to load in and save data using Pandas. </p>
+<p>I will have a quick list of functions and their R equivalent on top.</p>
+<p>For reading in data:</p>
+<ul class="toc_list">
+<li><code>pd.read_csv()</code> = <code>read.csv()</code></li>
+<li><code>pd.read_excel()</code> = <code>read.xlsx()</code> for the first sheet</li>
+
+</ul>
+<p>For saving data:</p>
+<ul>
+<li><code>df.to_csv()</code> = <code>write.csv()</code></li>
+<li><code>write.xlsx()</code> = <code>df.to_excel(&quot;df.xlsx&quot;, index = False, sheet_name = &quot;name&quot;, startrow=0, startcol=0)</code></li>
+
+</ul>
+<h2 id='reading-in-csvs'>Reading in CSVs</h2>
+<pre><code class='language-python' lang='python'># import loads in libraries
+import pandas as pd
+
+# read_csv to load in data
+# you pass the path in. you can use relative paths from here
+df = pd.read_csv(&#39;../data/pokemon_data.csv&#39;)
+
+df.head(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='reading-in-text-files'>Reading in Text Files</h2>
+<p>In order to read in txt files, you still use the <code>pd.read_csv()</code> command but you need to specify a delimiter. Some common delimiters are:</p>
+<ul>
+<li>For semi colons: <code>pd.read_csv(&#39;df.txt&#39;, sep = &#39;;&#39;)</code> </li>
+<li>For tabs: <code>pd.read_csv(&#39;df.txt&#39;, sep = &#39;\t&#39;)</code> </li>
+<li>For bars: <code>pd.read_csv(&#39;df.txt&#39;, sep = &#39;|&#39;)</code> </li>
+
+</ul>
+<pre><code class='language-python' lang='python'># loading in other file types
+
+# you need to specify the delimiter
+txt = pd.read_csv(&#39;pokemon_data.txt&#39;, sep = &#39;\t&#39;)
+txt.head(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='reading-in-excel-files'>Reading in Excel Files</h2>
+<p>This is very easy compared to R but there is still some trickiness.</p>
+<pre><code class='language-python' lang='python'># if you just want to read in the first sheet
+xlsx = pd.read_excel(&#39;pokemon_data.xlsx&#39;)
+xlsx.tail(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>798</th>
+      <td>720.0</td>
+      <td>HoopaHoopa Unbound</td>
+      <td>Psychic</td>
+      <td>Dark</td>
+      <td>80.0</td>
+      <td>160.0</td>
+      <td>60.0</td>
+      <td>170.0</td>
+      <td>130.0</td>
+      <td>80.0</td>
+      <td>6.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>799</th>
+      <td>721.0</td>
+      <td>Volcanion</td>
+      <td>Fire</td>
+      <td>Water</td>
+      <td>80.0</td>
+      <td>110.0</td>
+      <td>120.0</td>
+      <td>130.0</td>
+      <td>90.0</td>
+      <td>70.0</td>
+      <td>6.0</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>The following will let you get the sheet by the index:</p>
+<pre><code class='language-python' lang='python'>xls = pd.ExcelFile(&#39;pokemon_data.xlsx&#39;)
+df1 = xls.parse(0)
+df2 = xls.parse(1)
+
+df2.tail(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>5</th>
+      <td>5.0</td>
+      <td>Charmeleon</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>58.0</td>
+      <td>64.0</td>
+      <td>58.0</td>
+      <td>80.0</td>
+      <td>65.0</td>
+      <td>80.0</td>
+      <td>1.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6.0</td>
+      <td>Charizard</td>
+      <td>Fire</td>
+      <td>Flying</td>
+      <td>78.0</td>
+      <td>84.0</td>
+      <td>78.0</td>
+      <td>109.0</td>
+      <td>85.0</td>
+      <td>100.0</td>
+      <td>1.0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<p>The following will let you get the sheet by name:</p>
+<pre><code class='language-python' lang='python'>xls = pd.ExcelFile(&#39;pokemon_data.xlsx&#39;)
+
+# the sheet name is case sensitive
+df1 = pd.read_excel(xls, &#39;sheet1&#39;)
+df2 = pd.read_excel(xls, &#39;sheet2&#39;)
+
+df2.tail(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>5</th>
+      <td>5.0</td>
+      <td>Charmeleon</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>58.0</td>
+      <td>64.0</td>
+      <td>58.0</td>
+      <td>80.0</td>
+      <td>65.0</td>
+      <td>80.0</td>
+      <td>1.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6.0</td>
+      <td>Charizard</td>
+      <td>Fire</td>
+      <td>Flying</td>
+      <td>78.0</td>
+      <td>84.0</td>
+      <td>78.0</td>
+      <td>109.0</td>
+      <td>85.0</td>
+      <td>100.0</td>
+      <td>1.0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='saving-the-data'>Saving the Data</h2>
+<p>It is quite easy to save as a csv. Don&#39;t forget to set the index = False.</p>
+<pre><code class='language-python' lang='python'>df.to_csv(&quot;df.csv&quot;, index = False)
+</code></pre>
+<h2 id='saving-to-excel'>Saving to Excel</h2>
+<p>There are a couple more options when saving something as an excel. You can specify the sheet name and the row &amp; column start.</p>
+<pre><code class='language-python' lang='python'>df.to_excel(&quot;df.xlsx&quot;, index = False, sheet_name = &quot;test&quot;, startrow=2, startcol=1)
+</code></pre>
+<h2 id='saving-to-text-file'>Saving to Text File</h2>
+<pre><code class='language-python' lang='python'>df.to_csv(&quot;df.txt&quot;, sep = &#39;\t&#39;)
+</code></pre>
+{% endblock %}

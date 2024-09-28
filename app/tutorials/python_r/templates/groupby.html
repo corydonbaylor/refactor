@@ -1,0 +1,89 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Advanced Group Bys</h1>
+<p>Group Bys are one of the most important tools to transforming data. I would go as far as to say that group by may be <strong>the</strong> most important function in <code>dplyr</code>. I might say that, but honestly I would be exaggerating. Luckily, no one is going to read this intro so it does not matter.</p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Description</th><th>R</th><th>Python</th></tr></thead>
+<tbody><tr><td>Simple group by</td><td><code>group_by(&quot;grp&quot;)</code></td><td><code>df.groupby([&#39;grp&#39;]).sum()</code></td></tr><tr><td>One summary column </td><td><code>group_by(&quot;grp&quot;)</code></td><td><code>df.groupby([&#39;grp&#39;])[&#39;col2&#39;].sum()</code></td></tr><tr><td>Two summary column</td><td><code>group_by(&quot;grp&quot;)</code></td><td><code>df.groupby([&#39;grp&#39;])[[&#39;col&#39;, &#39;col2&#39;]].sum()</code></td></tr><tr><td>Two grouping columns</td><td><code>group_by(&quot;grp&quot;, &quot;grp2&quot;)</code></td><td><code>df.groupby([&#39;grp&#39;, &#39;grp2&#39;])[&#39;col&#39;].sum()</code></td></tr><tr><td>Reset Index</td><td>Not Needed</td><td><code>grouped.reset_index()</code></td></tr></tbody>
+</table></figure>
+<h3>Basic Group Bys</h3>
+<p>We are gonna hit this rapid fire since there isn&#39;t too much to discuss here. First load that Pokemon dataset from github</p>
+<pre><code class='language-python' lang='python'>df = pd.read_csv(&quot;http://www.corydonbaylor.io/pokemon&quot;)
+</code></pre>
+<p>First we are going to take the simplest of group bys. If we don&#39;t specify what columns we want to summarize, than it will summarize all the numeric columns:</p>
+<pre><code class='language-python' lang='python'># group everything
+df.groupby([&quot;Type 1&quot;]).sum()
+</code></pre>
+<pre><code>              #  ... Legendary
+Type 1           ...          
+Bug       23080  ...         0
+Dark      14302  ...         2
+Dragon    15180  ...        12
+Electric  15994  ...         4
+...
+</code></pre>
+<p>Next we will specify a column to summarize:</p>
+<pre><code class='language-python' lang='python'># group by one column
+df.groupby([&quot;Type 1&quot;])[&quot;Attack&quot;].sum()
+</code></pre>
+<pre><code>Type 1
+Bug         4897
+Dark        2740
+Dragon      3588
+Electric    3040
+...
+</code></pre>
+<h3>Two Summary Columns</h3>
+<p>What if we want to summarize two columns, like attack and defense. We need to put both of those columns in <strong>double brackets</strong>:</p>
+<pre><code class='language-python' lang='python'># group by two columns
+df.groupby([&quot;Type 1&quot;])[[&quot;Attack&quot;, &quot;Defense&quot;]].sum()
+</code></pre>
+<pre><code>         Attack  Defense
+Type 1                   
+Bug         4897     4880
+Dark        2740     2177
+Dragon      3588     2764
+Electric    3040     2917
+...
+</code></pre>
+<h3>Two Grouping Columns</h3>
+<p>How about two grouping columns:</p>
+<pre><code class='language-python' lang='python'># group by two grouping columns
+df.groupby([&quot;Type 1&quot;, &quot;Type 2&quot;])[[&quot;Attack&quot;]].sum()
+</code></pre>
+<pre><code>                 Attack
+Type 1 Type 2          
+Bug    Electric     124
+       Fighting     310
+       Fire         145
+       Flying       982
+       Ghost         90
+...                 ...
+Water  Ice          250
+       Poison       205
+       Psychic      365
+       Rock         331
+       Steel         86
+...
+</code></pre>
+<h3>Reset the index!</h3>
+<p>You may have noticed that this is no longer in a format that you can apply more <code>pandas</code> operations on. You have to reset the index for that (this is one of the many reasons that I prefer R).</p>
+<pre><code class='language-python' lang='python'># reset index so this is useful
+df.groupby([&quot;Type 1&quot;, &quot;Type 2&quot;])[[&quot;Attack&quot;]].sum().reset_index()
+</code></pre>
+<pre><code>    Type 1    Type 2  Attack
+0      Bug  Electric     124
+1      Bug  Fighting     310
+2      Bug      Fire     145
+3      Bug    Flying     982
+4      Bug     Ghost      90
+..     ...       ...     ...
+131  Water       Ice     250
+...
+</code></pre>
+<p>&nbsp;</p>
+
+{% endblock %}

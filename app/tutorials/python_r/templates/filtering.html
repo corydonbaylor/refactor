@@ -1,0 +1,743 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1 id='advanced-filtering'>Advanced Filtering</h1>
+<p>Choosing what is in a data set is a fundamental operation of working with data. That all starts with filtering. We are going to be working with our pokemon dataset again to perform some more complicated filters.</p>
+<p><strong>Filter Equivalents</strong></p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Description</th><th>R</th><th>Python</th></tr></thead>
+<tbody><tr><td>A simple filter</td><td><code>filter()</code></td><td><code>df[df[&#39;col&#39;] == &#39;cond&#39;]</code></td></tr><tr><td>Multiple filters</td><td><code>filter()</code></td><td><code>df[ (df[&#39;col&#39;] == &#39;cond1&#39;) &amp; (df[&#39;col&#39;] == &#39;cond2&#39;)]</code></td></tr><tr><td>Filter in a list</td><td><code>filter(x %in% y)</code></td><td><code>df[df[&#39;col&#39;].isin(list)]</code></td></tr><tr><td>Filter not in a list</td><td><code>filter(!x %in% y)</code></td><td><code>df[~df[&#39;col&#39;].isin(list)]</code></td></tr><tr><td>Drop duplicates</td><td><code>filter(!duplicated())</code></td><td><code>df.drop_duplicates()</code></td></tr><tr><td>Drop duplicated column</td><td><code>filter(!duplicated())</code></td><td><code>df.drop_duplicates(subset = [&#39;a&#39;, &#39;c&#39;])</code></td></tr></tbody>
+</table></figure>
+<p>&nbsp;</p>
+
+<pre><code class='language-python' lang='python'>import pandas as pd
+
+  df = pd.read_csv("http://www.corydonbaylor.io/pokemon")
+  df.head(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='the-basic'>The Basic</h2>
+<p>Just as a review, here is how you do the most basic of filters:</p>
+<pre><code class='language-python' lang='python'>df[df[&#39;Type 1&#39;] == &quot;Fire&quot;].head(5)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>Charmander</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>39</td>
+      <td>52</td>
+      <td>43</td>
+      <td>60</td>
+      <td>50</td>
+      <td>65</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5</td>
+      <td>Charmeleon</td>
+      <td>Fire</td>
+      <td>NaN</td>
+      <td>58</td>
+      <td>64</td>
+      <td>58</td>
+      <td>80</td>
+      <td>65</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>Charizard</td>
+      <td>Fire</td>
+      <td>Flying</td>
+      <td>78</td>
+      <td>84</td>
+      <td>78</td>
+      <td>109</td>
+      <td>85</td>
+      <td>100</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>6</td>
+      <td>CharizardMega Charizard X</td>
+      <td>Fire</td>
+      <td>Dragon</td>
+      <td>78</td>
+      <td>130</td>
+      <td>111</td>
+      <td>130</td>
+      <td>85</td>
+      <td>100</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>6</td>
+      <td>CharizardMega Charizard Y</td>
+      <td>Fire</td>
+      <td>Flying</td>
+      <td>78</td>
+      <td>104</td>
+      <td>78</td>
+      <td>159</td>
+      <td>115</td>
+      <td>100</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='multiple-conditions'>Multiple Conditions</h2>
+<p>You can string together multiple conditions. Just make sure you put them in parenthesis.</p>
+<pre><code class='language-python' lang='python'># dont forget to seperate with parenthesis
+
+# OR
+df[(df[&quot;Type 1&quot;] == &quot;Grass&quot;) | (df[&quot;Type 2&quot;] == &quot;Flying&quot;)]
+# AND
+df[(df[&quot;Type 1&quot;] == &quot;Grass&quot;) &amp; (df[&quot;Type 2&quot;] == &quot;Flying&quot;)]
+
+# AND OR
+new_df = df[((df[&quot;Type 1&quot;] == &quot;Grass&quot;) &amp; (df[&quot;Type 2&quot;] == &quot;Flying&quot;)) | (df[&quot;HP&quot;] &gt; 200)]
+new_df
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>121</th>
+      <td>113</td>
+      <td>Chansey</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>250</td>
+      <td>5</td>
+      <td>5</td>
+      <td>35</td>
+      <td>105</td>
+      <td>50</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>187</td>
+      <td>Hoppip</td>
+      <td>Grass</td>
+      <td>Flying</td>
+      <td>35</td>
+      <td>35</td>
+      <td>40</td>
+      <td>35</td>
+      <td>55</td>
+      <td>50</td>
+      <td>2</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>188</td>
+      <td>Skiploom</td>
+      <td>Grass</td>
+      <td>Flying</td>
+      <td>55</td>
+      <td>45</td>
+      <td>50</td>
+      <td>45</td>
+      <td>65</td>
+      <td>80</td>
+      <td>2</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>189</td>
+      <td>Jumpluff</td>
+      <td>Grass</td>
+      <td>Flying</td>
+      <td>75</td>
+      <td>55</td>
+      <td>70</td>
+      <td>55</td>
+      <td>95</td>
+      <td>110</td>
+      <td>2</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>261</th>
+      <td>242</td>
+      <td>Blissey</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>255</td>
+      <td>10</td>
+      <td>10</td>
+      <td>75</td>
+      <td>135</td>
+      <td>55</td>
+      <td>2</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>390</th>
+      <td>357</td>
+      <td>Tropius</td>
+      <td>Grass</td>
+      <td>Flying</td>
+      <td>99</td>
+      <td>68</td>
+      <td>83</td>
+      <td>72</td>
+      <td>87</td>
+      <td>51</td>
+      <td>3</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>551</th>
+      <td>492</td>
+      <td>ShayminSky Forme</td>
+      <td>Grass</td>
+      <td>Flying</td>
+      <td>100</td>
+      <td>103</td>
+      <td>75</td>
+      <td>120</td>
+      <td>75</td>
+      <td>127</td>
+      <td>4</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='in-filtering-within-a-list'><code>%in%</code>: Filtering within a List</h2>
+<p>The combo of <code>%in%</code> and <code>!(%in%)</code> are probably one of the most used logical operators that I use in R. Luckily the equivalent in python is super straight forward. Just use <code>.isin()</code></p>
+<pre><code class='language-python' lang='python'># x is in y
+df[df[&#39;Type 1&#39;].isin([&#39;Fire&#39;, &#39;Water&#39;])].head(5)
+# x is not in y
+df[~df[&#39;Type 1&#39;].isin([&#39;Fire&#39;, &#39;Water&#39;])].head(5)
+
+# saving a list as something
+ls = [&#39;Bug&#39;, &#39;Water&#39;]
+df[df[&#39;Type 1&#39;].isin(ls)].head(5)
+
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9</th>
+      <td>7</td>
+      <td>Squirtle</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>44</td>
+      <td>48</td>
+      <td>65</td>
+      <td>50</td>
+      <td>64</td>
+      <td>43</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>8</td>
+      <td>Wartortle</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>59</td>
+      <td>63</td>
+      <td>80</td>
+      <td>65</td>
+      <td>80</td>
+      <td>58</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>79</td>
+      <td>83</td>
+      <td>100</td>
+      <td>85</td>
+      <td>105</td>
+      <td>78</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>9</td>
+      <td>BlastoiseMega Blastoise</td>
+      <td>Water</td>
+      <td>NaN</td>
+      <td>79</td>
+      <td>103</td>
+      <td>120</td>
+      <td>135</td>
+      <td>115</td>
+      <td>78</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>10</td>
+      <td>Caterpie</td>
+      <td>Bug</td>
+      <td>NaN</td>
+      <td>45</td>
+      <td>30</td>
+      <td>35</td>
+      <td>20</td>
+      <td>20</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id='isna-filtering-out-nan'><code>!is.na()</code>: Filtering Out <code>NaN</code></h2>
+<p>Often the case when joining together different datasets, you will need to remove rows that have missing values. The <code>.notnull()</code> operator will help with just that:</p>
+<pre><code class='language-python' lang='python'># You will see that Squirtle and co. are missing now :(
+df[df[&#39;Type 2&#39;].notnull()]
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type 1</th>
+      <th>Type 2</th>
+      <th>HP</th>
+      <th>Attack</th>
+      <th>Defense</th>
+      <th>Sp. Atk</th>
+      <th>Sp. Def</th>
+      <th>Speed</th>
+      <th>Generation</th>
+      <th>Legendary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Bulbasaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>45</td>
+      <td>49</td>
+      <td>49</td>
+      <td>65</td>
+      <td>65</td>
+      <td>45</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Ivysaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>60</td>
+      <td>62</td>
+      <td>63</td>
+      <td>80</td>
+      <td>80</td>
+      <td>60</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Venusaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>82</td>
+      <td>83</td>
+      <td>100</td>
+      <td>100</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>VenusaurMega Venusaur</td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>80</td>
+      <td>100</td>
+      <td>123</td>
+      <td>122</td>
+      <td>120</td>
+      <td>80</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>Charizard</td>
+      <td>Fire</td>
+      <td>Flying</td>
+      <td>78</td>
+      <td>84</td>
+      <td>78</td>
+      <td>109</td>
+      <td>85</td>
+      <td>100</td>
+      <td>1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>795</th>
+      <td>719</td>
+      <td>Diancie</td>
+      <td>Rock</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>100</td>
+      <td>150</td>
+      <td>100</td>
+      <td>150</td>
+      <td>50</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>796</th>
+      <td>719</td>
+      <td>DiancieMega Diancie</td>
+      <td>Rock</td>
+      <td>Fairy</td>
+      <td>50</td>
+      <td>160</td>
+      <td>110</td>
+      <td>160</td>
+      <td>110</td>
+      <td>110</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>797</th>
+      <td>720</td>
+      <td>HoopaHoopa Confined</td>
+      <td>Psychic</td>
+      <td>Ghost</td>
+      <td>80</td>
+      <td>110</td>
+      <td>60</td>
+      <td>150</td>
+      <td>130</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>798</th>
+      <td>720</td>
+      <td>HoopaHoopa Unbound</td>
+      <td>Psychic</td>
+      <td>Dark</td>
+      <td>80</td>
+      <td>160</td>
+      <td>60</td>
+      <td>170</td>
+      <td>130</td>
+      <td>80</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>799</th>
+      <td>721</td>
+      <td>Volcanion</td>
+      <td>Fire</td>
+      <td>Water</td>
+      <td>80</td>
+      <td>110</td>
+      <td>120</td>
+      <td>130</td>
+      <td>90</td>
+      <td>70</td>
+      <td>6</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>414 rows × 12 columns</p>
+<h2 id='dropping-duplicates'>Dropping Duplicates</h2>
+<p>I will admit, I think dropping duplicates is easier in pandas than in R with the <code>df.drop_duplicates()</code> function.</p>
+<pre><code class='language-python' lang='python'># first lets create a dataframe that has duplicates to drop
+df = pd.DataFrame({&quot;A&quot;:[&quot;foo&quot;, &quot;foo&quot;, &quot;foo&quot;, &quot;bar&quot;], &quot;B&quot;:[0,1,1,1], &quot;C&quot;:[&quot;A&quot;,&quot;A&quot;,&quot;B&quot;,&quot;A&quot;]})
+df
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+      <th>C</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>foo</td>
+      <td>0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>foo</td>
+      <td>1</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>foo</td>
+      <td>1</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>bar</td>
+      <td>1</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+<p>You can drop all entirely duplicated rows with just <code>df.drop_duplicates()</code> but you can also drop duplicates based on certain columns using the subset argument. By default, it will keep the first row and drop the second:</p>
+<pre><code class='language-python' lang='python'>df.drop_duplicates(subset=[&#39;A&#39;, &#39;C&#39;])
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+      <th>C</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>foo</td>
+      <td>0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>foo</td>
+      <td>1</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>bar</td>
+      <td>1</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+<p>The keep arguement lets you decide if you want to keep the first or second duplicates or drop them all:</p>
+<pre><code class='language-python' lang='python'># keep the first (default)
+df.drop_duplicates(subset=[&#39;A&#39;, &#39;C&#39;], keep = &#39;first&#39;)
+# keep the last
+df.drop_duplicates(subset=[&#39;A&#39;, &#39;C&#39;], keep = &#39;last&#39;)
+# drop them all
+df.drop_duplicates(subset=[&#39;A&#39;, &#39;C&#39;], keep = False)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+      <th>C</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>foo</td>
+      <td>1</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>bar</td>
+      <td>1</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

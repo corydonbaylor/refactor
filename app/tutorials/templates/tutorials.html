@@ -6,15 +6,19 @@
 <head>
     <link rel="stylesheet" href="{{ url_for('tutorials.static', filename='css/tutorials.css') }}">
 </head>
-<h1 class="heroes">We got some learning to do</h1>
+<h1 class="heroes">We've got some learning to do</h1>
 
 <div class="grid-container">
-    <div class="grid-item order-1">
-        <h3>Python or R</h3>
+    <div class="grid-item order-1" id="python-r">
+        <h3>Python for R Enthusiasts</h3>
         <ul class="word-list" style="display: none;">
-            <li>Word 6A</li>
-            <li>Word 6B</li>
-            <li>Word 6C</li>
+            <li><a href="{{ url_for('python_r.reticulate') }}">Using Python in R Studio</a></li>
+            <li><a href="{{ url_for('python_r.data_types') }}">Data Type Comparison</a></li>
+            <li><a href="{{ url_for('python_r.save') }}">Saving Your Data</a></li>
+            <li><a href="{{ url_for('python_r.pandas') }}">Intro into Pandas</a></li>
+            <li><a href="{{ url_for('python_r.filtering') }}">Advanced Filtering</a></li>
+            <li><a href="{{ url_for('python_r.groupby') }}">Advanced Group Bys</a></li>
+            <li><a href="{{ url_for('python_r.combining') }}">Combining Data Frames</a></li>
         </ul>
     </div>
     <div class="grid-item order-2">Box 2</div>
@@ -23,9 +27,6 @@
     <div class="grid-item order-5">Box 5</div>
     <div class="grid-item order-6">Box 6</div>
 </div>
-
-
-<a href="{{ url_for('python_r.index') }}">Travel</a>
 
 <script src="{{ url_for('tutorials.static', filename='js/grid.js') }}"></script>
 

@@ -30,3 +30,37 @@ gridItems.forEach(item => {
         item.classList.toggle('expanded'); // Example toggle for expansion
     });
 });
+
+// Select all grid items
+
+// Add click event listener to each grid item
+gridItems.forEach(item => {
+    item.addEventListener('click', () => {
+        // Find the word list within this grid item
+        const wordList = item.querySelector('.word-list');
+        
+        if (wordList) {
+            // Toggle the visibility of the word list
+            if (wordList.style.display === 'none' || wordList.style.display === '') {
+                wordList.style.display = 'block';
+                item.classList.add('expanded');
+            } else {
+                wordList.style.display = 'none';
+                item.classList.remove('expanded');
+            }
+        }
+        
+        // Optional: Close other open lists
+        gridItems.forEach(otherItem => {
+            if (otherItem !== item) {
+                const otherWordList = otherItem.querySelector('.word-list');
+                if (otherWordList) {
+                    otherWordList.style.display = 'none';
+                }
+                otherItem.classList.remove('expanded');
+            }
+        });
+    });
+});
+
+

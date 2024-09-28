@@ -1,0 +1,330 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+
+<h1 id='common-data-types-in-python'>Common Data Types in Python</h1>
+<p>Working with data requires some basic information on the type of data you may run into in Python. This tutorial is going to be focused on data types as they apply to data analysis and specifically how their parallels in R. </p>
+<p>We will start with the built in data types in python and then expand to some data types in numpy and pandas. Finally, we will finish covering how data types work in a dataframe. </p>
+<h2 id='numbers-in-python'>Numbers in Python</h2>
+<p>Numbers can exist in a few different formats:</p>
+<ul>
+<li>Integers - This is your classic whole number class.</li>
+<li>Float - These are numbers with a decimnal point.</li>
+<li>Complex Numbers - These are numbers with an imaginary part. </li>
+
+</ul>
+<h2 id='strings-in-python'>Strings in Python</h2>
+<p>These are arrays of bytes representing unicode characters. They can be created by putting characters into single, double, or triple quotes.</p>
+<p>There is no character class in python. It is represented by the str class. You can actually index a string to get a particular letter.</p>
+<pre><code class='language-python' lang='python'>string = &quot;python&quot;
+string[0]
+</code></pre>
+<p>Last Output:</p>
+<pre><code>&#39;p&#39;
+</code></pre>
+<h2 id='lists'>Lists</h2>
+<p>Lists in python are kind of like vectors in R, ie those things that are created like <code>c()</code>. They are ordered arrays of items. Lists are flexible, so items do not need to be of the same type. </p>
+<p>See below for how to create a list and access some of its values:</p>
+<pre><code class='language-python' lang='python'># creating a list
+list = [&quot;lets&quot;, &quot;learn&quot;, &quot;python&quot;, &quot;today&quot;]
+# will return &quot;lets&quot;
+list[0]
+# will return &quot;python&quot;
+list[-1]
+
+# this will return 1-2
+# remember the last digit is not included!
+list[0:2]
+# this will also return the first two
+list[:2]
+# this will return the last 2
+list[-2:]
+</code></pre>
+<p>Last Output:</p>
+<pre><code>[&#39;python&#39;, &#39;today&#39;]
+</code></pre>
+<p>You can add and remove elements to a list. Unlike in R, all of these commands will directly edit the list <em>so you don&#39;t need to assign the list</em> </p>
+<pre><code class='language-python' lang='python'># adding an element to the end of a list
+
+# this will add a 1 to the end of the list
+list.append(1)
+
+# this will add &quot;test&quot; to the 3rd position in the list
+list.insert(3, &quot;test&quot;)
+
+# this will add multiple elements to the end of a list
+list.extend([&quot;more&quot;, &quot;stuff&quot;])
+
+list
+</code></pre>
+<p>Last Output:</p>
+<pre><code>[&#39;lets&#39;, &#39;learn&#39;, &#39;python&#39;, &#39;test&#39;, 1, &#39;more&#39;, &#39;stuff&#39;]
+</code></pre>
+<p>You can also remove elements from a list.</p>
+<pre><code class='language-python' lang='python'># you can remove an element by name
+list.remove(1)
+# this will remove everything from the list
+list.clear()
+list
+</code></pre>
+<p>Last Output:</p>
+<pre><code>[]
+</code></pre>
+<h2 id='dictionaries'>Dictionaries</h2>
+<p>Dictionaries are unordered collection of key values pairs are are most similar to lists in R, and bare some resemblance to JSON in web development.</p>
+<pre><code class='language-python' lang='python'># you create a dictionary with the curly brackets
+dict = {&quot;brand&quot;: &quot;Ford&quot;, &quot;model&quot;: &quot;Mustang&quot;, &quot;year&quot;: 1964}
+</code></pre>
+<p>A key value pair means you access the value by calling the key. The key goes before the : and the value goes after.</p>
+<pre><code class='language-python' lang='python'>dict[&quot;brand&quot;]
+</code></pre>
+<p>Last Output:</p>
+<pre><code>&#39;Ford&#39;
+</code></pre>
+<p>You can update a dictionary like so.</p>
+<pre><code class='language-python' lang='python'>dict[&quot;year&quot;] = 2020
+</code></pre>
+<h2 id='dataframes'>Dataframes</h2>
+<p>Dataframes in python are just like dataframes in R. They are two dimensional data structures with rows and columns. Looking at it, we can see that we are essentially creating a dictionary where the values are lists. Everything within those lists must be the same type.</p>
+<p>Lets create our first dataframe!</p>
+<pre><code class='language-python' lang='python'>import pandas as pd
+
+data = {
+  &quot;Name&quot;: [&quot;Goku&quot;, &quot;Piccolo&quot;, &quot;Vegeta&quot;],
+  &quot;Powerlevel&quot;: [9000, 200, 1000],
+  &quot;Friendship Rating&quot;: [100, 100, 0],
+  &quot;Drawability&quot;: [100, 80, 62]
+}
+
+#load data into a DataFrame object:
+df = pd.DataFrame(data)
+
+df
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>Powerlevel</th>
+      <th>Friendship Rating</th>
+      <th>Drawability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Goku</td>
+      <td>9000</td>
+      <td>100</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Piccolo</td>
+      <td>200</td>
+      <td>100</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Vegeta</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>62</td>
+    </tr>
+  </tbody>
+</table>
+<p>Lets say that we want to observe either the head or tail of the data.</p>
+<p>We would use the <code>df.head()</code> or <code>df.tail()</code> method to do that. You can of course put the number of rows you want within the method.</p>
+<pre><code class='language-python' lang='python'>df.head(5)
+df.tail(2)
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>Powerlevel</th>
+      <th>Friendship Rating</th>
+      <th>Drawability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Piccolo</td>
+      <td>200</td>
+      <td>100</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Vegeta</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>62</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id='accessing-columns'>Accessing Columns</h3>
+<p>Columns are essentially lists! You can access them in much the same way:</p>
+<pre><code class='language-python' lang='python'># give me the column names
+df.columns
+
+# give me the values of a specific column
+# we are limiting to the first two
+# DONT FORGET INDEX STARTS AT 0
+df[&quot;Name&quot;][0:2]
+
+# you can do the below for the same result
+df.Name[0:2]
+
+# multiple columns
+df[[&quot;Name&quot;, &quot;Powerlevel&quot;]][0:2]
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>Powerlevel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Goku</td>
+      <td>9000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Piccolo</td>
+      <td>200</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id='accessing-rows-and-columns'>Accessing Rows and Columns</h3>
+<p>Use <code>iloc</code> to access a particular row and column. This is similar to the <code>df[r,c]</code> notation in R. </p>
+<p>It does unfortunately seems to make it not a df anymore</p>
+<pre><code class='language-python' lang='python'># this will give us the first three rows and the SECOND column
+new = df.iloc[0:3,1]
+
+# you have to coerce this back into a df
+new = pd.DataFrame(new)
+new
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Powerlevel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>9000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>200</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1000</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id='describing-the-data'>Describing the Data</h3>
+<p>You can also get basic summary stats using <code>df.describe()</code></p>
+<pre><code class='language-python' lang='python'>df.describe()
+</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Powerlevel</th>
+      <th>Friendship Rating</th>
+      <th>Drawability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>3.000000</td>
+      <td>3.000000</td>
+      <td>3.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>3400.000000</td>
+      <td>66.666667</td>
+      <td>80.666667</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>4866.210024</td>
+      <td>57.735027</td>
+      <td>19.008770</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>200.000000</td>
+      <td>0.000000</td>
+      <td>62.000000</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>600.000000</td>
+      <td>50.000000</td>
+      <td>71.000000</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>1000.000000</td>
+      <td>100.000000</td>
+      <td>80.000000</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>5000.000000</td>
+      <td>100.000000</td>
+      <td>90.000000</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>9000.000000</td>
+      <td>100.000000</td>
+      <td>100.000000</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}
