@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Best New Artist</h1>
+<p>How good is the Grammy&#39;s at predicting ~~<em>the future</em>~~? The answer is kind of good, but not great&mdash; at least when it comes to &quot;Best New Artist&quot;. I wanted to examine if the winner of best new artist had more staying power than the rest of their nominees. </p>
+<p>My measure of &quot;staying power&quot;  would the number of followers on Spotify. I couldn&#39;t find album sales by artist, and monthly followers would be too erratic. Plus this was this data was relatively easy to get.</p>
+<p>So what did I find?  Only for 18 of the 66 years that the Grammy&#39;s have been awarding &quot;Best New Artist&quot; did the Grammy&#39;s get it right. Some years were more wildly wrong than others (if you agree that followers on Spotify is a good measure who should be the best new artist).</p>
+<p>Take 2011 for example. </p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Nominated Artist</th><th>Followers</th></tr></thead>
+<tbody><tr><td>Justin Bieber</td><td>75,128,817</td></tr><tr><td>Drake</td><td>83,343,142</td></tr><tr><td>Florence and the Machine</td><td>6,606,900</td></tr><tr><td>Mumford and Sons</td><td>6,538,520</td></tr><tr><td><strong>Esperanza Spalding (Winner)</strong></td><td>369,288</td></tr></tbody>
+</table></figure>
+<p>In what world is Esperanza Spalding the best new artist in a year that includes: Justin Bieber, Drake, Florence and the Machine, and Mumford and Sons? At least by impact, Drake should have won.</p>
+<p>See below for results for the 2000s:</p>
+<img src="{{url_for('static', filename='images/viz/grammys.png')}}"></img>
+<h2>The Code</h2>
+<p>First we need to get the data. Let&#39;s start with getting the best new artist for each year along with the nominees. We will be using <code>BeautifulSoup</code>:</p>
+<pre><code class='language-python' lang='python'>from bs4 import BeautifulSoup
+import requests 
+import html5lib
+import pandas as pd
+import numpy as np
+import time
+
+# getting all the tables from wikipedia
+URL = &quot;https://en.wikipedia.org/wiki/Grammy_Award_for_Best_New_Artist&quot;
+r = requests.get(URL) 
+sp = BeautifulSoup(r.content, &quot;lxml&quot;)  
+tables = sp.find_all(&#39;table&#39;, {&quot;class&quot;: &quot;wikitable&quot;})
+
+</code></pre>
+<p>In order to unpack the results, we will be adding each nominee as a row to a data frame called <code>final</code>. Because they are in separate tables on wikipedia, we will have two loops&mdash; one that loops through each table, and one that loops through each row in each table.</p>
+<pre><code class='language-python' lang='python'># final dataframe
+final = pd.DataFrame() 
+
+for table in tables:
+  
+  # turn into a normal dataframe and add a seperator
+  df = pd.read_html(str(table).replace(&#39;&lt;/li&gt;&#39;,&#39;NOPE&#39;))[0]
+
+  # for each dataframe, seperate each nominee into their own row
+  for index, row in df.iterrows():
+
+        # the three columns that will be in each row
+        # split based on seperator
+        nominees = row[&#39;Nominees&#39;].split(&quot;NOPE &quot;)
+        year = np.tile(row[&quot;Year[I]&quot;], len(nominees)).tolist()
+        winner = np.tile(&quot;No&quot;, len(nominees)).tolist()
+        
+        # this will be the new row
+        temp = pd.DataFrame({
+            &quot;nominees&quot;: nominees,
+            &quot;year&quot;: year,
+            &quot;winner&quot;: winner
+          })
+          
+        # concating to final
+        final = pd.concat([final, temp])
+  
+  # now we need to do the winners
+  for index, row in df.iterrows():
+        
+        # now we do the same thing for the winners
+        nominees = row[&#39;Recipient&#39;]
+        year = row[&quot;Year[I]&quot;] 
+        winner = [&quot;Yes&quot;]
+        
+        # this will be the new row
+        temp = pd.DataFrame({
+            &quot;nominees&quot;: nominees,
+            &quot;year&quot;: year,
+            &quot;winner&quot;: winner
+          })
+          
+        # concating to final
+        final = pd.concat([final, temp])
+
+# getting rid of the NOPE      
+final[&#39;nominees&#39;] = final[&#39;nominees&#39;].str.replace(&#39;NOPE&#39;,&#39;&#39;)
+# dont include 2024
+final = final[final[&#39;year&#39;] != 2024]
+final
+
+</code></pre>
+<p>Next we need to get the number of followers per artist. We will hit the Spotify Search API and add it as a column:</p>
+<pre><code class='language-python' lang='python'>#### ADDING TOKEN
+# this will last for one hour
+
+AUTH_URL = &#39;https://accounts.spotify.com/api/token&#39;
+
+# POST
+auth_response = requests.post(AUTH_URL, {
+    &#39;grant_type&#39;: &#39;client_credentials&#39;,
+    &#39;client_id&#39;: &quot;YOUR ID&quot;,
+    &#39;client_secret&#39;: &quot;YOUR SECRET&quot;,
+})
+
+# convert the response to JSON
+auth_response_data = auth_response.json()
+
+# save the access token
+access_token = auth_response_data[&#39;access_token&#39;]
+
+headers = {
+    &#39;Authorization&#39;: &#39;Bearer {token}&#39;.format(token=access_token)
+}
+
+#### CREATING LOOP
+count = []
+
+for index, row in final.iterrows():
+  
+  # too many requests and the loop doesnt work
+  time.sleep(.7)
+  print(index)
+  artist = row[&quot;nominees&quot;]
+  
+  try:
+    artist_search = &#39;https://api.spotify.com/v1/search?q=&#39; + artist + &#39;&amp;type=artist&amp;limit=1&#39;
+    
+    # actual GET request with proper header
+    r = requests.get(artist_search, headers=headers)
+    r = r.json()
+    # this is the number of followers for the artist
+    num = r[&quot;artists&quot;][&quot;items&quot;][0][&quot;followers&quot;][&quot;total&quot;]
+    print(num)
+    count.append(num)
+  except:
+    count.append(None)
+
+
+# add the count as a new column
+final[&quot;followers&quot;] = count
+
+</code></pre>
+<p>Once we finish that, we just need to add some new columns and rearrange the data. First we want to have two columns, one that has nominee with most followers per year and one that has the actual number of followers for that artist. Then we will filter down to those who won the grammy.</p>
+<pre><code class='language-python' lang='python'># first we need to find the highest value of followers per group
+final[&quot;highest&quot;] = final.groupby(&quot;year&quot;)[&quot;followers&quot;].transform(max)
+
+# then we need find the difference in followers between the highest
+# and the nominees
+final[&quot;difference&quot;] = final[&quot;followers&quot;] - final[&quot;highest&quot;]
+
+# next we are gonna create a score
+# if the followers is the same as the highest, show the highest
+# otherwise show the difference
+
+# this is the value we are gonna graph
+final[&quot;shoulda&quot;] = np.where(final[&quot;followers&quot;]==final[&quot;highest&quot;], 
+    0, final[&quot;highest&quot;])
+
+# next we need to know who had the highest for each year
+highest = final[final[&quot;difference&quot;] == 0]
+# we have to reset the index because py sucks
+highest = highest.reset_index()
+# we are gonn rename this to deserved and join it back to final
+highest[&#39;deserved&#39;] = highest[&quot;nominees&quot;]
+# less columns for the join
+highest = highest[[&quot;year&quot;, &quot;deserved&quot;]]
+
+# then we are to do a left join and fill it in with the value
+merged = pd.merge(final, highest, on=&#39;year&#39;, how=&#39;left&#39;).fillna(method=&#39;ffill&#39;)
+
+# and finally filter down to the winners
+winners = merged[merged[&quot;winner&quot;] == &quot;Yes&quot;][[&quot;year&quot;, &quot;nominees&quot;, &quot;shoulda&quot;, &quot;followers&quot;, &quot;difference&quot;, &quot;deserved&quot;]]
+
+</code></pre>
+<p>Finally, we just need to make the graph:</p>
+<pre><code class='language-python' lang='python'># next we are going to prepare the data for the graph
+winners = winners[winners[&quot;year&quot;]&lt; 2024]
+
+# adding the year after the winner and deserved
+winners[&quot;winner&quot;] = winners[&quot;nominees&quot;] +  &quot; (&quot; + winners[&quot;year&quot;].astype(str) + &quot;)&quot;  
+winners[&quot;deserved&quot;] = winners[&quot;deserved&quot;] +  &quot; (&quot; + winners[&quot;year&quot;].astype(str) + &quot;)&quot;   
+
+# we will use this to add the labels
+winners[&quot;offset&quot;] = 0
+
+# we need a way to make the numbers in a human format
+# i took this from stack overflow
+# adding labels for difference
+def human_format(num):
+    if num &gt; 0:
+        num = float(&#39;{:.3g}&#39;.format(num))
+        magnitude = 0
+        while abs(num) &gt;= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return &#39;{}{}&#39;.format(&#39;{:f}&#39;.format(num).rstrip(&#39;0&#39;).rstrip(&#39;.&#39;), [&#39;&#39;, &#39;K&#39;, &#39;M&#39;, &#39;B&#39;, &#39;T&#39;][magnitude])
+    else:
+        return &quot;&quot;
+
+# now i need to apply it to the values in the variables    
+out = []
+for x in df[&quot;shoulda&quot;]:  
+    out.append(human_format(abs(x)))
+    
+winners[&quot;shoulda_lab&quot;] = out
+
+out = []
+for x in df[&quot;followers&quot;]:  
+    out.append(human_format(abs(x)))
+    
+winners[&quot;followers_lab&quot;] = out
+
+# finally, we create the graph!
+import matplotlib.pyplot as plt
+import numpy as np
+
+df2 = winners[winners[&quot;year&quot;]&gt;1999]
+
+xaxis = df2[&quot;year&quot;]
+x1 = df2[&quot;followers&quot;]
+x2 = df2[&quot;shoulda&quot;]
+fig, ax = plt.subplots()
+bottom = ax.bar(xaxis, -x1) #winners
+top = ax.bar(xaxis, x2, color = &quot;red&quot;) # should have won
+ax.bar_label(bottom, labels = df2[&quot;followers_lab&quot;], rotation=90)
+ax.bar_label(top, labels = df2[&quot;shoulda_lab&quot;], rotation=90, padding = 5)
+
+# in order for the artist names to be the same distance from each other
+# we need to add padding from the same point, which in this case
+# would be the offset variable set to 0
+label_top = ax.bar(xaxis, df2[&quot;offset&quot;])
+label_bottom = ax.bar(xaxis, df2[&quot;offset&quot;])
+
+ax.bar_label(label_top, labels = df2[&quot;deserved&quot;], rotation=90, padding = 300)
+ax.bar_label(label_bottom, labels = df2[&quot;winner&quot;], rotation=90, padding = -325)
+
+# taking out all the lines and such
+ax.set(xlabel=None, ylabel=None)
+ax.spines[&#39;top&#39;].set_visible(False)
+ax.spines[&#39;right&#39;].set_visible(False)
+ax.spines[&#39;bottom&#39;].set_visible(False)
+ax.spines[&#39;left&#39;].set_visible(False)
+ax.get_xaxis().set_ticks([])
+ax.get_yaxis().set_ticks([])
+
+</code></pre>
+<p>&nbsp;</p>
+
+
+{% endblock %}

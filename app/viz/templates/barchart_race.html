@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 id="barchart-race">barchart-race</h1>
+<p>I decided to try my hand at making one of the increasingly popular bar chart race plots. And since I
+        work in government consulting, I of course decided to give it a government flavor. I give you
+        budget outlays by year and department.</p>
+<p>Let the race begin!</p>
+<p><img src="{{url_for('static', filename='images/viz/final.gif')}}" alt="alt text"></p>
+<p>So how does this work?</p>
+<p>This is all done in R using this wonderful package called “gganimate”. Basically what this package
+        lets you make gifs out of ggplots!</p>
+<p>First lets start with the type of data that is needed for gganimate:</p>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+        <thead>
+                <tr>
+                        <th>Time</th>
+                        <th>Department</th>
+                        <th>Budget</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                        <td>2018</td>
+                        <td>DoD</td>
+                        <td>105</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>DoD</td>
+                        <td>100</td>
+                </tr>
+                <tr>
+                        <td>2018</td>
+                        <td>SSA</td>
+                        <td>55</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>SSA</td>
+                        <td>50</td>
+                </tr>
+        </tbody>
+</table>
+<p>How gganimate works is that the user to designate a variable as the “transition variable”. The
+        packages then splits the plot data up into different states by the transition variable and
+        animates transitions between those states. </p>
+<p>So for this example, if you pick the “Time” variable, each frame in the gif will the source data
+        filtered down to one year. The first frame will be a bar graph for just 2017, the second frame
+        will be a bar graph for just 2018, and so on and on. Basically, you are creating hundreds of
+        plots and showing one at a time to create a movie.</p>
+<p>Here is what the above gif would look like if all the frames were shown at once:</p>
+<p><img src="{{url_for('static', filename='images/viz/all-together.jpg')}}" alt=""></p>
+<p>On top of cutting the plot data by time and showing them in sequence, gganimate also interpolates
+        what should be between each plot. This allows you to create gifs with limited amount of data and
+        smooths the animation between data points. As such, frames come in two flavors in gganimate:
+        state and transitional. State frames are data points explicitly provided by the user.
+        Transitional frames are interpolated data points between state frames. Using the above example,
+        here is what is happening:</p>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+        <thead>
+                <tr>
+                        <th>Time</th>
+                        <th>Department</th>
+                        <th>Budget</th>
+                        <th>Frame Type</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                        <td>2018</td>
+                        <td>DoD</td>
+                        <td>105</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2017.5</td>
+                        <td>DoD</td>
+                        <td>103</td>
+                        <td>Transitional</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>DoD</td>
+                        <td>100</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2018</td>
+                        <td>SSA</td>
+                        <td>55</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2017.5</td>
+                        <td>SSA</td>
+                        <td>53</td>
+                        <td>Transitional</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>SSA</td>
+                        <td>50</td>
+                        <td>State</td>
+                </tr>
+        </tbody>
+</table>
+<p>There would be three frames for this animation. Two state frames (2017 and 2018) and one transitional
+        frame (2017.5). Realistically, there would be a lot more transitional frames between the two
+        state frames to create a smooth animation. You can even specify the ratio between state frames
+        and transition frames and how many frames the gif should be made up of! Playing around with
+        these setting allows you to control how smooth the animation is and how long it “rests” on a
+        state frame. </p>
+<p>For my gif, I specified there should be 4 times as many transitional frames as state frames, 500
+        frames overall, and it should run at 15 frames per second. More overall frames means more
+        transition frames and thus better animations between states, but it also greatly increases the
+        time to render. This animation took about 2 minutes to render—which was a real pain to debug. In
+        fact, when I was debugging, I set the total frames to 10, so that I didn’t spend a ton of time
+        looking at a loading screen when changing the plot around.</p>
+<p>There is one more important concept to go over: object permanence. Like a new born baby, gganimate
+        does not have object permanence built in. You need to be explicit about what objects in the plot
+        can be animated. Lets say that you picked “Department” instead of “Time”, then gganimate would
+        morph the value of SSA into DoD. </p>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+        <thead>
+                <tr>
+                        <th>Time</th>
+                        <th>Department</th>
+                        <th>Budget</th>
+                        <th>Frame Type</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                        <td>2018</td>
+                        <td>DoD</td>
+                        <td>105</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2018</td>
+                        <td>DoD</td>
+                        <td>100</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2018</td>
+                        <td>SSA + DoD</td>
+                        <td>80</td>
+                        <td>Transitional</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>SSA + DoD</td>
+                        <td>65</td>
+                        <td>Transitional</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>SSA</td>
+                        <td>55</td>
+                        <td>State</td>
+                </tr>
+                <tr>
+                        <td>2017</td>
+                        <td>SSA</td>
+                        <td>50</td>
+                        <td>State</td>
+                </tr>
+        </tbody>
+</table>
+<p>The values of 80 and 65 don’t really mean anything because the Department of Defense and the Social
+        Security Administration are permanent objects. They cannot morph into each other—at least in the
+        context of a sensible graphic. We need to be explicit about what objects can be animated and
+        which cannot or else we will get some strange behavior in our gifs. Follow the link for
+        gganimate for more info. </p>
+<p>A lot went into making this plot, most of which is particular to this plot rather than something that
+        most people would be interested in for their own animations. Check out the code for how this
+        particular gif was made. Its well commented so it can serve as a bit of template for making
+        things like this in the future—whether for clients or for fun! </p>
+{% endblock %}

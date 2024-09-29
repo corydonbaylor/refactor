@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="title toc-ignore">COVID-19 Dot Map</h2>
+
+<p>The unseen nature of the COVID-19 can make the virus feel even more threatening. Data visualization can be one tool
+  that may lead to greater understanding and demystification of what is happening. In that vein, I created a dot map
+  showing the change in the number of cases of COVID 19 in the DMV region.</p>
+
+<img src="{{url_for('static', filename='images/viz/covid19_dot_map.gif')}}"></img>
+
+<div id="TOC">
+  <!-- <ul>
+<li><a href="#finding-a-time-series">Finding a Time Series</a></li>
+<li><a href="#creating-a-dotmap">Creating a Dotmap</a></li>
+<li><a href="#pulling-the-final-set-together">Pulling the Final Set Together</a></li>
+<li><a href="#making-the-plot">Making the Plot</a></li>
+<li><a href="#animating-the-whole-thing">Animating the Whole Thing</a></li>
+</ul> -->
+</div>
+<div id="finding-a-time-series" class="section level2">
+  <h3>Finding a Time Series</h3>
+  <p>We will be using gganimate to stitch together a gif (which for the record is pronounced like the peanut butter) of
+    the change in COVID-19 in the DMV region over time.</p>
+  <p><code>gganimate</code> creates a gif by creating a sequence of plots and stitching them together, kind of like a
+    flipbook. For more information on how this works, check out my post on making a <a
+      href="https://corydonbaylor.github.io/visualizations/barchart_race.html">barchart race</a> or <a
+      href="www.gganimate.com">gganimate.com</a>.</p>
+  <p>We will need daily COVID-19 by county to create a sequence. Luckily, we can find that data at <a
+      href="https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/">usafacts.org</a>, which a nonprofit
+    organization founded by Steve Ballmer.</p>
+  <p>Unforuntately, the data comes with each day as a column rather than a row, so we will need to do some mild
+    transformations. Additionally, we will be joining this dataset to a geospatial dataset later and thus need to
+    standardize county names.</p>
+  <pre class="r"><code># Creating COVID Time Series ----------------------------------------------
+
+
+# cleaning up data
+dmv = read.csv(&quot;covid_confirmed_usafacts.csv&quot;, stringsAsFactors = F)%&gt;%
+  filter(State %in% c(&quot;VA&quot;, &quot;DC&quot;, &quot;MD&quot;))%&gt;%
+  select(-c(ï..countyFIPS, stateFIPS))
+  
+# creating a time series 
+dmv_ts = dmv%&gt;%
+  mutate(county_state =  paste0(tolower(gsub(&quot; County|\\.|&#39;&quot;, &quot;&quot;, County.Name)),&quot;, &quot;,
+                                tolower(
+                                  ifelse(
+                                    State == &quot;DC&quot;, &quot;district of columbia&quot;, #dc isnt in state.abb
+                                    state.name[match(State, state.abb)]
+                                  ) # ifelse
+                                  )# to lower
+                                ) # paste0
+         )%&gt;%
+  select(-State, -County.Name)%&gt;%
+  gather(Date, Count, -county_state)%&gt;%
+  mutate(Date = mdy(gsub(&quot;X&quot;, &quot;&quot;, Date)))%&gt;%
+  filter(Date &gt;= &#39;2020-03-01&#39;)</code></pre>
+  <p>Because COVID first reached the region in early March, I filtered the dataset to only include dates past March 1st.
+  </p>
+  <p>I want to point out that Maryland and Virginia both have some strangely named counties and cities, and thus need
+    extra work.</p>
+  <pre class="r"><code># there are a few edge case county names that need to be adjusted for
+dmv_ts = dmv_ts%&gt;%
+  mutate(county_state = ifelse(
+    county_state %in% c(&quot;baltimore city, maryland&quot;, 
+                        &quot;james city, virginia&quot;,
+                        &quot;charles city, virginia&quot;),
+    county_state,
+    gsub(&quot; city&quot;, &quot;&quot;, county_state)
+    ))
+
+dmv_ts%&gt;%
+  slice(1:5)%&gt;%
+  kable()%&gt;%
+  kable_styling(&quot;striped&quot;)  </code></pre>
+  <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th style="text-align:left;">
+          county_state
+        </th>
+        <th style="text-align:left;">
+          Date
+        </th>
+        <th style="text-align:right;">
+          Count
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:left;">
+          washington, district of columbia
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          statewide unallocated, maryland
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          allegany, maryland
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          anne arundel, maryland
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          baltimore, maryland
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div id="creating-a-dotmap" class="section level2">
+  <h3>Creating a Dotmap</h3>
+  <p>Now for the interesting part, creating a dot map. For more info on the method I am using, <a
+      href="https://taraskaduk.com/2017/11/26/pixel-maps/">go here</a>.</p>
+  <p>To make this map, we will create a square grid of dots over DMV and then remove the all the dots that don’t fall
+    directly over DC, Maryland, or Virginia. First, lets create an evenly spaced grid of dots using lats and longs.</p>
+  <pre class="r"><code># DC, Maryland and Virginia sit between the 36th and 40th latitude
+# and -85 and -74 longitude
+
+lat &lt;- data.frame(lat = seq(36, 40, by = .06))
+long &lt;- data.frame(long = seq(-85, -74, by = .06))
+
+# create a lat long dataframe
+dots = lat %&gt;% 
+  merge(long, all = TRUE)
+
+dots%&gt;%
+  slice(1:3)%&gt;%  
+  kable()%&gt;%
+  kable_styling(&quot;striped&quot;)  </code></pre>
+  <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th style="text-align:right;">
+          lat
+        </th>
+        <th style="text-align:right;">
+          long
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:right;">
+          36.00
+        </td>
+        <td style="text-align:right;">
+          -85
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.06
+        </td>
+        <td style="text-align:right;">
+          -85
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.12
+        </td>
+        <td style="text-align:right;">
+          -85
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Next using the <code>map.where()</code> function from the <code>maps</code> package we are going to return the
+    county from each pair of lat long. Then we can simply filter out all the dots that aren’t over the DMV.</p>
+  <p>Of course, <code>map.where()</code> returns some funkiness with county names that needs to be cleaned up as well.
+  </p>
+  <pre class="r"><code># the map.where function returns the county given a lat long
+dots = dots %&gt;% 
+  mutate(county = map.where(&#39;county&#39;, long, lat))%&gt;%
+  separate(county, c(&quot;state&quot;, &quot;county&quot;), sep = &quot;,&quot;)%&gt;%
+  mutate(county_state = paste0(county, &quot;, &quot;, state))%&gt;%
+  mutate(county_state = gsub(&quot;:chincoteague|:main&quot;, &quot;&quot;,  county_state))%&gt;%
+  filter(state %in% c(&quot;district of columbia&quot;, &quot;virginia&quot;, &quot;maryland&quot;))
+
+dots%&gt;%
+  slice(1:3)%&gt;%  
+  kable()%&gt;%
+  kable_styling(&quot;striped&quot;)  </code></pre>
+  <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th style="text-align:right;">
+          lat
+        </th>
+        <th style="text-align:right;">
+          long
+        </th>
+        <th style="text-align:left;">
+          state
+        </th>
+        <th style="text-align:left;">
+          county
+        </th>
+        <th style="text-align:left;">
+          county_state
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.50
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.44
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div id="pulling-the-final-set-together" class="section level2">
+  <h3>Pulling the Final Set Together</h3>
+  <p>As we mentioned before, <code>gganimate</code> is going to create many plots and then stitch them together into a
+    gif. Basically, for <strong>each day</strong> we are going to create a dot map and then put them together like a
+    flip book. So we will need to create a time series where every single day has all the data needed to create a map.
+  </p>
+  <p>This will actually be quite simple. Just join the dots to the dmv_ts.</p>
+  <pre class="r"><code># Next we need to join the time series to our dot matrix
+dots = dots%&gt;%
+  left_join(dmv_ts, by = &quot;county_state&quot;)
+
+dots%&gt;%
+  slice(1:3)%&gt;%  
+  kable()%&gt;%
+  kable_styling(&quot;striped&quot;)  </code></pre>
+  <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th style="text-align:right;">
+          lat
+        </th>
+        <th style="text-align:right;">
+          long
+        </th>
+        <th style="text-align:left;">
+          state
+        </th>
+        <th style="text-align:left;">
+          county
+        </th>
+        <th style="text-align:left;">
+          county_state
+        </th>
+        <th style="text-align:left;">
+          Date
+        </th>
+        <th style="text-align:right;">
+          Count
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:left;">
+          2020-03-02
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:left;">
+          2020-03-03
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>We are also going to want to create a total by day for each state in the region, as this information will be a
+    caption in the final visualization. We will be using the <code>glue</code> package to return the daily totals.</p>
+  <pre class="r"><code># We want to create total for each region as a caption
+
+dots_final = dmv_ts%>%
+    separate(county_state, c("county", "state"), sep = ",")%>%
+    group_by(state, Date)%>%
+    summarise(total = sum(Count))%>%
+    spread(state, total)%>%
+    rename(dc = ` district of columbia`, va = ` virginia`, md = ` maryland`)%>%
+    mutate(day_total = dc + va + md)%>%
+    right_join(dots, by = "Date")
+
+dots_final%&gt;%
+  slice(1:3)%&gt;%  
+  kable()%&gt;%
+  kable_styling(&quot;striped&quot;)  </code></pre>
+  <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th style="text-align:left;">
+          Date
+        </th>
+        <th style="text-align:right;">
+          dc
+        </th>
+        <th style="text-align:right;">
+          md
+        </th>
+        <th style="text-align:right;">
+          va
+        </th>
+        <th style="text-align:right;">
+          lat
+        </th>
+        <th style="text-align:right;">
+          long
+        </th>
+        <th style="text-align:left;">
+          state
+        </th>
+        <th style="text-align:left;">
+          county
+        </th>
+        <th style="text-align:left;">
+          county_state
+        </th>
+        <th style="text-align:right;">
+          Count
+        </th>
+        <th style="text-align:right;">
+          day_total
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:left;">
+          2020-03-01
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          2020-03-02
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:left;">
+          2020-03-03
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          36.6
+        </td>
+        <td style="text-align:right;">
+          -83.56
+        </td>
+        <td style="text-align:left;">
+          virginia
+        </td>
+        <td style="text-align:left;">
+          lee
+        </td>
+        <td style="text-align:left;">
+          lee, virginia
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+        <td style="text-align:right;">
+          0
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div id="making-the-plot" class="section level2">
+  <h3>Making the Plot</h3>
+  <p>Creating the actual plot is pretty easy.</p>
+  <p>Just create a scatter plot of the lats and longs. Because they are evenly spaced and only include dots over
+    Virginia, Maryland and DC, this will create a grid of dots over those states. The size of the dots will be the
+    number of cases, and the colors will be which state they are over.</p>
+  <p>When creating the <code>ggplot</code> portion of this visualization, don’t worry about the time series aspect of
+    this. Everyday will just be plotted on top of eachother for now.</p>
+  <pre class="r"><code># Creating gganimate ------------------------------------------------------
+
+dot_map = ggplot(data = dots_final) +   
+  geom_point(
+    aes(x=long, 
+        y = lat, 
+        color = state, 
+        size = Count),
+    alpha = .5
+    ) + 
+  coord_map()+
+  theme_void()+
+  theme(
+    plot.title=element_text(
+                        face=&quot;bold&quot;, colour=&quot;#3C3C3C&quot;, size=22,
+                        hjust = .2, vjust = -20
+                        ),
+    plot.subtitle=element_text(
+                        colour=&quot;#3C3C3C&quot;, size=13,
+                        hjust = .225, vjust = -28
+                              ),
+    plot.caption = element_text(
+                        colour=&quot;#3C3C3C&quot;, size=13,
+                        hjust = 0.1, vjust = 5
+                              ),  
+    plot.margin = unit(c(0, 0, 0, 0), &quot;cm&quot;),
+    legend.position = &quot;none&quot;
+  )+
+  scale_color_manual(values=c(&quot;#007a62&quot;, &quot;#9999CC&quot;, &quot;#7A0018&quot;))
+
+dot_map</code></pre>
+  <p><img src="{{url_for('static', filename='images/viz/covid-pre.png')}}" width="672" /></p>
+  <p>Next for the tricky part, we are going to add a label that show the daily cases by each region at the bottom of the
+    map. <code>glue</code> allows us to interpret string literals, which is a fancy way of saying embedding r code into
+    a string.</p>
+  <p>Looking below you can see a big chunk of unformatted code as the caption. We can’t really format it because return
+    carriages will be displayed on the plot itself. Let’s look at what it would take to return the daily cases for just
+    DC.</p>
+  <pre class="r"><code>dot_map +
+  labs(
+   title = &quot;COVID-19&quot;,
+   subtitle = &quot;in DC, Maryland, and Virgina&quot;,
+   
+   # Using glue we can find the relevant total
+   
+   caption = &quot;Date: {format(as.Date(closest_state), &#39;%B %d&#39;)} | DC Cases: {format(dots_final[dots_final$Date == closest_state,]$dc[1], big.mark = &#39;,&#39;)} | Maryland Cases: {format(dots_final[dots_final$Date == closest_state,]$md[1], big.mark = &#39;,&#39;)} | Virginia Cases: {format(dots_final[dots_final$Date == closest_state,]$va[1], big.mark = &#39;,&#39;)} | Total Cases: {format(dots_final[dots_final$Date == closest_state,]$day_total[1], big.mark = &#39;,&#39;)}&quot;
+   
+   #caption = &quot;{closest state}&quot;
+  )</code></pre>
+  <p>Let’s look at what it would take to return the daily cases for just DC. What we are doing here is taking the
+    dataframe that will be passed to <code>ggplot</code> and filtering down the date to <code>closest_state</code> and
+    returning the first value for the <code>district of columbia</code> column.</p>
+  <p>So what is <code>closest_state</code>? This is a special variable that represents whatever variable you used to
+    sequence your data. In our case, we are using the date to sequence the data, which is why we filter our date column
+    down to the <code>closest_state</code>.</p>
+  <pre><code>DC Cases: {format(dots_final[dots_final$Date == closest_state,]$dc[1], big.mark = &#39;,&#39;)}</code></pre>
+</div>
+<div id="animating-the-whole-thing" class="section level1">
+  <h3>Animating the Whole Thing</h3>
+  <p>Finally, the actual animation part.</p>
+  <p>This is even simpler than creating the <code>ggplot</code>. Just specify which variable should be used to sequence
+    the data (surprise its still “Date”), and specify a few things about how you want the gif to render.</p>
+  <p>If you are testing, I would recommend lowering the number of nframes. This will create less plots, which in turn
+    will lower the rendering time.</p>
+  <pre class="r"><code>dot_map+
+  transition_states(
+    Date,
+    transition_length = 2,
+    state_length = 1
+  )
+
+
+animate(dot_map, 
+        nframes = 150, #more frames for make it smoother but longer to render
+        fps = 10, #how many frames are shown per second
+        height = 400,
+        width = 800,
+        end_pause = 30
+)
+anim_save(&quot;covid19_dot_map.gif&quot;)</code></pre>
+  <p>And there you have it! A beautiful gif showing the spread of COVID-19.</p>
+</div>
+
+
+
+<button onclick="topFunction()" id="top_button" title="Go to top">
+  <!-- <i class="fas fa-chevron-up" style= "font-size: 1.15em;"> -->
+  <span class="glyphicon glyphicon-chevron-up"></span>
+</button>
+</section>
+<script>
+
+  // add bootstrap table styles to pandoc tables
+  function bootstrapStylePandocTables() {
+    $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  }
+  $(document).ready(function () {
+    bootstrapStylePandocTables();
+  });
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+  $(document).ready(function () {
+    window.buildTabsets("TOC");
+  });
+
+  $(document).ready(function () {
+    $('.tabset-dropdown > .nav-tabs > li').click(function () {
+      $(this).parent().toggleClass('nav-tabs-open')
+    });
+  });
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+<script src="../js/scroll_top.js"></script>
+</body>
+
+</html>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 id="twitter-viz">Sentiment Calendar</h1>
+<p>Monday, Tuesday, Happy Days! Thursday, Friday, Happy Days! etc etc</p>
+<p>The Happy Days theme song, while wonderful, does not answer the important question of how do we actual
+        measure these
+        &quot;happy days&quot;. What the Fonz will not tell you is that there is a programmatic way to measure
+        such a
+        thing. </p>
+<p>Enter R and the rtweets and tidytext packages. For this project, I am going to first scrape twitter data
+        using the
+        rtweets and then perform a basic sentiment analysis using the tidytext package. </p>
+<p>But first, the final product:</p>
+<p><img src="{{url_for('static', filename='images/viz/calendar.png')}}"></p>
+<h3 id="scraping-the-data">Scraping the Data</h3>
+<p>The rtweets package makes getting twitter data shockingly easy. Both the api call and cleaning response are
+        largely
+        abstracted away. All it takes is a single line of code to get a tidy dataframe of twitter data. But
+        before we
+        can do that, we need to set up access to use twitter&#39;s API. I believe that how we do this is best
+        captured
+        on twitters on website rather than here. But essentially, you need a twitter account and the ability to
+        answer a
+        few simple questions. </p>
+<p>Once you do get access, however, you will need to show authenticate your api call using the keys from your
+        access.
+        For rtweets, this should be as simple as plugging them into the correct arguement:</p>
+<pre><code><span class="hljs-selector-id">#load</span> keys <span class="hljs-keyword">in</span> <span class="hljs-selector-tag">a</span> seperate file--put this <span class="hljs-keyword">in</span> the git ignore so that you arent publishing your API access
+        <span class="hljs-function"><span class="hljs-title">source</span><span class="hljs-params">(<span class="hljs-string">"keys.R"</span>)</span></span>
+
+        <span class="hljs-selector-id">#create</span> the token
+        twitter_token &lt;- create_token(
+        app = app_details<span class="hljs-variable">$name</span>,
+        consumer_key = app_details<span class="hljs-variable">$con_key</span>,
+        consumer_secret = app_details<span class="hljs-variable">$con_secret</span>,
+        access_token = app_details<span class="hljs-variable">$access_key</span>,
+        access_secret = app_details<span class="hljs-variable">$access_secret</span>
+        )
+        </code></pre>
+<p>If you are working with git, I would suggest saving your keys in a seperate file and putting that in a
+        gitignore so
+        that you aren&#39;t sharing this information with everyone when you share your code.</p>
+<p>Once you have authorized yourself, getting the actual data will be very simple. You can look up tweets by
+        subject or
+        by hashtag among a large list of other things, but I wanted to see how happy the days were for a
+        particular
+        user. </p>
+<p>To do this, I needed someone who tweets at least once a day but no more than ten times a day (due to the
+        limit on the
+        number of tweets I can pull back). Someone who has expressive but simple tweets that would be easy to
+        analyze
+        with an algorithm. I wanted someone well known-- with tweets that we interesting to read. I tried Kayne
+        West and
+        Antonio Brown--both of whom were well known for social media miscues, but they did not tweet enough. I
+        tried a
+        few presidential candidates, but their tweets appear to be managed by teams and are not expressive and
+        interesting to read. </p>
+<p>Eventually I landed where I knew that I was going to land but really didnt want to land--with Donald Trump.
+        The
+        reason I did not want to use Trump&#39;s twitter is because I did not want this project to be viewed
+        through a
+        political lense, which is obviously inescapable with Trump. But do to the nature of his tweets and
+        golden zone
+        frequency of his tweeting, I realized that his twitter is the obvious choice for an analysis such as
+        this. </p>
+<p>See below for how to pull a user&#39;s tweets:</p>
+<pre><code><span class="hljs-selector-id">#cnn</span>
+        cnn = get_timeline(<span class="hljs-string">"cnn"</span>, n=<span class="hljs-number">3200</span>)
+        <span class="hljs-function"><span class="hljs-title">fwrite</span><span class="hljs-params">(cnn, <span class="hljs-string">"cnn.csv"</span>)</span></span>
+
+        <span class="hljs-selector-id">#antonio</span> brown
+        ab = get_timeline(<span class="hljs-string">"AB84"</span>, n =<span class="hljs-number">3200</span>)
+        <span class="hljs-function"><span class="hljs-title">fwrite</span><span class="hljs-params">(ab, <span class="hljs-string">"ab.csv"</span>)</span></span>
+
+        <span class="hljs-selector-id">#trump</span>
+        trump = get_timeline(<span class="hljs-string">"realDonaldTrump"</span>, n=<span class="hljs-number">3200</span>)
+        <span class="hljs-function"><span class="hljs-title">fwrite</span><span class="hljs-params">(trump2, <span class="hljs-string">"trump.csv"</span>)</span></span>
+        </code></pre>
+<h3 id="sentiment-analysis-i-e-counting-happy-words">Sentiment Analysis i.e. Counting Happy Words</h3>
+<p>Sentiment analysis sounds very advanced, but at its heart, its really just about counting up positive and
+        negative
+        words and assuming a net positive value means a positive sentiment. </p>
+<p>So how do we go about doing this? Step one, as with any analysis is getting the data in the right format. We
+        need to
+        do something called tokenizing. Tokenizing breaks a large string--in this case a tweet-- into its
+        essential
+        elements--in this case words. But tokens do not need to be words. They can be words, phrases, or even
+        whole
+        sentences. But for now, lets stick with words. </p>
+<p>We are going to be using the tidytext package for sentiment analysis. I think its easier to work in
+        dataframes
+        instead of corpuses like &quot;tm&quot; does. Tidytext fits in nicely with other tidyverse packages
+        making it a
+        no brainer for me.</p>
+<p>One more thing to note. We need to keep track of what tweet each token belongs to, that way we can get the
+        sentiment
+        for the tweet overall. We will create a linenumber variable to do this.</p>
+<pre><code><span class="hljs-comment"># we need to tokenize the text (make each line a word while retaining which tweet it comes from)</span>
+        trump_text = trumps%&gt;%select(<span class="hljs-built_in">text</span>)%&gt;%
+        mutate(<span class="hljs-built_in">text</span> = gsub(<span class="hljs-string">" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)"</span>, <span class="hljs-string">""</span>, trumps$<span class="hljs-built_in">text</span>),
+                linenumber = row_number())%&gt;% <span class="hljs-comment">#this allows us to retain the row number/the tweet</span>
+        unnest_tokens(<span class="hljs-built_in">word</span>, <span class="hljs-built_in">text</span>) <span class="hljs-comment"># this unnests the tweets into words</span>
+        </code></pre>
+<p> After tokenizing using tidytext, each row will be a word and there will be a variable for line numbers as
+        well. </p>
+<p>Next, using dplyr we will remove &quot;stop words&quot;. Stop words are words with very little or no semantic
+        meaning--think words like &quot;the&quot;, &quot;as&quot; or &quot;of&quot;. I think a better name for
+        them
+        would have been &quot;helper words&quot; since they primarily serve to connect meaningful words together
+        as
+        their purpose more closely aligns to grammar than vocabulary in my opinion. However, to remove them, we
+        use an
+        anti-join. </p>
+<pre><code>trump_text%&gt;%anti_join(stop_words)
+        </code></pre>
+<p>Next, we find the sentiments of the remaining words. Again, using the tidyverse way, we can do a left join on
+        a
+        sentiment dictionary to get different sentiment scores. Tidytext makes this easy. Just use the below
+        command:
+</p>
+<pre><code><span class="hljs-selector-tag">trump_text%</span>&gt;%<span class="hljs-selector-tag">anti_join</span>(stop_words)%&gt;% <span class="hljs-selector-id">#removes</span> <span class="hljs-selector-tag">common</span> <span class="hljs-selector-tag">words</span> (stop words)
+        <span class="hljs-selector-tag">left_join</span>(get_sentiments(<span class="hljs-string">"afinn"</span>))
+        </code></pre>
+<p>Finally, we are going to group back up to the tweet level using the line number that we created earlier, and
+        join
+        back to the original dataset. The whole process looks like this:</p>
+<pre><code><span class="hljs-attr">trump_sent</span> = trump_text%&gt;%anti_join(stop_words)%&gt;% <span class="hljs-comment">#removes common words (stop words)</span>
+        left_join(get_sentiments(<span class="hljs-string">"afinn"</span>)) %&gt;% <span class="hljs-comment"># gets sentiment score based on afinn dictionary</span>
+        group_by(linenumber) %&gt;% 
+        summarise(<span class="hljs-attr">sentiment</span> = sum(value, na.<span class="hljs-attr">rm</span> = T)) %&gt;% <span class="hljs-comment"># sums up the sentment to the tweet level </span>
+        right_join(., trumps, <span class="hljs-attr">by</span> = <span class="hljs-string">"linenumber"</span>)%&gt;% <span class="hljs-comment"># joins back to the original dataset with the sentiment score</span>
+        mutate(<span class="hljs-attr">date</span> = substr(created_at, <span class="hljs-number">1</span>,<span class="hljs-number">10</span>))
+        </code></pre>
+<p> And with that we now have the sentiment score for each of Trumps tweets!</p>
+<h3 id="making-a-heatmap-calendar">Making a Heatmap Calendar</h3>
+<p>I wanted to make a somewhat obscure visualization for this dataset. Its time series data technically but I
+        didn&#39;t
+        want a line graph because those can be a bit boring. Instead, I wanted a cleaner version of the little
+        heatmap
+        that shows up for commits under github. </p>
+<p>To do this, I used the geom_tile from ggplot2. The rows would be weeks and the columns would be the day of
+        the
+        week--just like any other calendar. Doing this was a little harder than I orginally imagined, though as
+        always
+        with coding, once you have the actual code it looks quite easy. Using lubridate, you can get the day of
+        the week
+        using the &quot;wday()&quot; command. And you can get the week number--ie how many weeks have passed
+        this
+        year--using the &quot;isoweek()&quot; command. </p>
+<p>The issue is that isoweeks start on Monday not Sunday, so you will have to use an ifelse statement to move
+        Sundays up
+        a week. Also geom_tile will display the earlier weeks at the bottom of the plot--as one would expect
+        with a bar
+        graph--instead of at the top--as one would expect with a calendar. So you will need to set the weeks as
+        reverse
+        the weeks and set them as an ordered factor. Take a look at the code below:</p>
+<pre><code><span class="hljs-attr">trump_month</span> = trump_sent%&gt;%group_by(date)%&gt;%
+        summarise(<span class="hljs-attr">sentiment</span> = sum(sentiment, na.<span class="hljs-attr">rm</span> =T))%&gt;%
+        <span class="hljs-comment"># to create the plot we need to be able to organzie with days as the columns and week number as the rows</span>
+        mutate(<span class="hljs-attr">weekday</span> =  
+                factor(wday(date), <span class="hljs-attr">labels</span> = c(<span class="hljs-string">"Sun"</span>, <span class="hljs-string">"Mon"</span>, <span class="hljs-string">"Tues"</span>, <span class="hljs-string">"Wed"</span>, <span class="hljs-string">"Thu"</span>, <span class="hljs-string">"Fri"</span>, <span class="hljs-string">"Sat"</span>))
+                )%&gt;% <span class="hljs-comment"># this gives us an order factor variable for days</span>
+        mutate(<span class="hljs-attr">day</span> = day(date))%&gt;% <span class="hljs-comment"># we will use this to write in the date on the squares</span>
+        mutate(<span class="hljs-attr">weeknum</span> = isoweek(date))%&gt;% <span class="hljs-comment"># what number week it is--allows us to group days into weeks</span>
+        mutate(<span class="hljs-attr">weeknum</span> = ifelse(<span class="hljs-attr">weekday</span> == <span class="hljs-string">"Sun"</span>, weeknum +<span class="hljs-number">1</span>, weeknum))%&gt;% <span class="hljs-comment"># iso says that monday is the first day of the week but we want     sunday to be the first day</span>
+        mutate(<span class="hljs-attr">weeknum</span> = factor(weeknum, rev(unique(weeknum)), <span class="hljs-attr">ordered</span> = T) <span class="hljs-comment"># we want the earlier weeks at the top of the calendar</span>
+        )
+        </code></pre>
+<p>Finally we just need to make the actual visualization. This is the easy part (thankfully). All we are going
+        here is
+        setting the x and y for tiles, adding text (for the date) to appear within the tiles and removing extra
+        things
+        like gridlines and the legend. </p>
+<p>One little trick, that I didn&#39;t think was readily apparent, was to use scale_fill_gradient2 to make a
+        diverging
+        color scale centered around 0. Other than that, the inline comments should provide enough context to
+        what was
+        going on here. </p>
+<pre><code>ggplot(trump_month, aes(<span class="hljs-attr">x=</span> weekday, <span class="hljs-attr">y</span> =weeknum, <span class="hljs-attr">fill</span> = sentiment))+ 
+        geom_tile(<span class="hljs-attr">color</span> = <span class="hljs-string">"#323232"</span>)+ <span class="hljs-comment"># makes the lines a bit more muted</span>
+        geom_text(<span class="hljs-attr">label</span> = trump_month$day, <span class="hljs-attr">size</span> =<span class="hljs-number">4</span>, <span class="hljs-attr">color</span> = <span class="hljs-string">"black"</span>)+ <span class="hljs-comment"># days</span>
+        <span class="hljs-comment"># positive days should be green and negative ones should be red</span>
+        scale_fill_gradient2(<span class="hljs-attr">midpoint</span> = <span class="hljs-number">0</span>, <span class="hljs-attr">low</span> = <span class="hljs-string">"#d2222d"</span>, <span class="hljs-attr">mid</span> = <span class="hljs-string">"white"</span>, <span class="hljs-attr">high</span> = <span class="hljs-string">"#238823"</span>)+ 
+        <span class="hljs-comment"># we are going to remove the majority of the plot </span>
+        theme(axis.<span class="hljs-attr">title</span> = element_blank(),
+                panel.<span class="hljs-attr">background</span> = element_blank(),
+                axis.<span class="hljs-attr">ticks</span> = element_blank(),
+                axis.text.<span class="hljs-attr">y</span> = element_blank(),
+                legend.<span class="hljs-attr">text</span> = element_blank(),
+                legend.<span class="hljs-attr">position</span> = <span class="hljs-string">"none"</span>,
+                plot.<span class="hljs-attr">title</span> = element_text(<span class="hljs-attr">face</span> = <span class="hljs-string">"bold"</span>),
+                plot.<span class="hljs-attr">caption</span> = element_text(<span class="hljs-attr">color</span> = <span class="hljs-string">"#323232"</span>)
+                )+
+        labs(<span class="hljs-attr">title</span> = <span class="hljs-string">"This August in Tweets"</span>, 
+            <span class="hljs-attr">subtitle</span> = <span class="hljs-string">"A Sentiment Analysis of President Trump's Tweets"</span>,
+            <span class="hljs-attr">caption</span> = <span class="hljs-string">"Darker Green = More Positive\nDarker Red = More Negative"</span>)
+        </code></pre>
+<p>And there you have it! A heatmap calendar that shows the sentiment of Trump&#39;s tweets!</p>
+
+<button onclick="topFunction()" id="top_button" title="Go to top">
+        <!-- <i class="fas fa-chevron-up" style= "font-size: 1.15em;"> -->
+        <span class="glyphicon glyphicon-chevron-up"></span>
+</button>
+<script src="../js/scroll_top.js"></script>
+{% endblock %}

@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>K-means Saves College Football</h2>
+
+<p>Is college sports totally ruined? It is on the West Coast at least. Who is ready for the Washington volleyball team to go to Rutgers for a meet? Sounds like a very reasonable expectation for a student athlete to do over the weekend between writing term papers and attending the Alpha Phi philanthropy bash.</p>
+<p>What would happen if we let geography and math decide where all the Power Five conference members go? In this perfect world, we are only concerned with the current Power Five schools (as defined by Wikipedia&mdash; sorry Notre Dame, you count). We would get this beautiful alignment of conferences:</p>
+<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/final.png')}}"></p>
+<p>Is that not the most glorious thing you have every seen? The reason it is filled with God&#39;s glory is because it inherently <em>makes sense.</em> There is no Rutgers-USC in conference games because those two schools have essentially nothing in common, both from a geographic perspective but also from a culture perspective. </p>
+<h2>New and Better Conferences</h2>
+<p>So how did we get here? I will get into the details later, but we used k-means clustering, using latitude and longitude as variables, to determine which team belongs in which conference. It was a bit off good luck that roughly the same number of schools ended up in each conference. The only inputs provided into k-means was the latitude and longitude of the schools and how many conferences we desired&mdash; there was no guarentee that each conference would be as balanced as it turned out.</p>
+<p>But before I show you how this analysis was put together, let&#39;s take a look at what schools ended up where.</p>
+<p><strong>PAC 12</strong></p>
+<p>The PAC 12 obviously did much better this round of realignment since it is still a functioning conference with marquee brands.</p>
+<p>Notably, BYU snuck its way into the conference since Wikipedia now officially considers it a Power Five school. Amazingly, the PAC 12 actually ended up with 12 schools. </p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>PAC 12</th></tr></thead>
+<tbody><tr><td>Arizona</td></tr><tr><td>Arizona State</td></tr><tr><td>Brigham Young</td></tr><tr><td>Cal - Berkeley</td></tr><tr><td>Oregon</td></tr><tr><td>Oregon State</td></tr><tr><td>Stanford</td></tr><tr><td>UCLA</td></tr><tr><td>USC</td></tr><tr><td>Utah</td></tr><tr><td>Washington</td></tr><tr><td>Wasington State</td></tr></tbody>
+</table></figure>
+<p><strong>Big 12</strong></p>
+<p>All the Texas schools are united again under one Big 12 banner, with no school more far flung than Colorado. Sorry West Virginia and UCF, you will just have to enjoy a more reasonable travel schedule. </p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Big 12</th></tr></thead>
+<tbody><tr><td>Arkansas</td></tr><tr><td>Baylor</td></tr><tr><td>Colorado</td></tr><tr><td>Houston</td></tr><tr><td>Kansas</td></tr><tr><td>Kansas State</td></tr><tr><td>Nebraska</td></tr><tr><td>Oklahoma</td></tr><tr><td>Oklahoma State</td></tr><tr><td>Texas</td></tr><tr><td>Texas A&amp;M</td></tr><tr><td>TCU</td></tr><tr><td>Texas Tech</td></tr></tbody>
+</table></figure>
+<p><strong>Big 10</strong></p>
+<p>Perhaps the most reasonable of the realignments, Notre Dame now plays alongside Michigan and Ohio State. Interestingly, Kentucky is poached from the SEC and Louisville from the ACC. I suppose k-means considers Kentucky to be a midwest state rather than a southern one. Iowa State gets an upgrade from the Big 12 to join their brethern in the Big 10 as well.</p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>Big 10</th></tr></thead>
+<tbody><tr><td>Cincinnati</td></tr><tr><td>Illinois</td></tr><tr><td>Indiana</td></tr><tr><td>Iowa</td></tr><tr><td>Iowa State</td></tr><tr><td>Kentucky</td></tr><tr><td>Louisville</td></tr><tr><td>Michigan</td></tr><tr><td>Michigan State</td></tr><tr><td>Minnesota</td></tr><tr><td>Missouri</td></tr><tr><td>Northwestern</td></tr><tr><td>Notre Dame</td></tr><tr><td>Ohio State</td></tr><tr><td>Purdue</td></tr><tr><td>Wisconsin</td></tr></tbody>
+</table></figure>
+<p><strong>SEC</strong></p>
+<p>Would the SEC take Clemson, Miami, Florida State, and Georgia Tech if it also meant they had to take UCF? I would venture that they wouldn&#39;t. They couldn&#39;t handle the 2017 National Champions.  </p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>SEC</th></tr></thead>
+<tbody><tr><td>Alabama</td></tr><tr><td>Auburn</td></tr><tr><td>University of Central Florida</td></tr><tr><td>Clemson</td></tr><tr><td>Florida</td></tr><tr><td>Florida State</td></tr><tr><td>Georgia</td></tr><tr><td>Georgia Tech</td></tr><tr><td>LSU</td></tr><tr><td>Miami</td></tr><tr><td>Mississippi</td></tr><tr><td>Mississippi State</td></tr><tr><td>South Carolina</td></tr><tr><td>Tennessee</td></tr><tr><td>Vanderbilt</td></tr></tbody>
+</table></figure>
+<p><strong>ACC</strong></p>
+<p>What I find most amazing about this analysis is that the resulting conferences do resemble the college football landscape circa 2020. There is a distinct cluster of west coast, midwest, texas/great plains, southern, and mid atlantic schools. </p>
+<p>Mid Atlantic really is the core of ACC identity. Something that the conference lost by picking up schools like Florida State and Miami. Come home Rutgers and Penn State, it may hurt, but this is your true home.</p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th>ACC</th></tr></thead>
+<tbody><tr><td>Boston College</td></tr><tr><td>Duke</td></tr><tr><td>Maryland</td></tr><tr><td>North Carolina</td></tr><tr><td>NC State</td></tr><tr><td>Penn State</td></tr><tr><td>Pittsburgh</td></tr><tr><td>Rutgers</td></tr><tr><td>Syracuse</td></tr><tr><td>Virginia Tech</td></tr><tr><td>Virginia</td></tr><tr><td>Wake Forest</td></tr><tr><td>West Virginia</td></tr></tbody>
+</table></figure>
+<h2>Getting the Data</h2>
+<p>Now that we have seen the results, let&#39;s take a step back and see how we got here. </p>
+<p>First, we are going to get the <a href='https://hifld-geoplatform.opendata.arcgis.com/datasets/geoplatform::colleges-and-universities/about'>latitude and longitude coordinates</a> for all the colleges in the US. Download the csv and read it in:</p>
+<pre><code class='language-r' lang='r'>colleges = read.csv(&quot;Colleges_and_Universities.csv&quot;)
+</code></pre>
+<p>Second, we need to get all the Power Five schools. We are going to let Wikipedia decide what qualifies as a Power Five school:</p>
+<pre><code class='language-r' lang='r'>library(rvest)
+library(dplyr)
+library(tidyr)
+
+# reading in schools
+acc = read_html(&quot;https://en.wikipedia.org/wiki/Atlantic_Coast_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+big12 = read_html(&quot;https://en.wikipedia.org/wiki/Big_12_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+big10 = read_html(&quot;https://en.wikipedia.org/wiki/Big_Ten_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+sec = read_html(&quot;https://en.wikipedia.org/wiki/Southeastern_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+pac12 = read_html(&quot;https://en.wikipedia.org/wiki/Pac-12_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+</code></pre>
+<p>Next, we need to bind them all together and clean them up. The data we are going to be joined to has some very annoying unicode character problems. I actually had to change them a little in excel. I did a find all on <code>-</code> and replaced it with <code>--</code>, so if you are following along you will need to do the same.</p>
+<p>Anyways, we are going to bind them all together and clean them up:</p>
+<pre><code class='language-r' lang='r'># first we are going to bind them together
+powerfive = rbind(acc, big10, big12, pac12, sec)%&gt;%
+  filter(!Institution %in% c(&quot;East Division&quot;, &quot;West Division&quot;))%&gt;%
+  separate(Location, c(&quot;City&quot;, &quot;State&quot;), &quot;, &quot;)%&gt;%
+  mutate(City = toupper(City))%&gt;%
+  # then we are going to clean up the names that we pulled from wikipedia
+  # so that they are in format from the excel
+  mutate(
+    id = row_number(),
+    Institution = gsub(&quot;, &quot;, &quot;--&quot;, Institution),
+    #Institution = gsub(&quot; at &quot;, &quot;--&quot;, Institution),
+    Institution = gsub(&quot;–&quot;, &quot;--&quot;, Institution),
+    clean = toupper(gsub(&quot;\\[.*&quot;, &quot;&quot;, Institution))
+         )
+
+rm(acc, big10, big12, pac12, sec)
+</code></pre>
+<h2>Matching the two datasets</h2>
+<p>To start, 47 schools from our <code>powerfive</code> dataset match the <code>colleges</code> dataset.</p>
+<pre><code class='language-r' lang='r'># first we are just going to get a df with all the colleges in there
+# we have 47 out of 69 matched
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+</code></pre>
+<p>If we append <code>--MAIN CAMPUS</code> to the end of schools that didn&#39;t match we might get some more matches:</p>
+<pre><code class='language-r' lang='r'># MAIN CAMPUS fix ---------------------------------------------------------
+
+
+# a lot of missing ones have the --MAIN CAMPUS appended onto the 
+# wikipedia names so we are going to create a variable that has that
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)%&gt;%
+  mutate(main_campus = paste0(clean, &quot;--MAIN CAMPUS&quot;))
+
+# and join it onto the original
+powerfive = powerfive%&gt;%
+  left_join(missing)%&gt;%
+  # if that variable exists, overwrite the clean var
+  mutate(clean = ifelse(!is.na(main_campus), main_campus, clean))
+
+# and lets check how many we added
+# we are now at 54 out of 69
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+
+</code></pre>
+<p>That took us to 54 matches.</p>
+<p>Some schools need to have their city name appended to the end:</p>
+<pre><code class='language-r' lang='r'># city name ---------------------------------------------------------------
+
+# these are the ones still missing
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)
+
+# MAIN CAMPUS didnt work so lets remove that from the clean
+missing$clean = gsub(&quot;--MAIN CAMPUS&quot;, &quot;&quot;, missing$clean)
+
+# lets create a variable called city_app that appends the name of the city
+# onto the school name
+missing$city_app = paste0(missing$clean, &quot;--&quot;, missing$City)
+
+# lets make it easier to join
+missing = missing%&gt;%
+  select(id, city_app)
+
+# if it was one of the missing, use that name
+powerfive = powerfive%&gt;%
+  left_join(missing, by = &quot;id&quot;)%&gt;%
+  mutate(clean = ifelse(!is.na(city_app), city_app, clean))
+
+# now we are up to 57
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)
+</code></pre>
+<p>That took us to 57 schools, so unfortunately, now we just need to hardcode the rest;</p>
+<pre><code class='language-r' lang='r'># SADNESS -----------------------------------------------------------------
+# we may just need to hardcode the rest
+
+missing = c(&quot;NORTH CAROLINA STATE UNIVERSITY AT RALEIGH&quot;, 
+  &quot;UNIVERSITY OF PITTSBURGH--PITTSBURGH CAMPUS&quot;,
+  &quot;INDIANA UNIVERSITY--BLOOMINGTON&quot;,
+  &quot;UNIVERSITY OF OKLAHOMA--NORMAN CAMPUS&quot;,
+  &quot;THE UNIVERSITY OF TEXAS AT AUSTIN&quot;,
+  &quot;ARIZONA STATE UNIVERSITY CAMPUS IMMERSION&quot;,
+  &quot;UNIVERSITY OF COLORADO BOULDER&quot;,
+  &quot;UNIVERSITY OF WASHINGTON--SEATTLE CAMPUS&quot;,
+  &quot;THE UNIVERSITY OF TENNESSEE--KNOXVILLE&quot;,
+  &quot;THE UNIVERSITY OF ALABAMA&quot;,
+  &quot;UNIVERSITY OF LOUISIANA--SYSTEM ADMINISTRATION&quot;,
+  &quot;TEXAS A &amp; M UNIVERSITY--COLLEGE STATION&quot;)
+
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% c(powerfive$clean, missing))
+
+</code></pre>
+<h2>Performing the kmeans clustering</h2>
+<p>K-means will sort the schools into conferences based on their longitudes and latitudes. Read here for an <a href='http://www.corydonbaylor.io/statistics/kmeans'>in depth</a> on how k-means works.</p>
+<p>First, we need to clean up the dataframe. We need the rownames to be the school names and the coordinates to be numbers:</p>
+<pre><code class='language-r' lang='r'>df = filtered_colleges %&gt;%
+  select(NAME, LATITUDE, LONGITUDE)%&gt;%
+  mutate(
+    LATITUDE = as.numeric(LATITUDE),
+    LONGITUDE = as.numeric(gsub(&quot;--&quot;, &quot;-&quot;, LONGITUDE))
+    )
+ 
+df &lt;- tibble::column_to_rownames(df, var = &quot;NAME&quot;)
+</code></pre>
+<p>There are currently five power conferences, so that&#39;s how many there will be in the future.</p>
+<pre><code class='language-r' lang='r'>df_kmeans = kmeans(df, 5)
+</code></pre>
+<p>Finally, we need to rebuild the dataframe:</p>
+<pre><code class='language-r' lang='r'>df$name &lt;- row.names(df)
+df$cluster &lt;- factor(df_kmeans$cluster)
+</code></pre>
+<h2>Creating the Cluster Plot</h2>
+<p>We are going to create two plots&mdash; one for the outline of the clusters and one for each points in the cluster&mdash; and then combine them together.</p>
+<p>We are going to use convex hull to find the outermost point in each cluster for each group like so:</p>
+<pre><code class='language-r' lang='r'>hull = df%&gt;%
+  group_by(cluster)%&gt;%
+  slice(chull(LATITUDE, LONGITUDE))
+</code></pre>
+<p>Next, we need to add the plot. We will first add the points (one for each school)</p>
+<pre><code class='language-r' lang='r'>ggplot()+
+geom_point(data = df,
+           aes(x = LONGITUDE, y = LATITUDE, colour = cluster))
+</code></pre>
+<p>And then add the convex hulls:</p>
+<pre><code class='language-r' lang='r'>ggplot()+
+geom_point(data = df,
+           aes(x = LONGITUDE, y = LATITUDE, colour = cluster))+
+geom_polygon(data = hull, alpha = 0.2,
+             aes(x = LONGITUDE, y = LATITUDE,
+               fill = cluster, colour = cluster))
+</code></pre>
+<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/just_points.png')}}"></p>
+<h2>Adding a Basemap</h2>
+<p>Amazingly, you can kinda spot the outline of United States at this point.  But it would be so much better if there actually was a map of the United States. So let&#39;s add a basemap. We will be using <code>rnaturalearth</code> and <code>rnaturalearthdata</code> to supply the basemap.</p>
+<pre><code class='language-r' lang='r'>library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(maps)
+
+states &lt;- st_as_sf(map(&quot;state&quot;, plot = FALSE, fill = TRUE))
+world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;)
+</code></pre>
+<p><code>geom_sf()</code> is the workhorse behind adding the basemap. We will be using the <code>world</code> object to provide the world map and the <code>states</code> object to provide the states map.</p>
+<p>We will add them like so:</p>
+<pre><code class='language-r' lang='r'>ggplot(data = world) +
+  geom_sf() +
+  geom_sf(data = states, fill = NA) + 
+  coord_sf(xlim = c(-126, -67), ylim = c(24.5, 50), expand = FALSE)+
+  theme_set(theme_bw())
+</code></pre>
+<p>And now our previous plots can be added as layers on top of the basemap!</p>
+<pre><code>ggplot(data = world) +
+  geom_sf() +
+  geom_sf(data = states, fill = NA) + 
+  coord_sf(xlim = c(-126, -67), ylim = c(24.5, 50), expand = FALSE)+
+  theme_set(theme_bw())+
+  geom_point(data = df,
+             aes(x = LONGITUDE, y = LATITUDE, colour = cluster))+
+  geom_polygon(data = hull, alpha = 0.2,
+               aes(x = LONGITUDE, y = LATITUDE,
+                   fill = cluster, colour = cluster))+
+  theme(
+        axis.title = element_blank(),
+        legend.position = &quot;blank&quot;,
+        axis.ticks = element_blank(),
+        axis.text = element_blank()
+        
+        )
+</code></pre>
+<p> And there you have it, all of the powerfive schools assigned to their own powerfive conference. </p>
+<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/basemap.png')}}"></p>
+<h2>Final Touches</h2>
+<p>While this looks <em>fine</em>, it doesn&#39;t stand out that much. What if we used the conference logos as the centers of each cluster and then changed the colors to match.</p>
+<p>We will use <code>df_kmeans$centers</code> as the centers for each cluster and the <code>ggimage</code> package to insert the icons.</p>
+<p>Add the following code block above your <code>ggplot</code> code:</p>
+<pre><code class='language-r' lang='r'>library(ggimage)
+library(rsvg)
+
+centers = data.frame(df_kmeans$centers)%&gt;%
+  mutate(conf = rownames(.),
+         image = ifelse(conf == 1, &quot;pac12.svg&quot;, NA),
+         image = ifelse(conf == 2, &quot;sec.svg&quot;, image),
+         image = ifelse(conf == 3, &quot;big10.svg&quot;, image),
+         image = ifelse(conf == 4, &quot;acc.svg&quot;, image),
+         image = ifelse(conf == 5, &quot;big12.svg&quot;, image)
+         )
+</code></pre>
+<p>You need to write the location of your image as either a filepath or a web address for <code>ggimage</code> to find it. In my case, I saved svgs of each conference logo in the same working directory as my script.</p>
+<p>I then added the following to my <code>ggplot</code></p>
+<pre><code>geom_image(data = centers, aes(x = LONGITUDE, y = LATITUDE, image = image), size = .075) +
+</code></pre>
+<p>Finally, I added a color scheme to match the colors of each conference, resulting in my full <code>ggplot</code> plot code being as follows:</p>
+<pre><code class='language-r' lang='r'>plot = ggplot(data = world) +
+  geom_sf() +
+  geom_sf(data = states, fill = NA) + 
+  coord_sf(xlim = c(-126, -67), ylim = c(24.5, 50), expand = FALSE)+
+  theme_set(theme_bw())+
+  geom_point(data = df,
+             aes(x = LONGITUDE, y = LATITUDE, colour = cluster))+
+  geom_polygon(data = hull, alpha = 0.2,
+               aes(x = LONGITUDE, y = LATITUDE,
+                   fill = cluster, colour = cluster))+
+  geom_image(data = centers, aes(x = LONGITUDE, y = LATITUDE, image = image), size = .075) +
+  theme(
+        axis.title = element_blank(),
+        legend.position = &quot;blank&quot;,
+        axis.ticks = element_blank(),
+        axis.text = element_blank()
+        
+        )+
+  scale_fill_manual(values = c(&quot;#33006F&quot;, &quot;#F8D261&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
+  scale_color_manual(values = c(&quot;#33006F&quot;, &quot;#DDA83D&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
+  ggtitle(&quot;K-Means Saves College Football&quot;)
+</code></pre>
+<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/final.png')}}"></p>
+<h2>Just the Script</h2>
+<p>Ok that was a lot of different moving parts. Here is the final script:</p>
+<pre><code class='language-r' lang='r'>
+colleges = read.csv(&quot;Colleges_and_Universities.csv&quot;)
+
+# getting the ACC
+
+library(rvest)
+library(dplyr)
+library(tidyr)
+
+# reading in schools
+acc = read_html(&quot;https://en.wikipedia.org/wiki/Atlantic_Coast_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+big12 = read_html(&quot;https://en.wikipedia.org/wiki/Big_12_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+big10 = read_html(&quot;https://en.wikipedia.org/wiki/Big_Ten_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+sec = read_html(&quot;https://en.wikipedia.org/wiki/Southeastern_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+pac12 = read_html(&quot;https://en.wikipedia.org/wiki/Pac-12_Conference&quot;)%&gt;%
+  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
+  html_table()%&gt;%
+  select(Institution, Location)
+
+# first we are going to bind them together
+powerfive = rbind(acc, big10, big12, pac12, sec)%&gt;%
+  filter(!Institution %in% c(&quot;East Division&quot;, &quot;West Division&quot;))%&gt;%
+  separate(Location, c(&quot;City&quot;, &quot;State&quot;), &quot;, &quot;)%&gt;%
+  mutate(City = toupper(City))%&gt;%
+  # then we are going to clean up the names that we pulled from wikipedia
+  # so that they are in format from the excel
+  mutate(
+    id = row_number(),
+    Institution = gsub(&quot;, &quot;, &quot;--&quot;, Institution),
+    #Institution = gsub(&quot; at &quot;, &quot;--&quot;, Institution),
+    Institution = gsub(&quot;–&quot;, &quot;--&quot;, Institution),
+    clean = toupper(gsub(&quot;\\[.*&quot;, &quot;&quot;, Institution))
+         )
+
+rm(acc, big10, big12, pac12, sec)
+
+# first we are just going to get a df with all the colleges in there
+# we have 47 out of 69 matched
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+
+# MAIN CAMPUS fix ---------------------------------------------------------
+
+
+# a lot of missing ones have the --MAIN CAMPUS appended onto the 
+# wikipedia names so we are going to create a variable that has that
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)%&gt;%
+  mutate(main_campus = paste0(clean, &quot;--MAIN CAMPUS&quot;))
+
+# and join it onto the original
+powerfive = powerfive%&gt;%
+  left_join(missing)%&gt;%
+  # if that variable exists, overwrite the clean var
+  mutate(clean = ifelse(!is.na(main_campus), main_campus, clean))
+
+# and lets check how many we added
+# we are now at 54 out of 69
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+
+# city name ---------------------------------------------------------------
+
+# these are the ones still missing
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)
+
+# MAIN CAMPUS didnt work so lets remove that from the clean
+missing$clean = gsub(&quot;--MAIN CAMPUS&quot;, &quot;&quot;, missing$clean)
+
+# lets create a variable called city_app that appends the name of the city
+# onto the school name
+missing$city_app = paste0(missing$clean, &quot;--&quot;, missing$City)
+
+# lets make it easier to join
+missing = missing%&gt;%
+  select(id, city_app)
+
+# if it was one of the missing, use that name
+powerfive = powerfive%&gt;%
+  left_join(missing, by = &quot;id&quot;)%&gt;%
+  mutate(clean = ifelse(!is.na(city_app), city_app, clean))
+
+# now we are up to 57
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% powerfive$clean)
+
+missing = powerfive%&gt;%
+  filter(!clean %in% filtered_colleges$NAME)
+
+
+# SADNESS -----------------------------------------------------------------
+# we may just need to hardcode the rest
+
+missing = c(&quot;NORTH CAROLINA STATE UNIVERSITY AT RALEIGH&quot;, 
+  &quot;UNIVERSITY OF PITTSBURGH--PITTSBURGH CAMPUS&quot;,
+  &quot;INDIANA UNIVERSITY--BLOOMINGTON&quot;,
+  &quot;UNIVERSITY OF OKLAHOMA--NORMAN CAMPUS&quot;,
+  &quot;THE UNIVERSITY OF TEXAS AT AUSTIN&quot;,
+  &quot;ARIZONA STATE UNIVERSITY CAMPUS IMMERSION&quot;,
+  &quot;UNIVERSITY OF COLORADO BOULDER&quot;,
+  &quot;UNIVERSITY OF WASHINGTON--SEATTLE CAMPUS&quot;,
+  &quot;THE UNIVERSITY OF TENNESSEE--KNOXVILLE&quot;,
+  &quot;THE UNIVERSITY OF ALABAMA&quot;,
+  &quot;UNIVERSITY OF LOUISIANA--SYSTEM ADMINISTRATION&quot;,
+  &quot;TEXAS A &amp; M UNIVERSITY--COLLEGE STATION&quot;)
+
+filtered_colleges = colleges%&gt;%
+  filter(NAME %in% c(powerfive$clean, missing))
+
+# performing kmeans -------------------------------------------------------
+
+
+df = filtered_colleges %&gt;%
+  select(NAME, LATITUDE, LONGITUDE)%&gt;%
+  mutate(
+    LATITUDE = as.numeric(LATITUDE),
+    LONGITUDE = as.numeric(gsub(&quot;--&quot;, &quot;-&quot;, LONGITUDE))
+    )
+  
+
+# rebuilding dataframe ----------------------------------------------------
+
+
+df &lt;- tibble::column_to_rownames(df, var = &quot;NAME&quot;)
+
+df_kmeans = kmeans(df, 5)
+
+df$name &lt;-row.names(df)
+df$cluster&lt;-factor(df_kmeans$cluster)
+
+# creating convex hull ----------------------------------------------------
+
+
+hull = df%&gt;%
+  group_by(cluster)%&gt;%
+  slice(chull(LATITUDE, LONGITUDE))
+
+
+# stuff needed for basemap ------------------------------------------------
+
+
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(maps)
+
+states &lt;- st_as_sf(map(&quot;state&quot;, plot = FALSE, fill = TRUE))
+world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;)
+
+
+# stuff needed for image centers ------------------------------------------
+
+
+library(ggimage)
+library(rsvg)
+
+centers = data.frame(df_kmeans$centers)%&gt;%
+  mutate(conf = rownames(.),
+         image = ifelse(conf == 1, &quot;pac12.svg&quot;, NA),
+         image = ifelse(conf == 2, &quot;sec.svg&quot;, image),
+         image = ifelse(conf == 3, &quot;big10.svg&quot;, image),
+         image = ifelse(conf == 4, &quot;acc.svg&quot;, image),
+         image = ifelse(conf == 5, &quot;big12.svg&quot;, image)
+         )
+
+
+# the plot ----------------------------------------------------------------
+
+
+plot = ggplot(data = world) +
+  geom_sf() +
+  geom_sf(data = states, fill = NA) + 
+  coord_sf(xlim = c(-126, -67), ylim = c(24.5, 50), expand = FALSE)+
+  theme_set(theme_bw())+
+  geom_point(data = df,
+             aes(x = LONGITUDE, y = LATITUDE, colour = cluster))+
+  geom_polygon(data = hull, alpha = 0.2,
+               aes(x = LONGITUDE, y = LATITUDE,
+                   fill = cluster, colour = cluster))+
+  geom_image(data = centers, aes(x = LONGITUDE, y = LATITUDE, image = image), size = .075) +
+  theme(
+        axis.title = element_blank(),
+        legend.position = &quot;blank&quot;,
+        axis.ticks = element_blank(),
+        axis.text = element_blank()
+        
+        )+
+  scale_fill_manual(values = c(&quot;#33006F&quot;, &quot;#F8D261&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
+  scale_color_manual(values = c(&quot;#33006F&quot;, &quot;#DDA83D&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
+  ggtitle(&quot;K-Means Saves College Football&quot;)
+
+  
+plot
+
+</code></pre>
+<p>&nbsp;</p>
+{% endblock %}

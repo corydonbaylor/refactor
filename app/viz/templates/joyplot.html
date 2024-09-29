@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Joy Plot of Virginia</h2>
+<p>Joy Division is a band that I am not British enough to listen to. They have an album called &quot;Unknown
+  Pleasure&quot;, which at this point may be more famous for its album cover rather than its music. It has straight
+  white lines that turn into sharp jagged ridges across the middle. </p>
+<p>I think it meant to represent their rough sound (they are a British punk band from the eighties), but many members
+  of the data science community saw that cover and thought, &quot;what if this was a topographic map?&quot; And here
+  we are, with me showing you how to make a topographic map of Virginia in the style of Joy Division&#39;s
+  &quot;Unknown Pleasures&quot;, with the type of over-long and over-complicated intro usually reserved with cooking
+  websites.</p>
+<p>Well, let&#39;s get cooking. </p>
+
+<img src="{{url_for('static', filename='images/viz/joy_plot/joy_plot.png')}}"></img>
+
+<p>Disclaimer, this is not my <a href='https://imgur.com/gallery/za6oWno'>idea</a>. </p>
+<h3>Latitudes and Longitudes</h3>
+<p>We need three data points to create the desired effect: latitudes, longitudes, and elevations in Virginia. To get
+  the latitudes and longitudes specifically for Virginia, we first create a bounding box around the state. Basically
+  we are going to draw a rectangle around the state and then grab all the lats and longs within that box. </p>
+<pre><code># first we are going to create a bounding box for virginia
+# using lat longs
+
+lat &lt;- data.frame(lat = seq(36, 40, by = .06))
+long &lt;- data.frame(long = seq(-85, -74, by = .06))
+
+# create a lat long dataframe
+positions = lat %&gt;% 
+  merge(long, all = TRUE)
+</code></pre>
+<p>Because Virginia is not a rectangle, we will need to filter this down to <strong>just</strong> the lats and longs
+  within the state. We will be feeding these lat longs into an API to get their corresponding elevation, and we just
+  want the elevations for Virginia, not for the entire box around Virginia. </p>
+<p>We can use the <code>map.where</code> function to get place names for a set of lat longs. With that info, we can
+  filter down the dataset to just the lat longs in Virginia. If for some strange reason you read my website, you may
+  recognize that this section is stolen from the tutorial about making a COVID dotmap. </p>
+<pre><code># this dataframe contains both the lat long and county info
+positions = positions %&gt;% 
+  
+  # the map.where function returns the county given a lat long
+  mutate(county = map.where(&#39;county&#39;, long, lat))%&gt;%
+  separate(county, c(&quot;state&quot;, &quot;county&quot;), sep = &quot;,&quot;)%&gt;%
+  mutate(county_state = paste0(county, &quot;, &quot;, state))%&gt;%
+  mutate(county_state = gsub(&quot;:chincoteague|:main&quot;, &quot;&quot;,  county_state))
+
+
+# next we are going to filter to just virginia
+virginia = positions%&gt;%
+  filter(state == &quot;virginia&quot;)  
+</code></pre>
+<h3>Elevations</h3>
+<p>There are a lot of paid APIs or daily limited APIs that will give you the elevation when you submit the lats and
+  longs. However, deep in the bowels of a government website there is a free elevation API that isn&#39;t rate
+  limited, just very, very slow. We will be using that. Keep in mind, it takes a while to run. For me, it took about
+  an hour to return 3,000 results, so be patient. </p>
+<p>All we are going to do is create a vector with the returned elevations, which we will join to the original data
+  frame and then save as a CSV. </p>
+<pre><code># using the lat longs from the virginia df, we are going to return 
+# elevations
+
+# NOTE: THIS WILL TAKE FOREVER, SAVE THE RESULTS
+elevation = c()
+
+for(i in 1:nrow(virginia)){
+  print(i)
+  
+  temp = fromJSON(paste0(&quot;https://nationalmap.gov/epqs/pqs.php?x=&quot;, 
+                         as.numeric(virginia[i,2]), &quot;&amp;y=&quot;, as.numeric(virginia[i,1]), &quot;&amp;units=Feet&amp;output=json&quot;))
+  val = temp$USGS_Elevation_Point_Query_Service$Elevation_Query$Elevation
+  elevation = append(elevation, val)
+  
+}
+
+# saving the results as they are quite important
+virginia2 = cbind(virginia, elevation)
+write.csv(virginia2, &quot;virginia.csv&quot;)
+</code></pre>
+<p>There you go! You have all the data!</p>
+<h3>Creating the Plot</h3>
+<p>Ok, we now have the data. Can we do the cool part yet?</p>
+<p>Yes, we can do the cool part. </p>
+<p>First, we are going to join our Virginia data frame back to the bounding box. There is a good reason for this. Due
+  to how we are constructing the plot, <strong>we need lat and longs that are not in Virginia to have an elevation of
+    <code>NA</code> otherwise they will show up on the plot.</strong> I&#39;ll explain how this works a little later
+  on. </p>
+<pre><code># next we are going to create an ID to join virginia back to 
+# the bounding box
+virginia2 = virginia2%&gt;%
+  mutate(id = paste0(lat, long))
+
+positions = positions%&gt;%
+  mutate(id = paste0(lat, long))
+
+final = positions%&gt;%
+  left_join(virginia2)
+</code></pre>
+<p>Next, the <code>ggplot</code> code. </p>
+<pre><code># finally, the plot itself. 
+final%&gt;%
+  ggplot(aes(long, lat + .15*(elevation/max(elevation, na.rm=TRUE)))) + # this is the key line
+  geom_line(size=0.7, alpha=0.8, color=&#39;white&#39;, aes(group=lat), na.rm=TRUE) +
+  ggthemes::theme_map() +
+  coord_map()+
+  theme(panel.background = element_rect(fill = &quot;black&quot;))
+
+ggsave(&quot;virginia.png&quot;, width = 20, units=&quot;in&quot;)
+</code></pre>
+<p>Let&#39;s break down that second line a little more.</p>
+<p><code>ggplot(aes(long, lat + .15*(elevation/max(elevation, na.rm=TRUE))))</code></p>
+<p>The longitudes will be the x value and the latitudes will be the y values. If you just did this, you will get set
+  of lines in the shape of Virginia (really at this point, it will be in the shape of the bounding box). The magic
+  comes from how we add the elevation to to the latitudes/y values. </p>
+<p>By adding the elevation to the y value, we create ridges. </p>
+<p>Additionally, because some of the elevations are <code>NAs</code>, we are creating <code>NAs</code> along the lat
+  longs where there is no elevation (i.e. lat longs that aren&#39;t in Virginia). This is because in R when you add a
+  number (such as a latitude) to <code>NA</code>, you get <code>NA</code> in return. </p>
+<h3>Finishing Up</h3>
+<p>Ok, so now we have a cool looking map. You may be wondering, &quot;how did you add that label?&quot; To be
+  perfectly honest, its possible to add it in R, but I just loaded the image into powerpoint and added it there.
+  Sometimes the path of least resistance is the best one to take. </p>
+{% endblock %}

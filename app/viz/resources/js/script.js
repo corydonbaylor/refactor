@@ -4,14 +4,13 @@ if (!container) {
 }
 
 const items = [
-    { size: '2x2', image: 'static/images/finals/barchart_race.gif' },
-    { size: '1x1', image: 'static/images/finals/calendar.png' },
-    { size: '1x1', image: 'static/images/finals/covid19_dot_map.gif' },
-    { size: '1x2', image: 'static/images/finals/grammys.png' },
-    { size: '2x1', image: 'static/images/finals/joy_plot.png' },
-    { size: '2x2', image: 'static/images/finals/p5_final.png' },
-    { size: '1x1', image: 'static/images/finals/rock.png' },
-    // Add more items as needed
+    { size: '2x2', image: 'static/images/finals/barchart_race.gif', title: 'Bar Chart Race', route: 'viz/barchart_race' },
+    { size: '1x1', image: 'static/images/finals/calendar.png', title: 'Calendar', route: 'viz/calendar' },
+    { size: '1x1', image: 'static/images/finals/covid19_dot_map.gif', title: 'COVID-19 Dot Map', route: 'viz/covid' },
+    { size: '1x2', image: 'static/images/finals/grammys.png', title: 'Grammys', route: 'viz/grammys' },
+    { size: '2x1', image: 'static/images/finals/joy_plot.png', title: 'Joy Plot', route: 'viz/joyplot' },
+    { size: '2x2', image: 'static/images/finals/p5_final.png', title: 'P5 Final', route: 'viz/powerfive' },
+    { size: '1x1', image: 'static/images/finals/rock.png', title: 'Rock', route: 'viz/rock' },
 ];
 
 function createGrid() {
@@ -24,11 +23,16 @@ function createGrid() {
         
         const img = document.createElement('img');
         img.src = item.image;
-        img.alt = `Image ${index + 1}`;
-        img.onerror = () => console.error(`Failed to load image: ${item.image}`);
+        img.alt = item.title;
         
         div.appendChild(img);
         container.appendChild(div);
+
+        // Add click event listener
+        div.addEventListener('click', () => {
+            window.location.href = `/${item.route}`;
+        });
+
         console.log(`Item ${index + 1} added to grid`);
     });
     

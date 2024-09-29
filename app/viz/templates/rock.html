@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>The Day (Rock) Music Died</h2>
+
+<p>In the five year span from 2015 to 2019, only one rock band had more than five hits that charted in the Year End
+    Billboard Hot 100. </p>
+<p>It was Imagine Dragons, and they had six hits. </p>
+<p>Compare that to the Beatles who, from 1964 to 1969, had <strong><em>twenty-four</em></strong> hits in the Year End
+    Billboard Hot 100, including four in the Top Ten. Perhaps the Beatles are too high a bar. Then again, Hall and Oats
+    had twelves charting singles from 1980 to 1984.</p>
+<p>So yes, rock has been in a slump lately.</p>
+<p>In fact, 2015 to 2019 was the worst five year period in the history of Rock and Roll. Only 37 rock songs made a Year
+    End Billboard Hot 100 during that time. 37 out of a possible 500. </p>
+<p>And frankly, this is a gross over-count. If you take away singers who have rock influence but would most commonly be
+    associated with pop (like the Jonas Brothers), that leaves you with only 25 rock songs charting. <em>That only about
+        5 percent of songs!</em> And that includes country singers like Florida Georgia Line.</p>
+<p>I cannot think of another facet of American culture that has crashed and burned as thoroughly as Rock and Roll has.
+    Perhaps the Western genre in film? The big difference here is that Rock was the dominant genre of music in the
+    United States for nearly five decades.</p>
+<p>See below for its peak in the 80s and then precipitous decline in the 2010s. </p>
+<p><img class="img-center" src="{{url_for('static', filename='images/viz/rock.png')}}"></p>
+<p>You might be thinking that pulling together this visualization would be easy. But you would be wrong. See below for
+    the full write up of how this came together. </p>
+<h3 id='getting-the-data'>Getting the Data </h3>
+<p>Lucky for me, an organization has been dutifully keeping track of the most popular songs since at least 1941. The
+    Billboard Top 100 would be perfect. Unfortunately, you can&#39;t just go to billboard.com and download the top 100
+    most popular songs per year because their data only goes back until 2006. </p>
+<p>However, there is another website called <a href='http://billboardtop100of.com'>billboardtop100of.com</a> that has
+    data going all the way back until 1941. There is a caveat though. At least in this data source, the 1956 is the
+    first year that has the top 100 songs, before that only the top 30 songs are tracked. </p>
+<p>For consistency sake, I decided I would build a dataset from 1960 to 2019 with the top 100 songs of the year. Since
+    there was no option to simply download the data, I would web scrape the needed data. </p>
+<p>Each webpage from 1960 to 2013 was in the same format, making it easy to scrape. </p>
+<pre><code>import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import requests
+import re
+import json
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
+# we need to initiate outside of the loop
+data = pd.DataFrame()
+
+# 1960 to 2012 are in the same format lol
+for x in range(1960, 2013):
+    url = &#39;http://www.billboardtop100of.com/&#39; + str(x) + &#39;-2/&#39;
+    html = urlopen(url)
+
+    # creating a beautiful soup object
+    soup = BeautifulSoup(html, &#39;lxml&#39;)
+
+    # find the table and then convert it into a string
+    html_table = str(soup.find(&#39;table&#39;))
+
+    # turn that str into a pd dataframe
+    temp = pd.read_html(html_table)
+    temp = temp[0]
+
+    # fix up columns
+    temp.columns = [&#39;rank&#39;, &#39;artist&#39;, &#39;song&#39;]
+    temp[&#39;year&#39;] = x
+    data = data.append(temp, ignore_index = True)
+
+data
+</code></pre>
+<p>This website unfortunately did not care much for consistency and after 2013, the format of the data changed nearly
+    each year. Like a psychopath, I did 2013 by hand, but in 2014, the same old table format returned:</p>
+<pre><code>data = pd.read_csv(&#39;data.csv&#39;)
+# I did 2013 manually since it was the only year in that format
+url = &#39;http://www.billboardtop100of.com/2014-2/&#39;
+html = urlopen(url)
+
+# creating a beautiful soup object
+soup = BeautifulSoup(html, &#39;lxml&#39;)
+
+# find the table and then convert it into a string
+html_table = str(soup.find(&#39;table&#39;))
+
+# turn that str into a pd dataframe
+temp = pd.read_html(html_table)
+temp = temp[0]
+
+# fix up columns
+temp.columns = [&#39;rank&#39;, &#39;artist&#39;, &#39;song&#39;]
+temp[&#39;year&#39;] = &#39;2014&#39;
+data = data.append(temp, ignore_index = True)
+</code></pre>
+<p>In 2015 and 2016, the author added a hyper link to song lyrics for each song. I removed that like so:</p>
+<pre><code>for x in range(2015, 2017):
+    url = &#39;http://www.billboardtop100of.com/&#39; + str(x)+ &#39;-2/&#39;
+    html = urlopen(url)
+
+    # creating a beautiful soup object
+    soup = BeautifulSoup(html, &#39;lxml&#39;)
+
+    # find the table and then convert it into a string
+    html_table = str(soup.find(&#39;table&#39;))
+
+    # turn that str into a pd dataframe
+    temp = pd.read_html(html_table)
+    temp = temp[0]
+    temp.columns = [&#39;rank&#39;, &#39;artist&#39;, &#39;song&#39;]
+    temp[&#39;year&#39;] = x
+    temp.song = temp.song.replace(&quot; LYRICS&quot;, &quot;&quot;, regex=True)
+    df = df.append(temp, ignore_index = True)
+</code></pre>
+<h3 id='no-more-tables'>No More Tables</h3>
+<p>Everything before this was very easy, because it was all stored in a &lt;table&gt; tags. However in 2017, the table
+    format was abandoned. Luckily, each rank, song title, and artist was stored in their own &lt;div&gt;, each with a
+    distinct class name. </p>
+<p>For example, every song name was stored in a div with a class of &quot;ye-chart-item__title&quot;. So for each
+    webpage, I would pull all the divs with that class name and save the contents into a list. After that, I would
+    combine all the three lists into a data frame and append that to the other data.</p>
+<pre><code># 2017 to 2018 has the same class names
+for x in range(2017, 2019):
+
+    # here comes the challenge, they took it out a table :(
+    url = &#39;http://www.billboardtop100of.com/&#39;+ str(x) + &#39;-2/&#39;
+    html = urlopen(url)
+
+    # creating a beautiful soup object
+    soup = BeautifulSoup(html, &#39;lxml&#39;)
+
+    # getting the rank
+    html_rank = soup.find_all(class_=&quot;ye-chart-item__rank&quot;)
+    ranks = []
+    for i in range(0, 100):
+        temp = html_rank[i].text
+        ranks.append(temp)
+
+    # getting the artist
+    html_artist = soup.find_all(class_=&quot;ye-chart-item__artist&quot;)
+    artists = []
+    for i in range(0, 100):
+        temp = html_artist[i].text
+        artists.append(temp)
+
+    # getting the song title
+    html_song = soup.find_all(class_=&quot;ye-chart-item__title&quot;)
+    songs = []
+    for i in range(0, 100):
+        temp = html_song[i].text
+        songs.append(temp)
+
+    # creating a dictionary
+    dict = {&quot;rank&quot;:ranks, &quot;artist&quot;: artists, &quot;song&quot;:songs}
+    temp2 = pd.DataFrame(dict)
+    temp2[&#39;year&#39;] = x
+    df = df.append(temp2, ignore_index = True)
+
+</code></pre>
+<h3 id='no-more-classes'>No More Classes </h3>
+<p>However, in 2019, the author decided to change everything up again and put everything in &lt;p&gt; tags without
+    classes corresponding to the contents. Here is how I got around that.</p>
+<p>As usually, I grabbed the webpage and saved it as a BeautifulSoup object.</p>
+<pre><code># here comes the challenge, they took it out a table :(
+url = &#39;http://www.billboardtop100of.com/2019-2/&#39;
+html = urlopen(url)
+
+# creating a beautiful soup object
+soup = BeautifulSoup(html, &#39;lxml&#39;)
+</code></pre>
+<p>Next, I pulled all the &lt;p&gt; tags from the webpage. At this point, the data looks something like this:</p>
+<pre><code>&lt;p&gt; 1 &lt;/p&gt;
+&lt;p&gt; Old Town Road &lt;/p&gt;
+&lt;p&gt; Lil Nas X Featuring Billy Ray Cyrus &lt;/p&gt;
+&lt;p&gt; 2 &lt;/p&gt;
+&lt;p&gt; Sunflower (Spider-Man: Into The Spider-Verse) &lt;/p&gt;
+&lt;p&gt; Post Malone &amp; Swae Lee &lt;/p&gt;
+</code></pre>
+<p>As such, every forth tag would represent a new song. So what I would do is save everything into list and then take
+    every 4th &lt;p&gt; tag in the list and save the contents as a song, artist, or rank. </p>
+<p>And here is where I cheated a little. There were two instances where the site&#39;s author did not put the song and
+    artist into separate &lt;p&gt; tags, so I downloaded the data into an excel file and then separated them. </p>
+<pre><code>all_html = soup.find_all(&#39;p&#39;)
+all = []
+for i in range(0, 299):
+    all.append(all_html[i].text.strip())
+
+dirty = pd.DataFrame(all, columns=[&quot;all&quot;])
+
+dirty.to_csv(&quot;why_hurt_me_like_this.csv&quot;,  index = False)
+</code></pre>
+<p>Next, using the <code>::</code> operator I found the 3rd element in the list and saved it as a new list. I did this
+    for songs, artists and ranks.</p>
+<pre><code># im just gonna fix it in excel like a winner
+list_2019 = pd.read_csv(&#39;why_hurt_me_like_this.csv&#39;)
+ls = list_2019[&#39;all&#39;].tolist()
+
+# for every nth item return a value
+ranks = ls[0::3]
+songs = ls[1::3]
+artists = ls[2::3]
+
+# putting into a dataframe
+dict = {&quot;rank&quot;:ranks, &quot;artist&quot;: artists, &quot;song&quot;:songs}
+temp2 = pd.DataFrame(dict)
+temp2[&#39;year&#39;] = &#39;2019&#39;
+
+# adding to everything else
+df = df.append(temp2, ignore_index = True)
+</code></pre>
+<p>Finally, I had a flat dataset of all the songs from the Billboard Top 100 from 1960-2019. This did not answer the
+    question of which of these songs were rock songs.</p>
+<h3 id='lastfm-api-to-the-rescue'>last.fm API to the Rescue</h3>
+<p>It took me a minute to find a way to get genre data. However, last.fm offers a free API. If you provide an artist
+    name, the API will return tags that are associated with that artist, which roughly correspond to genres. A lot of
+    these genres were either too specific or nonsensical to use, and as a result, I pulled the top three tags associated
+    with each artist. </p>
+<p>If any of the tags contained the word &quot;rock&quot;, I would mark that song as a rock song. This raises an obvious
+    limitation. Whether a song is marked as a rock song is determined by the top three genres associated with that
+    artist, not the song itself. </p>
+<p>The alternative would be to review all 6,000 songs manually and assign a genre, which I obviously was not going to
+    do.</p>
+<p>A second limitation, one that I was less concerned about, is that the last.fm would throw me and error if it could
+    not find the artist. This was especially common for artist names that contained a feature. However, most rock
+    artists don&#39;t typically feature other artist, so I was ok with this caveat as well.</p>
+<p>To add a genre variables for the top three tags associated with artist, I ran each song in the dataset through this
+    loop. This returned three lists (one for each tag) that I would add as genre variables to my dataset.</p>
+<pre><code># no punctuation, lower case, no spaces
+df[&#39;artist&#39;]= df[&#39;artist&#39;].str.replace(r&#39;[^\w\s]+&#39;,&#39;&#39;).str.lower().str.replace(&#39; &#39;, &#39;+&#39;)
+df[&quot;song&quot;] = df[&#39;song&#39;].str.replace(r&#39;[^\w\s]+&#39;,&#39;&#39;).str.lower().str.replace(&#39; &#39;, &#39;+&#39;)
+
+genres = []
+genres2 = []
+genres3 = []
+# building the loop
+for x in range(0,6000):
+    artist = df.iloc[x][&#39;artist&#39;]
+
+    try:
+        response = requests.get(&quot;http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&amp;artist=&quot;+artist+&quot;&amp;api_key=KEY GOES HERE&amp;format=json&quot;)
+
+        dict = response.json()
+
+        # getting the first genre of the artist
+        try:
+            genre = dict[&#39;toptags&#39;][&#39;tag&#39;][0][&#39;name&#39;]
+        except:
+            genre = &#39;unknown&#39;
+        
+        # getting the second genre of the artist
+        try:
+            genre2 = dict[&#39;toptags&#39;][&#39;tag&#39;][1][&#39;name&#39;]
+        except:
+            genre2 = &#39;unknown&#39;
+
+        # getting the third genre of the artist
+        try:
+            genre3 = dict[&#39;toptags&#39;][&#39;tag&#39;][2][&#39;name&#39;]
+        except:
+            genre3 = &#39;unknown&#39;
+
+    except:
+        genre = &quot;unknown&quot;
+        genre2 = &quot;unknown&quot;
+        genre3 = &quot;unknown&quot;
+
+    
+    # appending to the 
+    genres.append(genre)
+    genres2.append(genre2)
+    genres3.append(genre3)
+
+# adding genre columns
+df[&#39;genre&#39;] = genres
+df[&#39;genre2&#39;] = genres2
+df[&#39;genre3&#39;] = genres3
+</code></pre>
+<p>Ok, so now we have three new genre variables. Next, we need to determine if any of these genres indicates that this
+    is a rock artist. If any of these genres contain the word &quot;rock&quot; that means it&#39;s a rock artist. Easy
+    enough.</p>
+<pre><code># next we are going to consolidate the columns into one
+df[&#39;big_genre&#39;] = np.where(df.genre.str.contains(&quot;[Rr]ock&quot;) | df.genre2.str.contains(&quot;[Rr]ock&quot;) | df.genre3.str.contains(&quot;[Rr]ock&quot;), 
+        &quot;Rock&quot;, &quot;Not Rock&quot;)
+</code></pre>
+<p>Ok, thank god. We now have the full data set. Now we just need to make a visualization. </p>
+<h3 id='the-visualization'>The Visualization </h3>
+<p>I am a python newbie. I have been using R for years and feel very comfortable with it both for data cleaning and
+    visualization. So be forewarned. The code you are about to see may be pretty crappy. And if you love python, there
+    will be weeping and gnashing of teeth.</p>
+<p>But step one in creating the visualization is getting the data in the right format. All we need to do is group up by
+    year and genre and create a decade variable.</p>
+<pre><code># the goal is to have three columns
+grouped = df.groupby([&quot;year&quot;, &quot;big_genre&quot;])[&#39;big_genre&#39;].count()
+grouped = grouped.to_frame().rename(columns = {&#39;big_genre&#39;: &#39;count&#39;})
+grouped.reset_index(inplace = True)
+grouped = grouped[grouped[&quot;big_genre&quot;] == &#39;Rock&#39;]
+grouped[&quot;decade&quot;] = grouped.year - (grouped.year % 10)
+</code></pre>
+<p>This is where the visualization got a little loopy (literally). I wanted to do something similar to a facet-wrap in
+    ggplot but that failed me tremendously. Instead, I had to create a visualization for each decade and then smoosh
+    them into one big plot. </p>
+<pre><code>decade = [1960, 1970, 1980, 1990, 2000, 2010]
+fig, axs = plt.subplots(nrows=6, figsize=(10,12))
+
+sns.set(rc={&#39;axes.facecolor&#39;:&#39;#fafafa&#39;, &#39;figure.facecolor&#39;:&#39;#fafafa&#39;})
+
+for i in range(0,6):
+    x = grouped[grouped.decade == decade[i]]
+    sns.barplot(x=&quot;year&quot;, y = &quot;count&quot;, color = &#39;#244747&#39;, data= x, ax=axs[i]).set(ylim = (0, 100),
+     ylabel = None, xlabel=None)
+
+
+#fig.suptitle(&#39;The Fast Death of Rock&#39;, fontsize = 16)
+#fig.subplots_adjust(top=0.95)
+fig.text(x=0.5, y=.93, s=&#39;The Day the (Rock) Music Died&#39;, ha=&#39;center&#39;, fontsize = 26)
+fig.text(x=0.5, y=.90, s=&#39;Rock Songs in the Billboard Hot 100 Each Year&#39;, ha=&#39;center&#39;, fontsize =14)
+#fig.set(rc={&#39;axes.facecolor&#39;:&#39;cornflowerblue&#39;, &#39;figure.facecolor&#39;:&#39;cornflowerblue&#39;})
+sns.despine()
+</code></pre>
+<p>And after all that, we have our plot.</p>
+{% endblock %}
