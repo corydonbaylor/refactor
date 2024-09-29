@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Viz{% endblock %}
+
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('viz.static', filename='css/style.css') }}">
+</head>
+<h1>A picture's worth a thousand data points</h1>
+<div id="grid-container"></div>
+
+<script src="{{ url_for('viz.static', filename='js/script.js') }}"></script>
+
+{% endblock %}

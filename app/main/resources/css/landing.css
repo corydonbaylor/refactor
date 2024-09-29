@@ -13,12 +13,18 @@
 
 #message {
     font-size: clamp(20px, 8vw, 48px); /* Minimum size of 24px, maximum size of 48px */
+    font-weight: 200;
 }
 
 #more-content {
     font-size: medium;
     font-size: clamp(20px, 8vw, 48px); /* Minimum size of 24px, maximum size of 48px */
+    font-weight: 200;
+}
 
+
+.regular{
+    font-weight: 400;
 }
 
 .icon-container {
