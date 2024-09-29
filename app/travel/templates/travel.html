@@ -4,5 +4,14 @@
 
 {% block content %}
 <h1>Travel Section</h1>
-<p>Welcome to the travel section!</p>
+<object id="world-map" type="image/svg+xml" data="{{ url_for('travel.static', filename='images/world(1).svg') }}" class="svg-object"></object>
+<script src="{{ url_for('travel.static', filename='js/map.js') }}"></script>
+
+<style>
+    .svg-object {
+        height: auto; /* Maintain aspect ratio */
+        object-fit: contain; /* Ensure the entire SVG is visible */
+    }
+</style>
+
 {% endblock %}
