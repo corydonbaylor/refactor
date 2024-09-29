@@ -51,3 +51,7 @@ h3 {
 p {
     font-size: clamp(14px, 3vw, 16px); /* Minimum size of 16px, maximum size of 24px */
 }
+
+p img {
+    width: 100%;
+}

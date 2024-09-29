@@ -5,7 +5,7 @@
 
 <p>Is college sports totally ruined? It is on the West Coast at least. Who is ready for the Washington volleyball team to go to Rutgers for a meet? Sounds like a very reasonable expectation for a student athlete to do over the weekend between writing term papers and attending the Alpha Phi philanthropy bash.</p>
 <p>What would happen if we let geography and math decide where all the Power Five conference members go? In this perfect world, we are only concerned with the current Power Five schools (as defined by Wikipedia&mdash; sorry Notre Dame, you count). We would get this beautiful alignment of conferences:</p>
-<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/final.png')}}"></p>
+<p><img class="img-center" src="{{url_for('viz.static', filename='images/finals/p5_final.png')}}"></p>
 <p>Is that not the most glorious thing you have every seen? The reason it is filled with God&#39;s glory is because it inherently <em>makes sense.</em> There is no Rutgers-USC in conference games because those two schools have essentially nothing in common, both from a geographic perspective but also from a culture perspective. </p>
 <h2>New and Better Conferences</h2>
 <p>So how did we get here? I will get into the details later, but we used k-means clustering, using latitude and longitude as variables, to determine which team belongs in which conference. It was a bit off good luck that roughly the same number of schools ended up in each conference. The only inputs provided into k-means was the latitude and longitude of the schools and how many conferences we desired&mdash; there was no guarentee that each conference would be as balanced as it turned out.</p>
@@ -223,7 +223,7 @@ geom_polygon(data = hull, alpha = 0.2,
              aes(x = LONGITUDE, y = LATITUDE,
                fill = cluster, colour = cluster))
 </code></pre>
-<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/just_points.png')}}"></p>
+<p><img class="img-center" src="{{url_for('viz.static', filename='images/powerfive/just_points.png')}}"></p>
 <h2>Adding a Basemap</h2>
 <p>Amazingly, you can kinda spot the outline of United States at this point.  But it would be so much better if there actually was a map of the United States. So let&#39;s add a basemap. We will be using <code>rnaturalearth</code> and <code>rnaturalearthdata</code> to supply the basemap.</p>
 <pre><code class='language-r' lang='r'>library(sf)
@@ -262,7 +262,7 @@ world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot
         )
 </code></pre>
 <p> And there you have it, all of the powerfive schools assigned to their own powerfive conference. </p>
-<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/basemap.png')}}"></p>
+<p><img class="img-center" src="{{url_for('viz.static', filename='images/powerfive/basemap.png')}}"></p>
 <h2>Final Touches</h2>
 <p>While this looks <em>fine</em>, it doesn&#39;t stand out that much. What if we used the conference logos as the centers of each cluster and then changed the colors to match.</p>
 <p>We will use <code>df_kmeans$centers</code> as the centers for each cluster and the <code>ggimage</code> package to insert the icons.</p>
@@ -306,220 +306,6 @@ centers = data.frame(df_kmeans$centers)%&gt;%
   scale_color_manual(values = c(&quot;#33006F&quot;, &quot;#DDA83D&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
   ggtitle(&quot;K-Means Saves College Football&quot;)
 </code></pre>
-<p><img class="img-center" src="{{url_for('static', filename='images/viz/powerfive/final.png')}}"></p>
-<h2>Just the Script</h2>
-<p>Ok that was a lot of different moving parts. Here is the final script:</p>
-<pre><code class='language-r' lang='r'>
-colleges = read.csv(&quot;Colleges_and_Universities.csv&quot;)
+<p><img class="img-center" src="{{url_for('viz.static', filename='images/finals/p5_final.png')}}"></p>
 
-# getting the ACC
-
-library(rvest)
-library(dplyr)
-library(tidyr)
-
-# reading in schools
-acc = read_html(&quot;https://en.wikipedia.org/wiki/Atlantic_Coast_Conference&quot;)%&gt;%
-  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
-  html_table()%&gt;%
-  select(Institution, Location)
-
-big12 = read_html(&quot;https://en.wikipedia.org/wiki/Big_12_Conference&quot;)%&gt;%
-  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]&quot;)%&gt;%
-  html_table()%&gt;%
-  select(Institution, Location)
-
-big10 = read_html(&quot;https://en.wikipedia.org/wiki/Big_Ten_Conference&quot;)%&gt;%
-  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
-  html_table()%&gt;%
-  select(Institution, Location)
-
-sec = read_html(&quot;https://en.wikipedia.org/wiki/Southeastern_Conference&quot;)%&gt;%
-  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
-  html_table()%&gt;%
-  select(Institution, Location)
-
-pac12 = read_html(&quot;https://en.wikipedia.org/wiki/Pac-12_Conference&quot;)%&gt;%
-  html_element(xpath = &quot;/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[3]&quot;)%&gt;%
-  html_table()%&gt;%
-  select(Institution, Location)
-
-# first we are going to bind them together
-powerfive = rbind(acc, big10, big12, pac12, sec)%&gt;%
-  filter(!Institution %in% c(&quot;East Division&quot;, &quot;West Division&quot;))%&gt;%
-  separate(Location, c(&quot;City&quot;, &quot;State&quot;), &quot;, &quot;)%&gt;%
-  mutate(City = toupper(City))%&gt;%
-  # then we are going to clean up the names that we pulled from wikipedia
-  # so that they are in format from the excel
-  mutate(
-    id = row_number(),
-    Institution = gsub(&quot;, &quot;, &quot;--&quot;, Institution),
-    #Institution = gsub(&quot; at &quot;, &quot;--&quot;, Institution),
-    Institution = gsub(&quot;–&quot;, &quot;--&quot;, Institution),
-    clean = toupper(gsub(&quot;\\[.*&quot;, &quot;&quot;, Institution))
-         )
-
-rm(acc, big10, big12, pac12, sec)
-
-# first we are just going to get a df with all the colleges in there
-# we have 47 out of 69 matched
-filtered_colleges = colleges%&gt;%
-  filter(NAME %in% powerfive$clean)
-
-# MAIN CAMPUS fix ---------------------------------------------------------
-
-
-# a lot of missing ones have the --MAIN CAMPUS appended onto the 
-# wikipedia names so we are going to create a variable that has that
-missing = powerfive%&gt;%
-  filter(!clean %in% filtered_colleges$NAME)%&gt;%
-  mutate(main_campus = paste0(clean, &quot;--MAIN CAMPUS&quot;))
-
-# and join it onto the original
-powerfive = powerfive%&gt;%
-  left_join(missing)%&gt;%
-  # if that variable exists, overwrite the clean var
-  mutate(clean = ifelse(!is.na(main_campus), main_campus, clean))
-
-# and lets check how many we added
-# we are now at 54 out of 69
-filtered_colleges = colleges%&gt;%
-  filter(NAME %in% powerfive$clean)
-
-# city name ---------------------------------------------------------------
-
-# these are the ones still missing
-missing = powerfive%&gt;%
-  filter(!clean %in% filtered_colleges$NAME)
-
-# MAIN CAMPUS didnt work so lets remove that from the clean
-missing$clean = gsub(&quot;--MAIN CAMPUS&quot;, &quot;&quot;, missing$clean)
-
-# lets create a variable called city_app that appends the name of the city
-# onto the school name
-missing$city_app = paste0(missing$clean, &quot;--&quot;, missing$City)
-
-# lets make it easier to join
-missing = missing%&gt;%
-  select(id, city_app)
-
-# if it was one of the missing, use that name
-powerfive = powerfive%&gt;%
-  left_join(missing, by = &quot;id&quot;)%&gt;%
-  mutate(clean = ifelse(!is.na(city_app), city_app, clean))
-
-# now we are up to 57
-filtered_colleges = colleges%&gt;%
-  filter(NAME %in% powerfive$clean)
-
-missing = powerfive%&gt;%
-  filter(!clean %in% filtered_colleges$NAME)
-
-
-# SADNESS -----------------------------------------------------------------
-# we may just need to hardcode the rest
-
-missing = c(&quot;NORTH CAROLINA STATE UNIVERSITY AT RALEIGH&quot;, 
-  &quot;UNIVERSITY OF PITTSBURGH--PITTSBURGH CAMPUS&quot;,
-  &quot;INDIANA UNIVERSITY--BLOOMINGTON&quot;,
-  &quot;UNIVERSITY OF OKLAHOMA--NORMAN CAMPUS&quot;,
-  &quot;THE UNIVERSITY OF TEXAS AT AUSTIN&quot;,
-  &quot;ARIZONA STATE UNIVERSITY CAMPUS IMMERSION&quot;,
-  &quot;UNIVERSITY OF COLORADO BOULDER&quot;,
-  &quot;UNIVERSITY OF WASHINGTON--SEATTLE CAMPUS&quot;,
-  &quot;THE UNIVERSITY OF TENNESSEE--KNOXVILLE&quot;,
-  &quot;THE UNIVERSITY OF ALABAMA&quot;,
-  &quot;UNIVERSITY OF LOUISIANA--SYSTEM ADMINISTRATION&quot;,
-  &quot;TEXAS A &amp; M UNIVERSITY--COLLEGE STATION&quot;)
-
-filtered_colleges = colleges%&gt;%
-  filter(NAME %in% c(powerfive$clean, missing))
-
-# performing kmeans -------------------------------------------------------
-
-
-df = filtered_colleges %&gt;%
-  select(NAME, LATITUDE, LONGITUDE)%&gt;%
-  mutate(
-    LATITUDE = as.numeric(LATITUDE),
-    LONGITUDE = as.numeric(gsub(&quot;--&quot;, &quot;-&quot;, LONGITUDE))
-    )
-  
-
-# rebuilding dataframe ----------------------------------------------------
-
-
-df &lt;- tibble::column_to_rownames(df, var = &quot;NAME&quot;)
-
-df_kmeans = kmeans(df, 5)
-
-df$name &lt;-row.names(df)
-df$cluster&lt;-factor(df_kmeans$cluster)
-
-# creating convex hull ----------------------------------------------------
-
-
-hull = df%&gt;%
-  group_by(cluster)%&gt;%
-  slice(chull(LATITUDE, LONGITUDE))
-
-
-# stuff needed for basemap ------------------------------------------------
-
-
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-library(maps)
-
-states &lt;- st_as_sf(map(&quot;state&quot;, plot = FALSE, fill = TRUE))
-world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;)
-
-
-# stuff needed for image centers ------------------------------------------
-
-
-library(ggimage)
-library(rsvg)
-
-centers = data.frame(df_kmeans$centers)%&gt;%
-  mutate(conf = rownames(.),
-         image = ifelse(conf == 1, &quot;pac12.svg&quot;, NA),
-         image = ifelse(conf == 2, &quot;sec.svg&quot;, image),
-         image = ifelse(conf == 3, &quot;big10.svg&quot;, image),
-         image = ifelse(conf == 4, &quot;acc.svg&quot;, image),
-         image = ifelse(conf == 5, &quot;big12.svg&quot;, image)
-         )
-
-
-# the plot ----------------------------------------------------------------
-
-
-plot = ggplot(data = world) +
-  geom_sf() +
-  geom_sf(data = states, fill = NA) + 
-  coord_sf(xlim = c(-126, -67), ylim = c(24.5, 50), expand = FALSE)+
-  theme_set(theme_bw())+
-  geom_point(data = df,
-             aes(x = LONGITUDE, y = LATITUDE, colour = cluster))+
-  geom_polygon(data = hull, alpha = 0.2,
-               aes(x = LONGITUDE, y = LATITUDE,
-                   fill = cluster, colour = cluster))+
-  geom_image(data = centers, aes(x = LONGITUDE, y = LATITUDE, image = image), size = .075) +
-  theme(
-        axis.title = element_blank(),
-        legend.position = &quot;blank&quot;,
-        axis.ticks = element_blank(),
-        axis.text = element_blank()
-        
-        )+
-  scale_fill_manual(values = c(&quot;#33006F&quot;, &quot;#F8D261&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
-  scale_color_manual(values = c(&quot;#33006F&quot;, &quot;#DDA83D&quot;, &quot;#3B86C8&quot;,&quot;#163BA0&quot;, &quot;#EB5444&quot;))+
-  ggtitle(&quot;K-Means Saves College Football&quot;)
-
-  
-plot
-
-</code></pre>
-<p>&nbsp;</p>
 {% endblock %}

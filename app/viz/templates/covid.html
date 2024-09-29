@@ -7,17 +7,9 @@
   that may lead to greater understanding and demystification of what is happening. In that vein, I created a dot map
   showing the change in the number of cases of COVID 19 in the DMV region.</p>
 
-<img src="{{url_for('static', filename='images/viz/covid19_dot_map.gif')}}"></img>
+<img src="{{url_for('viz.static', filename='images/finals/covid19_dot_map.gif')}}"></img>
 
-<div id="TOC">
-  <!-- <ul>
-<li><a href="#finding-a-time-series">Finding a Time Series</a></li>
-<li><a href="#creating-a-dotmap">Creating a Dotmap</a></li>
-<li><a href="#pulling-the-final-set-together">Pulling the Final Set Together</a></li>
-<li><a href="#making-the-plot">Making the Plot</a></li>
-<li><a href="#animating-the-whole-thing">Animating the Whole Thing</a></li>
-</ul> -->
-</div>
+
 <div id="finding-a-time-series" class="section level2">
   <h3>Finding a Time Series</h3>
   <p>We will be using gganimate to stitch together a gif (which for the record is pronounced like the peanut butter) of
@@ -611,7 +603,6 @@ dot_map = ggplot(data = dots_final) +
   scale_color_manual(values=c(&quot;#007a62&quot;, &quot;#9999CC&quot;, &quot;#7A0018&quot;))
 
 dot_map</code></pre>
-  <p><img src="{{url_for('static', filename='images/viz/covid-pre.png')}}" width="672" /></p>
   <p>Next for the tricky part, we are going to add a label that show the daily cases by each region at the bottom of the
     map. <code>glue</code> allows us to interpret string literals, which is a fancy way of saying embedding r code into
     a string.</p>

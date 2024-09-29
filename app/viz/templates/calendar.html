@@ -12,7 +12,7 @@
         using the
         rtweets and then perform a basic sentiment analysis using the tidytext package. </p>
 <p>But first, the final product:</p>
-<p><img src="{{url_for('static', filename='images/viz/calendar.png')}}"></p>
+<p><img src="{{url_for('viz.static', filename='images/finals/calendar.png')}}"></p>
 <h3 id="scraping-the-data">Scraping the Data</h3>
 <p>The rtweets package makes getting twitter data shockingly easy. Both the api call and cleaning response are
         largely
@@ -198,9 +198,5 @@
         </code></pre>
 <p>And there you have it! A heatmap calendar that shows the sentiment of Trump&#39;s tweets!</p>
 
-<button onclick="topFunction()" id="top_button" title="Go to top">
-        <!-- <i class="fas fa-chevron-up" style= "font-size: 1.15em;"> -->
-        <span class="glyphicon glyphicon-chevron-up"></span>
-</button>
-<script src="../js/scroll_top.js"></script>
+
 {% endblock %}
