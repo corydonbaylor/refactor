@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="barcelona travel-article parallax">
+<head>
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='countries/med/med.css') }}">
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/pages.css') }}">
+</head>
+
+<div class="parallax" id="barcelona">
     <div class="caption">
-        <span class="border">BARCELONA</span>
+        <span class="border">Barcelona</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -16,9 +21,9 @@
     The air felt crisp. I dug my foot into the sand, feeling the sand slip between my toes. I finished my can, squeezed it, and felt the aluminum crush. We got up and headed into the city, the first of eight on our Semester at Sea.     
 </div>
 
-<div class="rome travel-article parallax">
+<div class="parallax" id="rome">
     <div class="caption">
-        <span class="border">ROME</span>
+        <span class="border">Rome</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -32,9 +37,9 @@
       
 </div>
 
-<div class="pompei travel-article parallax">
+<div class="parallax" id="pompei">
     <div class="caption">
-        <span class="border">POMPEI</span>
+        <span class="border">pompei</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -57,9 +62,9 @@
     
 </div>
 
-<div class="dubrovnik travel-article parallax">
+<div class="parallax" id="dubrovnik">
     <div class="caption">
-        <span class="border">DUBROVNIK</span>
+        <span class="border">Dubrovnik</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -77,9 +82,9 @@
     
     </div>
 
-<div class="greece travel-article parallax">
+<div class="parallax" id="greece">
     <div class="caption">
-        <span class="border">ATHENS</span>
+        <span class="border">Athens</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -92,9 +97,9 @@
     <p>Greece is advertised as the classical Greece. Athens in all its glory has long changed to a heavily graffitied European Brooklyn. The beauty lies in the islands, specifically the random ones. You can find the beauty in Greece, far back, past the markets and Latin alphabet, where the cobble stone roads become unpaved and a lamb spit slowly rotates in a little restaurant, just a block or two from the olive groves.</p>
 </div>
 
-<div class="istanbul travel-article parallax">
+<div class="parallax" id="istanbul">
     <div class="caption">
-        <span class="border">ISTANBUL</span>
+        <span class="border">Istanbul</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -110,9 +115,9 @@
     <p>I would cut in for a song or two, but I could tell that her mood had changed. There was more distance between us. She danced more and more with this other man, and the next day, she told me that they had gone home together. </p>    
 </div>
 
-<div class="moro travel-article parallax">
+<div class="parallax" id="moro">
     <div class="caption">
-        <span class="border">MARRAKECH</span>
+        <span class="border">Marrakech</span>
     </div>
 </div>
 <div class = "para-tex">
@@ -126,9 +131,9 @@
     
 </div>
 
-<div class="portugal travel-article parallax">
+<div class="parallax" id="portugal">
     <div class="caption">
-        <span class="border">LISBON</span>
+        <span class="border">Lisbon</span>
     </div>
 </div>
 <div class = "para-tex">

@@ -9,7 +9,8 @@
     display: flex;               /* Use Flexbox for layout */
     justify-content: center;     /* Center horizontally */
     align-items: center;         /* Center vertically */
-    position: relative;       
+    position: relative;  
+    margin: 5vh 0;     
 }
 
 .caption {
@@ -19,4 +20,17 @@
     padding: 15px 30px;
     opacity: 80%;   
     font-weight: 200;  
+}
+/*  */
+
+.video-background{ 
+    height: 300px;
+    padding-bottom: 50px;
+    padding-top: 50px; 
+}
+.video-background video{ 
+    min-width: 100%;
+    position: fixed;
+    top:0;
+    z-index: -999;
 }

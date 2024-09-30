@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="wedding travel-article parallax">
+<head>
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='countries/mexico/mexico.css') }}">
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/pages.css') }}">
+</head>
+
+<div class="parallax" id="wedding">
     <div class="caption">
-        <span class="border">QUERETARO</span>
+        <span class="border">English</span>
     </div>
 </div>
 <div class="para-tex">
@@ -12,9 +17,9 @@
     <p>When you don&#39;t speak the local language you are reduced to something resembling a state of adolescence, unable to fully express what you want to those around you. You become like a toddler, aimlessly drifting from sight to sight, only able to express your desires in the simplest terms, pointing and saying things like &quot;I want the cake, please give me.&quot; We were bloated, wide eyed beings who needed help finding the bathroom, who couldn&#39;t drink the water without getting sick, and who couldn&#39;t tell the taxi where we exactly wanted to be dropped off. </p>
     <p>Typically, in a touristy part of the world, there is an implicit pact between the local and tourist. The locals will tolerate your foolishness, gently helping you to relearn how to interact with the world, sometimes even going so far as to pretend that you had miraculously assimilated to local customs in record time and were indistinguishable from the locals themselves&mdash;all in exchange for a month&#39;s saving spent in a night&#39;s time.</p>    
     We were not in the touristy part of Mexico however. The hotel staff did not speak slow and simple. Bottled water without ice was not the default. No one was there to speak broken English upon hearing us speak broken Spanish, and as Megan and I walked the cobblestone streets of Queretaro, looking for the famed plazas and stone aqueduct that cut through the city center, we did not hear a word of English spoken. </div>
-<div class="sanmig travel-article parallax">
+<div class="parallax" id="sanmig">
     <div class="caption">
-        <span class="border">SAN MIGUEL</span>
+        <span class="border">San Miguel</span>
     </div>
 </div>
 <div class="para-tex">
@@ -34,9 +39,9 @@
 </div>
 
 
-<div class="tulum travel-article parallax">
+<div class="parallax" id="tulum">
     <div class="caption">
-        <span class="border">TULUM</span>
+        <span class="border">Tulum</span>
     </div>
 </div>
 <div class="para-tex">
@@ -56,24 +61,4 @@
 
 </div>
 
-<div class="d-flex flex-wrap mb-3">
-
-    <div class="books-con">
-        <div class="books">
-            <h4>Read Before Going</h4>
-            <p><strong>The Broken Spears</strong> The riveting and bizarre first hand account of the conquest of Mexico from the perspective of the Aztecs.</p>
-            <p><strong>The Conquest of New Spain</strong> Best read alongside Broken Spears, Bernal Diaz provides the Spanish account of the same conflict with much greater detail.
-            </p>
-            <p><strong>Pedro Paramo</strong> Juan Preciado undergoes a surrealist quest to understand his heritage by traveling to a literal ghost town. </p>
-            <p><strong>The Underdogs</strong> An enteraining and haunting tale covering the Mexican Revolution of 1910.</p>
-        </div>
-    </div>
-    <div class="other">
-        <h4>Three Other Things</h4>
-        <p><strong>Casa de Allende</strong> The home of revolutionary general Ignacio Allende, this museum tells the revolutionary history of Mexico</p>
-        <p><strong>The Sanctuary of Atotonilco</strong> This UNESCO world heritage site houses an amazing cathedral with an ornately painted roof. It is a 30 minute cab ride from the city.</p>
-        <p><strong>Artisan Market</strong> A series of shops and storefronts in San Miguel, 
-            the artisan market has a mix of trinkets and actually pretty good commemorative items, including a large plate I broke when unpacking in DC.</p>
-    </div>
-</div>
 {% endblock %}

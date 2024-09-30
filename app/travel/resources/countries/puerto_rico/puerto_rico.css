@@ -1,0 +1,22 @@
+#cars{
+    background-image: url("https://www.dropbox.com/scl/fi/j7b1y6127u3vlsmyy8ln3/cars.jpeg?rlkey=smhzjnf3uj15c0pcydk9co5wf&st=wcf0q9uz&dl=0&raw=1");
+}
+#san-juan {
+background-image: url("https://www.dropbox.com/scl/fi/9qjfhqtpxk2q4l5riwo94/sunset.jpeg?rlkey=6vzf3bwjvdeemaez8cc56p2dk&st=kby5ai9c&dl=0&raw=1");
+}
+
+#street-pr {
+background-image: url("https://www.dropbox.com/scl/fi/r99r6y4lz4nwkvyx8oppz/sunlight_street.jpeg?rlkey=bmqhfplbtbcxpop8gu34k56gw&st=g6eoz92z&dl=0&raw=1");
+}
+
+#fort-pr {
+background-image: url("fort.jpeg");
+}
+
+#basketball {
+    background-image: url("basketball.gif");
+}
+
+.para-text{
+    background-color: aqua;
+}
