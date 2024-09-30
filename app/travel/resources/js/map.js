@@ -1,5 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const countriesToColor = ['Angola', 'Hungary', 'United States', 'Canada', 'Spain', 'Portugal']; // Add desired country names here
+    const countriesToColor = ['France', 
+        'Ireland', 
+        'Iceland', 
+        'Hungary',
+        'Austria',
+        'Croatia',
+        'Greece',
+        'Turkey',
+        'Italy', 
+        'United Kingdom',
+        'UnitedStates', 
+        'Morocco',
+        'Canada', 
+        'Spain', 
+        'Portugal',
+        'Mexico',
+        'Costa Rica',
+        'Argentina',
+        'Uruguay'
+    
+    ]; // Add desired country names here
     const svgObject = document.getElementById('world-map');
 
     // Wait for the object to load
@@ -23,8 +43,12 @@ function colorCountries(countryNames) {
     Array.from(countries).forEach(country => {
         // Reset to transparent
         country.style.fill = 'transparent';
-        // Check if the country should be colored based on its class name
-        if (countryNames.includes(country.classList[0])) {
+
+        // Check if the country should be colored based on its class name or path name
+        const className = country.classList[0]; // Get the class name
+        const pathName = country.getAttribute('name'); // Get the path name (if defined)
+
+        if (countryNames.includes(className) || countryNames.includes(pathName)) {
             country.style.fill = '#fef0cc'; // Change to desired color
         }
     });

@@ -1,0 +1,22 @@
+
+
+.parallax{
+    background-size: 110%;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    height: 30vh;
+    display: flex;               /* Use Flexbox for layout */
+    justify-content: center;     /* Center horizontally */
+    align-items: center;         /* Center vertically */
+    position: relative;       
+}
+
+.caption {
+    text-align: center;
+    background-color: black;
+    color: white; 
+    padding: 15px 30px;
+    opacity: 80%;   
+    font-weight: 200;  
+}

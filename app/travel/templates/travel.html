@@ -3,9 +3,35 @@
 {% block title %}Travel{% endblock %}
 
 {% block content %}
-<h1>Travel Section</h1>
-<object id="world-map" type="image/svg+xml" data="{{ url_for('travel.static', filename='images/world(1).svg') }}" class="svg-object"></object>
+<head>
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/travel_landing.css') }}">
+</head>
+<h1>Round the World in Time to Write</h1>
+<object id="world-map" type="image/svg+xml" data="{{ url_for('travel.static', filename='images/world.svg') }}" class="svg-object"></object>
 <script src="{{ url_for('travel.static', filename='js/map.js') }}"></script>
+
+<div class="grid-container">
+    <div class="grid-item list">
+        <p class="list-header">United States & Canada</p>
+        <a href="{{ url_for('travel.southwest') }}">Southwest</a><br>
+        <a href="{{ url_for('travel.quebec') }}">Quebec</a><br>
+        <p class="list-header">Latin America</p>
+        <a href="{{ url_for('travel.mexico') }}">Mexico</a><br>
+        <a href="{{ url_for('travel.argentina') }}">Argentina</a><br>
+        <a href="{{ url_for('travel.uruguay') }}">Uruguay</a><br>
+        <a href="{{ url_for('travel.costa_rica') }}">Costa Rica</a><br>
+        <a href="{{ url_for('travel.puerto_rico') }}">Puerto Rico</a><br>
+    </div>
+    <div class="grid-item">
+        <p class="list-header">Europe</p>
+        <a href="{{ url_for('travel.italy') }}">Italy</a><br>
+        <a href="{{ url_for('travel.france') }}">France</a><br>
+        <a href="{{ url_for('travel.ireland') }}">Ireland</a><br>
+        <a href="{{ url_for('travel.iceland') }}">Iceland</a><br>
+        <a href="{{ url_for('travel.hungary') }}">Hungary</a><br>
+        <a href="{{ url_for('travel.med') }}">Mediterranean</a><br>
+    </div>
+</div>
 
 <style>
     .svg-object {

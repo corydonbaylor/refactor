@@ -55,3 +55,12 @@ p {
 p img {
     width: 100%;
 }
+
+a:hover {
+    font-weight: bolder;
+}
+
+a{
+    color: var(--cornsilk);
+    text-decoration: none;
+}

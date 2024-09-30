@@ -1,0 +1,20 @@
+.grid-container {
+    display: grid; /* Enable grid layout */
+    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    gap: 20px; /* Space between grid items */
+    max-width: 900px; /* Max width of the grid */
+    margin: 0 auto; /* Center the grid container */
+}
+.grid-item {
+    color: white; /* Text color */
+    padding: 20px; /* Padding inside each item */
+    text-align: center; /* Center text inside items */
+    border-radius: 5p
+}
+p {
+    color: var(--cornsilk);
+}
+
+.list-header{
+    font-weight: 700;
+}
