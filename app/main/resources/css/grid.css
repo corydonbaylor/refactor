@@ -1,0 +1,18 @@
+.grid-container{
+    display: grid;
+    padding: 3vh;
+    gap: 5vh;
+    max-width: 960px; /* Adjust based on your preference */
+    margin: 0 auto;
+}
+
+.grid-item{
+    overflow: hidden;
+    position: relative;
+}
+
+@media (max-width: 800px) {
+    .grid-container {
+        grid-template-columns: 1fr !important; /* One column on mobile */
+    }
+}

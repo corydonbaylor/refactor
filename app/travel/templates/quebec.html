@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="montreal travel-article parallax">
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='countries/quebec/quebec.css') }}">
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/pages.css') }}">
+</head>
+<div class="parallax" id="montreal">
     <div class="caption">
-        <span class="border">MONTREAL</span>
+        <span class="border">Montreal</span>
     </div>
 </div>
 <div class="para-tex">
@@ -18,9 +23,9 @@
     <p>And as we first ventured out to the streets of Montreal, we found the locals conversing in French. We found the signs to be in French. We found that everyone assumed we spoke French, and only after seeing our blank stare would that ask if would prefer French or English for the encounter. The Frenchness remains safely in tact. </p>
 
 </div>
-<div class="quebec_city travel-article parallax">
+<div class="parallax" id="quebec_city">
     <div class="caption">
-        <span class="border">QUEBEC CITY</span>
+        <span class="border">Quebec City</span>
     </div>
 </div>
 <div class="para-tex">
@@ -33,9 +38,9 @@
         <p>I know we couldn&#39;t come here every Christmas. It would be far too pretentious, something the rich kids in a convoluted Disney Channel movie would do. People would hate us. But you know, what if we did it anyways?</p>
         
 </div>
-<div class="painting travel-article parallax">
+<div class="parallax" id="painting">
     <div class="caption">
-        <span class="border">PAINTING</span>
+        <span class="border">Painting</span>
     </div>
 </div>
 <div class="para-tex">
@@ -50,10 +55,8 @@
     <p>Alain stood between us, placing his arms around our shoulders, his big bushy white eye brows rising as he smiled.</p>
     
 </div>
-<div class="d-flex flex-wrap mb-3">
-
-    <div class="books-con">
-        <div class="books">
+<div class="grid-container">
+        <div class="grid-item">
             <h4>Three Other Things</h4>
             <p><strong>Mile End</strong> The hip young neighborhood found a mile out of the city center. The streets are lined with 
                 cafes, jewish delis, and brick rowhouses with steep porches. Be sure to get the gnocci.</p>
@@ -63,8 +66,7 @@
             than the Montemorency falls with a spire height of 299 feet.</p>
 
         </div>
-    </div>
-    <div class="other">
+    <div class="grid-item">
         <h4>Read Before Going</h4>
         <p><strong>Montecalm and Wolfe</strong> A dual biography of two general destined for a collision course. 
             Their battle at the Plains of Abraham ultimately threw the French out of North America and established Canada as a British colony.

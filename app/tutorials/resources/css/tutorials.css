@@ -4,7 +4,6 @@
 }
 
 .grid-container {
-    display: grid;
     grid-template-columns: repeat(2, 1fr); /* Two columns */
     gap: 10px; /* Space between boxes */
 }
@@ -53,9 +52,19 @@
 }
 /* Set order based on classes */
 
+@media (max-width: 800px) {
+    #python-r,
+    #python-package,
+    #webdev,
+    #docker {
+        background-attachment: inherit !important; /* Change to inherit on mobile */
+        background-size: 95% !important;
+    }
+}
+
 #python-r {
     background-image: url('../images/empire.png');
-    background-size: 80%;
+    background-size: 95%;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -67,7 +76,7 @@
 
 #python-package {
     background-image: url('../images/highbridge.png');
-    background-size: 80%;
+    background-size: 95%;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -75,7 +84,7 @@
 
 #webdev {
     background-image: url('../images/manhatten.png');
-    background-size: 80%;
+    background-size: 95%;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -87,7 +96,7 @@
 
 #docker {
     background-image: url('../images/brooklyn_bridge.png');
-    background-size: 80%;
+    background-size: 95%;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;

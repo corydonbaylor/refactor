@@ -21,16 +21,23 @@
     opacity: 80%;   
     font-weight: 200;  
 }
-/*  */
 
-.video-background{ 
-    height: 300px;
-    padding-bottom: 50px;
-    padding-top: 50px; 
+@media (max-width: 800px) {
+    .parallax {
+        background-attachment:inherit;
+    }
 }
-.video-background video{ 
-    min-width: 100%;
-    position: fixed;
-    top:0;
-    z-index: -999;
+
+
+.grid-container{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 3vh;
+    gap: 5vh;
+    max-width: 960px; /* Adjust based on your preference */
+    margin: 0 auto;
+}
+.grid-item{
+    padding: 3vh;
+    border: 1px solid black;
 }

@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="old travel-article parallax">
+<head>
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='countries/uruguay/uruguay.css') }}">
+    <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/pages.css') }}">
+</head>
+<div class="parallax" id="old">
     <div class="caption">
-        <span class="border">MONTEVIDEO</span>
+        <span class="border">Montreal</span>
     </div>
 </div>
 <div class="para-tex">
@@ -33,9 +37,9 @@
         have an unmistakable resemblance to the male anatomy. </p>
     <p>But Montevideo is a famously relaxed city, in a famously relaxed country. So the penis fence stayed.</p>
 </div>
-<div class="market travel-article parallax">
+<div class="parallax" id="market">
     <div class="caption">
-        <span class="border">CHRISTMASTIME IN SOUTH AMERICA</span>
+        <span class="border">Christmas</span>
     </div>
 </div>
 <div class="para-tex">
@@ -53,7 +57,7 @@
         particularly interested in going. But the idea of spending another day walking alone around an empty old town
         Montevideo convinced me. </p>
     <p>And so, we found ourselves walking the length of the market, every now and then feigning interest in the various
-        fruits, yellowed books, and &#39;hand crafted&#39; goods. </p>
+        fruits, yellowed grid-items, and &#39;hand crafted&#39; goods. </p>
     <p>An arcade, consisting of a series of old connected pastel buildings with arched windows and doorways, lined the
         market on either side of the street. Most of the storefronts were locked up, but on the corner, the sound of
         live music spilled out of a bar.</p>
@@ -74,9 +78,9 @@
         guitar. I rested my elbows against the lip of the roof&#39;s wall and looked over the market. </p>
     <p>It was Christmastime in Montevideo. </p>
 </div>
-<div class="colonia travel-article parallax">
+<div class="parallax" id="colonia">
     <div class="caption">
-        <span class="border">COLONIA</span>
+        <span class="border">Colonia</span>
     </div>
 </div>
 <div class="para-tex">
@@ -111,9 +115,9 @@
         everyday. It made the trip feel less lonely. </p>
     <p>&nbsp;</p>
 </div>
-<div class="plates travel-article parallax">
+<div class="parallax" id="plates">
     <div class="caption">
-        <span class="border">ENAMEL PLATES</span>
+        <span class="border">Plates</span>
     </div>
 </div>
 <div class="para-tex">
@@ -150,10 +154,8 @@
     <p>Eventually both the rain and the song ended, and I was back in old town. I paid the cab driver and stepped out
         back into the tourist approved section of town, which was just as empty as I had left it.</p>
 </div>
-<div class="d-flex flex-wrap mb-3">
-
-    <div class="books-con">
-        <div class="books">
+<div class="grid-container">
+        <div class="grid-item">
             <h4>Two Other Things</h4>
             <p><strong>Mercado del Puerto</strong> This historic main market is located steps from the port. You can buy
                 all
@@ -167,8 +169,7 @@
                 I have ever had. Do not miss this.</p>
 
         </div>
-    </div>
-    <div class="other">
+    <div class="grid-item">
         <h4>Read Before Going</h4>
         <p><strong>Little Indiscretions</strong> A fun, fast-paced mystery, Little Indiscretions combines social
             satire and classic whodunit tropes into an enjoyable if simple book. A great book to read at the beach.
