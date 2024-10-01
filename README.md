@@ -8,6 +8,11 @@ In order to see the directory structure:
 In order to freeze the requirements:
 `pip freeze > requirements.txt`
 
+In order to update heroku DNS
+`heroku domains -a your-app-name`
+`heroku domains:add www.old-domain.com -a new-app-name`
+`heroku domains:remove www.old-domain.com -a old-app-name`
+
 ### Info about this Project
 
 ```
