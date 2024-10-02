@@ -20,3 +20,7 @@ def poetry_docker():
 @docker_bp.route('/docker_hub')
 def docker_hub():
     return render_template('docker_hub.html')
+
+@docker_bp.route('/github_actions')
+def github_actions():
+    return render_template('github_actions.html')
