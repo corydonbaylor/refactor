@@ -51,7 +51,7 @@
         will be a bar graph for just 2018, and so on and on. Basically, you are creating hundreds of
         plots and showing one at a time to create a movie.</p>
 <p>Here is what the above gif would look like if all the frames were shown at once:</p>
-<p><img src="{{url_for('viz.static', filename='images/barchart/all-together.jpg')}}" alt=""></p>
+<p><img src="{{url_for('viz.static', filename='images/barchart/all-together.jpg')}}"  style="width: 60%;"></p>
 <p>On top of cutting the plot data by time and showing them in sequence, gganimate also interpolates
         what should be between each plot. This allows you to create gifs with limited amount of data and
         smooths the animation between data points. As such, frames come in two flavors in gganimate:
