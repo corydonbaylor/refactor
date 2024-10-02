@@ -14,3 +14,7 @@ p {
 .list-header{
     font-weight: 700;
 }
+
+a {
+    color: var(--cornsilk)
+}

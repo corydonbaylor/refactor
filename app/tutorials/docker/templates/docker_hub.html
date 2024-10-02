@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dockerhub</h1>
+<p>Where exactly are all of these images meant to go. So far we have been building images that already work on your local machine but to what end exactly. Docker is inherently about sharing code across different environments, so having a bunch of images on your local machine really isn&#39;t that helpful. </p>
+<p>What we need some sort of registry to hold our images. In AWS parlance, this is called an Elastic Container Registry. In our example, we are going to push an image to docker hub, and then pull that same image back down.</p>
+<h2>Setting Up</h2>
+<p>First thing first, you will need to go to <a href='https://hub.docker.com/' target='_blank' class='url'>https://hub.docker.com/</a> and create a new repository to store your images. I created one called &quot;images&quot; (I am very creative).</p>
+<p>Then head back down to your command line and do the following:</p>
+<pre><code>docker login
+</code></pre>
+<p>This will prompt you to enter your username and password. This will be the same one as your login for hub.docker.com. </p>
+<h2>Pushing (and Pulling) Your Image</h2>
+<p>This is a three part process. First you must tag (or retag) your image with the following structure: <code>&lt;username&gt;/&lt;repo_name&gt;:&lt;tag_name&gt;</code> in order to be able to push it to docker hub.</p>
+<p>Let&#39;s first look at all our images:</p>
+<pre><code>docker images
+</code></pre>
+<p>Then let&#39;s tag it:</p>
+<pre><code>docker tag 0bfa85891d47 corydonbaylor/images:flask
+</code></pre>
+<p>Finally, let&#39;s push it:</p>
+<pre><code>docker push corydonbaylor/images:flask
+</code></pre>
+<p>You should see a bunch of things happening in the command line and if they all succeed than you are a proud pusher to docker hub.</p>
+<p>To then retrieve the image from docker hub, you would simply:</p>
+<pre><code>docker pull corydonbaylor/images:flask
+</code></pre>
+<p>&nbsp;</p>
+
+
+{% endblock %}

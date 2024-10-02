@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Putting Your Trash Code in a Garbage Bag</h1>
+<p>A package on an image. It&#39;s a beautiful thing. First you are packaging up the code and then you are packaging up the dependencies. I once saw this meme where there was two images. On one side was a bunch of trash. And on the other side was trash placed in garbage bags. The caption was my code pre and post object oriented programming. </p>
+<p>Anyways&mdash;</p>
+<p>Let&#39;s start by creating a new poetry project:</p>
+<pre><code>poetry new pack
+</code></pre>
+<p>This will create the following directory structure:</p>
+<pre><code>pack/
+├── pack/
+│   └── __init__.py
+├── tests/
+│   └── __init__.py
+└── pyproject.toml
+</code></pre>
+<h2>Creating Your Package</h2>
+<p>Since we are really original people, we are going to create a package that says &quot;hello world&quot;. Add this to the <code>__init__.py</code> under the pack directory:</p>
+<pre><code class='language-python' lang='python'>def greet(name):
+    return f&quot;Hello, {name}!&quot;
+</code></pre>
+<p>And let&#39;s add a test in pytest while we are at it (under <code>test_greet.py</code> in the tests folder):</p>
+<pre><code class='language-python' lang='python'>from my_package import greet
+
+def test_greet():
+    assert greet(&quot;World&quot;) == &quot;Hello, World!&quot;
+</code></pre>
+<p>Then we need to add <code>pytest</code> to our dependencies:</p>
+<pre><code>poetry add pytest
+</code></pre>
+<p>Afterward your <code>pyproject.toml</code> should look like this:</p>
+<pre><code class='language-yaml' lang='yaml'>[tool.poetry]
+name = &quot;pack&quot;
+version = &quot;0.1.0&quot;
+description = &quot;&quot;
+authors = [&quot;Your Name &lt;you@example.com&gt;&quot;]
+readme = &quot;README.md&quot;
+
+[tool.poetry.dependencies]
+python = &quot;^3.12&quot;
+pytest = &quot;^8.3.3&quot;
+
+
+[build-system]
+requires = [&quot;poetry-core&quot;]
+build-backend = &quot;poetry.core.masonry.api&quot;
+</code></pre>
+<h3>Add an Entry Point</h3>
+<p>An entry point defines what will run when you run the package directly. Like if you do <code>python run.py</code> and run.py is simply filled with functions, you would need an entry point to allow those functions to run. </p>
+<p>Let&#39;s add one for our package. First put this in the <code>__init__.py</code> for the package:</p>
+<pre><code class='language-python' lang='python'>def greet(name):
+    return f&quot;Hello, {name}!&quot;
+
+def main():
+    # Example usage of the greet function
+    name = &quot;World&quot;  # You can modify this to take user input if desired
+    print(greet(name))
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<p>Now main will run when the package runs. Next add this to the bottom of the pyproject.toml:</p>
+<pre><code class='language-yaml' lang='yaml'>[tool.poetry.scripts]
+pack-cli = &quot;pack:main&quot;  # This defines the CLI command
+</code></pre>
+<p>Install dependencies and run pytest locally.</p>
+<pre><code>poetry install
+poetry run pytest
+</code></pre>
+<h2>Building the Docker Image</h2>
+<p>Ok now we have our trash code and we need to put it in its trash bags:</p>
+<pre><code class='language-dockerfile' lang='dockerfile'># Use the official Python image from the Docker Hub
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy poetry.lock and pyproject.toml files first for better caching of dependencies
+COPY pyproject.toml poetry.lock* ./
+
+# Install Poetry and dependencies
+RUN pip install --no-cache-dir poetry &amp;&amp; poetry install --no-dev
+
+# Copy the rest of the application code, including tests
+COPY . .
+
+# Run tests using pytest (optional)
+RUN poetry run pytest -v
+
+# Command to run your application using the entry point defined in pyproject.toml
+CMD [&quot;poetry&quot;, &quot;run&quot;, &quot;pack-cli&quot;]  # This runs your CLI command defined in pyproject.toml
+
+</code></pre>
+<p>This pretty much does what we saw with the flask app. It installs the dependencies we need. Copies over the directory content. But now we run <code>pytest</code> as part of the build step and run our package as our CMD.</p>
+<p>Let&#39;s build and test it!</p>
+<pre><code class='language-shell' lang='shell'>docker build -t pack .
+docker run pack
+</code></pre>
+<p>&nbsp;</p>
+
+{% endblock %}

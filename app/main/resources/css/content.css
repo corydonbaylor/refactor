@@ -58,9 +58,10 @@ p img {
 
 a:hover {
     font-weight: bolder;
+    text-decoration: none !important;
 }
 
 a{
-    color: var(--cornsilk);
+    /* color: var(--cornsilk); */
     text-decoration: none;
 }

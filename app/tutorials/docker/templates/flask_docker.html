@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Flask on Docker</h1>
+<p>Ok, at this point, you might want a meatier example of why we would use docker. What if we had built an entire flask app and now wanted to transport it to production. How could we use docker to accomplish that?</p>
+<h2>Setting up the Project Directory</h2>
+<p>First we need to create the directory to hold this:</p>
+<pre><code class='language-shell' lang='shell'>mkdir flask
+cd flask
+</code></pre>
+<p>Then we are going to add some boilerplate to a file called <code>app.py</code>:</p>
+<pre><code class='language-python' lang='python'>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route(&#39;/&#39;)
+def home():
+    return &quot;Hello, Docker!&quot;
+
+if __name__ == &#39;__main__&#39;:
+    app.run()
+
+</code></pre>
+<h2>Setting Up the Requirements</h2>
+<p>Next we are going to set up the requirements.</p>
+<p>To start, we are going to create a <code>venv</code> that will hold what dependencies we need for this project.</p>
+<pre><code>python -m venv venv
+</code></pre>
+<p>Don&#39;t forget to activate your venv</p>
+<pre><code>source venv/bin/activate
+</code></pre>
+<p>Then we will install flask:</p>
+<pre><code>pip install flask
+</code></pre>
+<p>Finally, we are going to freeze our pip requirements into a txt:</p>
+<pre><code>pip freeze &gt; requirements.txt
+</code></pre>
+<p>At this point if you wanted to, you could run your flask app locally. All you would have to do enter:</p>
+<pre><code>python app.py
+</code></pre>
+<p>This is essentially your development environment. When you are ready to have your flask app go to production, you would put it in a container and send that container to wherever you need it to go. </p>
+<h2>The Dockerfile</h2>
+<p>Ok now that we have our app ready to go. We need to build a Dockerfile so we can have it running on an image:</p>
+<pre><code># Use the official Python image from the Docker Hub
+FROM python:3.11-alpine
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy requirements.txt and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose port 5000 to access the app
+EXPOSE 5000
+
+CMD [&quot;python&quot;, &quot;app.py&quot;] 
+</code></pre>
+<p>Let&#39;s take a look at what&#39;s happening here in a bit more detail:</p>
+<ul>
+<li><code>FROM python:3.11-alpine</code> we are starting with a python image from Dockerhub</li>
+<li><code>WORKDIR /app</code> we are creating a working dir within the container </li>
+<li><code>COPY requirements.txt .</code> We are copying our requirements into that container</li>
+<li><code>RUN pip install --no-cache-dir -r requirements.txt</code> installing the requirements onto the container from the requirements.txt</li>
+<li><code>COPY . .</code> we are copying the rest of the application over</li>
+<li><code>EXPOSE 5000</code> we are exposing a port so that the container can interact with the outside world</li>
+<li><code>CMD [&quot;python&quot;, &quot;app.py&quot;]</code> and finally we are setting a <em><strong>default command</strong></em> that will be executed when the container is started.</li>
+
+</ul>
+<h2>Running the Application</h2>
+<p>There is one thing that might really trip you up if you are not careful. Exit the venv before running docker commands.</p>
+<pre><code>deactivate
+</code></pre>
+<p>Next we are going to build the image and then run it:</p>
+<pre><code class='language-shell' lang='shell'>docker build -t flask .
+docker run -p 8080:5000
+</code></pre>
+<p>The navigate to <code>http://localhost:8080</code> to see your flask app up and running!</p>
+<p>&nbsp;</p>
+
+
+{% endblock %}

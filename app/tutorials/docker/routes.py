@@ -9,6 +9,14 @@ def hello_docker():
 def manage_docker():
     return render_template('manage_docker.html')
 
-@docker_bp.route('/write_docker')
-def write_docker():
-    return render_template('write_docker.html')
+@docker_bp.route('/flask_docker')
+def flask_docker():
+    return render_template('flask_docker.html')
+
+@docker_bp.route('/poetry_docker')
+def poetry_docker():
+    return render_template('poetry_docker.html')
+
+@docker_bp.route('/docker_hub')
+def docker_hub():
+    return render_template('docker_hub.html')
