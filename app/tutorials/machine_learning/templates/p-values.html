@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Hypothesis Testing and p-values</h1>
+
+<p>Let&#39;s say you are a security guard at a high stakes casino in Las Vegas. </p>
+<p>You play weird games at your casino. No card games, just coin flips. For each heads, you give the customer 20
+    thousand dollars, and each time they flip a tails, they have to pay you 21 thousand dollars. That&#39;s some high
+    stakes coin flipping!</p>
+<p>Even weirder, you let the customers bring in their own coins. Its your job as security guard to determine if
+    customers are bringing in trick coins or not.</p>
+<p>A new customer walks in and flips heads twice. Should you throw the cheater out?</p>
+<p>Let&#39;s first walk through all the possible outcomes (of which they are four):</p>
+<p>H H (or heads, heads)</p>
+<p>H T (or heads, tails)</p>
+<p>T H (or tails, heads)</p>
+<p>T T (or tails, tails)</p>
+<p>Since we only care about how the number of heads not the order in which they are flipped, we can summarize all the
+    possible outcomes like so:</p>
+<figure>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Coin Outcomes</th>
+                <th>Fraction</th>
+                <th>Percent</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Two Heads (H H)</td>
+                <td>1/4 of outcomes</td>
+                <td>25% of the time</td>
+            </tr>
+            <tr>
+                <td>One Heads (H T or T H)</td>
+                <td>2/4 of outcomes</td>
+                <td>50% of the time</td>
+            </tr>
+            <tr>
+                <td>No Heads (T T)</td>
+                <td>1/4 of outcomes</td>
+                <td>25% of the time</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+<p>That means, there is a 25 percent chance for two heads in a row because that outcome happens 25 percent of the time.
+    That means he&#39;s a cheater right?</p>
+<h3>Calculating p values</h3>
+<p>Not so fast bucko. </p>
+<p>A well trained security guard would know to use hypothesis testing and p-values to figure this out. Our hypothesis
+    (which we will call the null hypothesis) will be that the patron is using a fair coin. Our p-value will tell us how
+    unusual or rare it is for the above situation to occur under that null hypothesis. </p>
+<p>P-values are determined by adding up three probabilities.</p>
+<ol>
+    <li>
+        <p>The probability that random chance would have resulted in what we observed </p>
+        <p><strong>A fair coin would produce two heads 25% of the time</strong></p>
+    </li>
+    <li>
+        <p>The probability that we would have observed something else equally as rare </p>
+        <p><strong>A fair coin would produce two tails 25% of the time</strong></p>
+    </li>
+    <li>
+        <p>The probability that we would have observed something even rarer </p>
+        <p><strong>There is nothing more rare that a fair coin would do</strong></p>
+    </li>
+
+</ol>
+<p>Adding up our probabilities, we get a p-value of 0.5. In other words, a fair coin would produce an event as rare as
+    two heads in a row 50 percent of the time. </p>
+<p>Now our patron doesn&#39;t looks so bad, does he?</p>
+<h3>He Keeps Going....</h3>
+<p>Let&#39;s say that our customer just keeps flipping. He flips the coin another two times, resulting in three heads
+    and one tails in total. </p>
+<p>How many different possible outcomes are there for four different coin flips? We could map them out but that&#39;s a
+    lot of writing, and it would be easier to say there are 2<sup>4</sup> or 16 potential outcomes. </p>
+<p>I refuse to write out all the combinations, so you will just have to take my word for it when it comes to the
+    fractions. Let&#39;s put that info into our table again. </p>
+<figure>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Coin Outcomes</th>
+                <th>Fraction</th>
+                <th>Percent</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>One Head (e.g. H T T T)</td>
+                <td>4/16 of outcomes</td>
+                <td>25% of the time</td>
+            </tr>
+            <tr>
+                <td>Two Heads (e.g. H H T T)</td>
+                <td>6/16 of outcomes</td>
+                <td>37.5% of the time</td>
+            </tr>
+            <tr>
+                <td>Three Heads (e.g. H H H T)</td>
+                <td>4/16 of outcomes</td>
+                <td>25% of the time</td>
+            </tr>
+            <tr>
+                <td>Four Heads (H H H H)</td>
+                <td>1/16 of outcomes</td>
+                <td>6.25% of the time</td>
+            </tr>
+            <tr>
+                <td>No Heads (T T T T)</td>
+                <td>1/16 of outcomes</td>
+                <td>6.25% of the time</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+<p>The goal of finding the p-value is to determine how rare the observed outcome is. Again, in order to calculate the
+    p-values for our patron, we need to add together three probabilities. </p>
+<ol>
+    <li>
+        <p>The probability that random chance would have resulted in what we observed </p>
+        <p><strong>A fair coin would produce three heads 25% of the time</strong></p>
+    </li>
+    <li>
+        <p>The probability that we would have observed something else equally as rare </p>
+        <p><strong>A fair coin would produce three tails 25% of the time</strong></p>
+    </li>
+    <li>
+        <p>The probability that we would have observed something even rarer </p>
+        <p><strong>12.5% of the time, a fair coin would do something even rarer like only heads or only tails</strong>
+        </p>
+    </li>
+
+</ol>
+<p>As a result, we have a p value of 0.625. This means that there is a 62.5 percent chance that a fair coin would do
+    something as rare as produce three heads on four flips. </p>
+<p>More generally, we could say <strong>the null hypothesis would produce an outcome this rare xyz percent of the
+        time</strong>. </p>
+<h2>Now with Distributions</h2>
+<p>It&#39;s hard being a security guard at a high end coin flipping casino. You tell your boss that its completely
+    unreasonable for you to watch ever single coin flip and calculate p values to test your null hypothesis. Instead you
+    suggest that you can just check the earnings of patrons as they leave the casino. </p>
+<p>You know that on average honest patrons loses 100 dollars at your casino, and earnings/losses for patrons follow a
+    normal distribution. </p>
+<p>You are checking the earnings of one customer on his way out and see that he earned $700 which would put him in the
+    top 1.7 percent of patrons at your casino.</p>
+<p>Is it clobbering time?</p>
+<p>Here is where someone winning 700 dollars at our casino would fall on the distribution of our customers. His earnings
+    are marked with a dotted red line below: </p>
+<p><img src="{{url_for('machine_learning.static', filename='p_values/p-values.001.png')}}" class="img-center"></p>
+<p>As you can see, our suspect is pretty far to the right on the distribution. In fact, only 1.6% of honest patrons earn
+    more than he does. We may even suspect that (gasp) this patron may have brought in an unfair coin. If he is using an
+    unfair coin, then we would belong to a different distribution-- a distribution of dirty liars! </p>
+<p><img src="{{url_for('machine_learning.static', filename='p_values/p-values.003.png')}}" class="img-center"></p>
+<p>As you can see, if he was on the dirty liars distribution, then his earnings would be about average. But let&#39;s
+    not throw him to the lions yet. We need to do hypothesis testing.</p>
+<p><em>Our null hypothesis is that this dude belongs to the honest patron&#39;s distribution, and our p-value will tell
+        us how often the honest patron&#39;s distribution will produce earnings as rare as his were</em> </p>
+<p>Remember, a p-value is the sum of three probabilities: (1) the probability that random chance would have resulted in
+    the outcome, (2) the probability that random chance would have resulted in an equally unlikely outcome, and (3) the
+    probability that random chance would have resulted in anything more rare. </p>
+<p>Everything more rare than the suspects earnings is marked in red on the below distribution. Remember it&#39;s really
+    rare to fall at or above top 1.7 percent of earners, but it&#39;s just as rare to fall into the bottom 1.7 percent
+    of earners. To calculate the p-value then, we simply need to sum all the probabilities in red.</p>
+<p><img src="{{url_for('machine_learning.static', filename='p_values/p-values.002.png')}}" class="img-center"></p>
+
+<p>So if our suspect is in the top 1.7 percent of honest patrons, that would put his p-value at 0.034. In other words,
+    assuming that he is an honest patron, we would see earnings that unusual 3.4 percent of the time. </p>
+<p>At the Lucky Coin (that&#39;s the name of this made up casino), we only allow patrons to keep their earnings when
+    their earnings have a p-value above 0.05, so congratulations, it is in fact clobbering time. </p>
+<h2>What Exactly Does a P-Value Tell Us?</h2>
+<p>You may want to vomit when I tell you this again, but p-values tell us how rare an observed outcome is, assuming that
+    the null hypothesis is true. </p>
+<p>If someone flips three heads in four flips, that&#39;s not that rare of an outcome. In fact, four flips will produce
+    an outcome at least that rare 62.5 percent of the time. </p>
+<p>If someone happens to fall into the top 1.7 percent of earners, that&#39;s pretty rare. It&#39;s equally as rare for
+    someone to fall into the bottom 1.7 percent of earners, meaning that 3.4 percent of the time our null hypothesis
+    will produce an outcome that unusual. </p>
+<p>This doesn&#39;t mean that being in the top 1.7 percent of earners automatically makes you a cheater though. In fact,
+    deciding when to throw out the null hypothesis (or a guest at a casino) is a judgement call. It is common practice
+    however to throw out the null hypothesis when the p-value is less than 0.05.</p>
+<p>And that&#39;s p-values! They are probably one of the most used measures of validity in statistics, but I would
+    hazard to guess that most people don&#39;t full understand what they are or how to calculate them. </p>
+<p>Not you though, you read this whole thing.</p>
+<p>&nbsp;</p>
+{% endblock %}

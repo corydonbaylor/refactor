@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Classification Tree</h1>
+<p>By the end of this tutorial, you will come to respect your computer a little more. The amount of arithmetic needed to
+    complete a basic classification tree is significantly higher than a human should subject themselves to. I don&#39;t
+    want to imagine the world where something like this is done by hand. It would be a cold and desolate land.</p>
+<p>Regardless of how miserable that would be, we are going to learn how one would calculate a decision tree by hand en
+    route to learning its old and more popular brother, the random forest. </p>
+<h3 id='whats-a-decision-tree-in-general'>Whats a Decision Tree (In General)?</h3>
+<p>Have you ever seen those plinko games, where you put a puck at the top of a board, and the puck bounces around until
+    it lands in a slot (usually with some denomination of money to win at the bottom)?</p>
+<p>Well if you haven&#39;t here&#39;s a gif.</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/plinko.gif')}}" class="img-center"></p>
+<p>A decision tree is kind of like this. But instead of being random, the puck goes left or right depending on its
+    characteristics. Enough with the game show metaphors. Let&#39;s go over the components of a decision tree.</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.001.png')}}" class="img-center"></p>
+<p>First, there are the nodes. Nodes that are used to split the data on an attribute, usually by asking a yes/no
+    question, are called <strong>branches</strong>. The very first branch has its own name. It&#39;s called the
+    <strong>root</strong>. Finally there are <strong>leaves</strong> which are the end points of trees.
+</p>
+<p>Now that we have breezed our way through some basic terminology, let&#39;s use a decision tree to determine if you
+    are a heavy emoji user.</p>
+<h3 id='building-a-tree'>Building a Tree</h3>
+<p>Let&#39;s start from scratch a build a tree from raw data. Let&#39;s say we have three independent variables and one
+    dependent variable. </p>
+<figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Owns Phone</th>
+                <th>Downloaded TikTok</th>
+                <th>Age</th>
+                <th>Emoji User</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>No</td>
+                <td>Yes</td>
+                <td>10</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>17</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>No</td>
+                <td>24</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>39</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>No</td>
+                <td>46</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>No</td>
+                <td>52</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>No</td>
+                <td>No</td>
+                <td>56</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>No</td>
+                <td>85</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>88</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+<p>Based on if someone owns a phone, if they downloaded TikTok, and their age, can we use a decision tree to predict if
+    they are an emoji user?</p>
+<p>Here is what a decision tree might look like for this data:</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.002.png')}}" class="img-center"></p>
+<p>Which question should be put as the root node? Well, whatever attribute is the best predictor for emoji usage should
+    be the root node. To find that, we are going to measure how well each variable predicts emoji usage. </p>
+<p>Let&#39;s start with owning a phone and downloading TikTok. </p>
+<p>For those users who do own a phone five of them are certified citizens of Emoji City 💪😤, and two of them are sad
+    basement dwellers who don&#39;t use emojis. On the other hand, of the two people without phones, one still manages
+    to use emojis. What a boss 😎. </p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.003.png')}}" class="img-center"></p>
+<p>For those users who have downloaded TikTok, all four of them are commanders in the emoji brigade 💯. For those users
+    who <em>have not</em> downloaded TikTok, we have two emoji users and three just-text-for-me sad boys who do not use
+    emojis.</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.004.png')}}" class="img-center"></p>
+
+<h3 id='impure-leaves'>Impure Leaves</h3>
+<p>You&#39;ll notice that some of the leaves have a mixture of people who do and do not use emojis. These are impure
+    leaves. The leaf representing those who have TikTok installed is pure because it just has one type of individual
+    (those who do use emojis).</p>
+<p>It makes sense that purer leaves do a better job of making predictions. If a leaf indicates that something is
+    <em>always</em> true, then obviously its a more reliable predictor than something that is only true 50 percent of
+    the time. We will use Gini Impurity to measure how pure a leaf is.
+</p>
+<p>The formula for Gini Impurity is as follows:</p>
+<pre><code>Gini Impurity = 1 - (Probability of True)^2 - (Probability of False)^2
+</code></pre>
+<p>The goal of this formula is simply to find out how <em>mixed</em> something is. For example, if everything was true,
+    then the Gini Impurity would be 0. The same is true if everything was false. If there was an even mix between both
+    true and false, then the Gini Impurity would be 0.5. Basically, we would like this number to be as low as possible.
+</p>
+<p>Let&#39;s calculate this for the leaves on the &quot;Owns Phone&quot; tree. First where it is true:</p>
+<pre><code>Gini Impurity = 1 - (5/7)^2 - (2/7)^2 = 0.41
+</code></pre>
+<p>Next for where there are no phones:</p>
+<pre><code>Gini Impurity = 1 - (1/2)^2 - (1/2)^2 = 0.5
+</code></pre>
+<p>Now that we have the Gini Impurity for both the leaves, we need to calculate the weighted mean between those two.
+    There are nine total people in our data, seven with a phone and two without. So the weighted average is as so:</p>
+<pre><code>Weighted Gini Impurity = (7/9)*0.41 + (2/9)*.5 = 0.43
+</code></pre>
+<p>And there you have it. The Weighted Gini Impurity for phone ownership is 0.43 💅. </p>
+<p>We are going to repeat the same steps for TikTokers. </p>
+<pre><code>1) Gini Impurity for Having the Tok = 1 - (4/4)^2 - (0/4)^2 = 0
+2) Gini Impurity for No Tok = 1 - (2/5)^2 - (3/5)^2 = 0.48
+3) TikTok Weighted Gini Impurity = (4/9)*0 + (5/9)*0.48 = 0.26
+</code></pre>
+<p>From this, it looks like TikTok is a better predictor of emoji use because it has on average purer leaves than phone
+    ownership. </p>
+<h3 id='gini-impurity-for-continuous-variables'>Gini Impurity for Continuous Variables</h3>
+<p>Nodes can be split based on a yes/no attribute. For a binary variable building a yes/no split is obvious (e.g.
+    &quot;do you own a phone&quot;). Whereas for a continuous variable, it is considerably less so. </p>
+<p>We could simply say, &quot;is the user younger then average age of the dataset?&quot; And that would turn our
+    continuous variable into a yes/no question. </p>
+<p>By why is the average age the best threshold to split on? Is there a chance that a different threshold would yield a
+    lower impurity score? Spoiler, there is and we are going to find it.</p>
+<p>First calculate the average age for each two adjacent observations (e.g. the average of 10 and 17 is 13.5):</p>
+<figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Age</th>
+                <th>Average Age</th>
+                <th>Emoji User 🤔?</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>10</td>
+                <td>&nbsp;</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>17</td>
+                <td>13.5</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>24</td>
+                <td>20.5</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>39</td>
+                <td>31.5</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>46</td>
+                <td>42.5</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>52</td>
+                <td>49</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>56</td>
+                <td>54</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>85</td>
+                <td>70.5</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>88</td>
+                <td>86.5</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+<p>Next we calculate the Gini Impurity value for the &quot;Average Ages&quot;. For example, we will put &quot;Is the
+    person older than 13.5&quot; at the root node and calculate the Gini Impurity just like before:</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.005.png')}}" class="img-center"></p>
+<p>We then do this for <strong><em>every single average age</em></strong>. You can imagine how painful this would be in
+    a large dataset, but luckily we actually have a pretty small dataset. </p>
+<p>The results look like so:</p>
+<figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Average Age</th>
+                <th>Gini Impurity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>13.5</td>
+                <td>.417</td>
+            </tr>
+            <tr>
+                <td>20.5</td>
+                <td>.381</td>
+            </tr>
+            <tr>
+                <td>31.5</td>
+                <td>.333</td>
+            </tr>
+            <tr>
+                <td>42.5</td>
+                <td>.267</td>
+            </tr>
+            <tr>
+                <td>49</td>
+                <td>.167</td>
+            </tr>
+            <tr>
+                <td>54</td>
+                <td>.333</td>
+            </tr>
+            <tr>
+                <td>70.5</td>
+                <td>.429</td>
+            </tr>
+            <tr>
+                <td>86.5</td>
+                <td>.417</td>
+            </tr>
+        </tbody>
+    </table>
+</figure>
+<p>Looking from this data, we see that we actually get really low impurity when we split the data based on if someone is
+    older or younger than 49! In fact, this is the <em>lowest</em> Gini impurity score we have seen thus far--even lower
+    than whether or not the individual has a TikTok! As such, it will serve as the root of our tree.</p>
+<h3 id='so-whats-the-second-split'>So What&#39;s the Second Split?</h3>
+<p>At this point in time, our tree looks like so:</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.006.png')}}" class="img-center"></p>
+<p>On the left side, we have the four people who are older than 49. One of them use emojis and three of them do not. On
+    the right side, we have five people who are younger than 49 and they all use emojis 😎. </p>
+<p>That&#39;s a pure leaf! We won&#39;t get anymore information by splitting those five people on a second attribute
+    (like whether or not they own a phone) because they all use emojis. </p>
+<p>So we are done with that side of the tree.</p>
+<p>On the other side, we need to decide whether or not to split by TikTok or Phone Ownership, and we will do that by
+    calculating, you guessed it, Gini Impurity Scores.</p>
+<p> So for four people in the over 49 crowd, if we split on phone ownership next, our tree would like this:</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.007.png')}}" class="img-center"></p>
+<p>And we calculate the Gini Impurity like so:</p>
+<pre><code>No phone: 1 - (0/1)^2 - (1/1)^2 = 0
+Phone: 1 - (1/3)^2 - (2/3)^2 = 0.44
+Weighted Gini Impurity = (3/4)*0.44 + 0 = 0.33
+</code></pre>
+<p>Alternatively, if we split on TikTok next, our tree would like this:</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.008.png')}}" class="img-center"></p>
+<p>And the Gini Impurity would be like so:</p>
+<pre><code>No Tok: 1 - (0/3)^2 - (3/3)^2 = 0
+TikTok: 1 - (1/1)^2 - (0/1)^2 = 0
+Weighted Gini Impurity = 0 + 0 = 0
+</code></pre>
+<p>Amazing! All the leaves on the TikTok branch are pure. It&#39;s almost as if someone painfully reworked the example
+    data to make it so.</p>
+<p>Because both the leaves are pure, we do not need to further split the tree by Phone Ownership since that will not
+    provide anymore information. And so our final tree looks like this!</p>
+<p><img src="{{url_for('machine_learning.static', filename='class_tree/tree.009.png')}}" class="img-center"></p>
+
+<h3 id='how-is-this-useful'>How is this Useful?</h3>
+<p>Let&#39;s imagine that we meet a new person (scary I know), and we have to guess if they use emojis. They dutifully
+    report that they are 53 and have TikTok installed. Well, we can run them down our decision tree to find that they
+    are in fact a fellow Emoji King 👑!</p>
+<p>But there is a huge draw back to using decision trees like this. They overfit to data really easily. Because you are
+    dividing and subdividing your data repeatedly, the group size at the leaves can be really small, and a small group
+    size is never a good thing in statistics. </p>
+<p>For example, right now, we only have two people over 49 with TikTok installed. What if another two came along and
+    didn&#39;t use emojis? Our model would mess both of those up. </p>
+<p>Be very careful when working with smaller datasets and using classification trees.</p>
+{% endblock %}

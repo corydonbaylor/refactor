@@ -13,6 +13,7 @@
     padding: 50px;
     background-color: var(--ivory);
     border: 5px solid var(--secondary);
+    min-width: 20vh;
     text-align: center;
     overflow: hidden; /* Ensures the pseudo-element doesn't extend beyond the grid item */
 }
@@ -56,18 +57,31 @@
     #python-r,
     #python-package,
     #webdev,
-    #docker {
+    #docker,
+    #ml {
         background-attachment: inherit !important; /* Change to inherit on mobile */
-        background-size: 95% !important;
+        background-size: cover !important;
     }
 }
 
-#python-r {
-    background-image: url('../images/empire.png');
+#python-r,
+#python-package,
+#webdev,
+#docker,
+#ml {
     background-size: 90%;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
+}
+
+#ml{
+    background-image: url('../images/wall_street.png');
+
+}
+
+#python-r {
+    background-image: url('../images/empire.png');
 }
 
 #python-r .word-list {
@@ -76,18 +90,10 @@
 
 #python-package {
     background-image: url('../images/highbridge.png');
-    background-size: 90%;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
 }
 
 #webdev {
     background-image: url('../images/manhatten.png');
-    background-size: 90%;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
 }
 
 #webdev .word-list {
@@ -96,10 +102,6 @@
 
 #docker {
     background-image: url('../images/brooklyn_bridge.png');
-    background-size: 90%;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
 }
 
 #docker .word-list {

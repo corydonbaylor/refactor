@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Linear Regression</h1>
+<p>If you know anything about statistics, you likely know linear regression. If you took Econ 101, you were likely
+    introduced to linear regression. If you ever had to make a quick and dirty model in excel, then your best friend was
+    most likely Mr. Linear Regression. </p>
+<p>He&#39;s always been there for you. From your very first client engagement to your first cut at making a prediction
+    on a new dataset. You&#39;ve always relied on him. </p>
+<p>But how well do you really know Mr. Linear Regression? How does <em>he</em> feel? What&#39;s <em>his</em> story?
+    Don&#39;t you think its time to get to know Mr. Linear Regression just a little bit better?</p>
+<p>Well luckily for you, today&#39;s lesson is all about getting to know Mr. Linear Regression really well.</p>
+<h3>Fitting a Line to Data</h3>
+<p>Let&#39;s say you are a famous YouTuber who is also very data driven. You are looking through your stats and you
+    notice a very curious pattern. The more comments a video gets, the more views that video will have. </p>
+<p>&nbsp;</p>
+
+<p><img src="{{url_for('machine_learning.static', filename='linear/regression.001.png')}}" class="img-center"></p>
+
+<p>Ok maybe this discovery isn&#39;t about to rock the foundations of the YouTube community. But what if you could
+    create a trend line that would predict the exact number of views given the number of comments? How would we draw
+    such a line. More to the point, what would the slope of that line be?</p>
+<p>Let&#39;s start by just drawing a line whose y value is always the average number of views. We are going to call this
+    line the prediction line because the goal of this whole thing is to be able to make predictions with it. </p>
+<p><img src="{{url_for('machine_learning.static', filename='linear/regression.002.png')}}" class="img-center"></p>
+
+<p>If we are trying to use this line to predict the number views based on the number of comments, then the difference
+    between the prediction line and the actual number of views would be the error. Another term for this is the
+    <strong>residuals</strong>.
+</p>
+<p>We are going to denote the residuals with a dotted line. The longer that dotted line, the greater the residuals. If
+    we sum up the total length of the dotted lines, we will have total amount we were off in our prediction.
+    Mathematically, we will actually square the residuals before summing them. This is to make sure that negative
+    residuals don&#39;t cancel out positive ones. For short hand, we will call this the <strong>sum of the squared
+        residuals</strong>. Just remember to think of this as the total error.</p>
+<p>The best prediction line will be the line that minimizes the sum of the squared residuals. This is also called the
+    <strong>line of best fit</strong>.
+</p>
+<p>To find the line of best fit, we are going to do two things. (1) we are going to keep changing the slope of our line,
+    and (2) we are going to keep track of the sum of the squared residuals. </p>
+<p>Below, on the left panel, you can see how we twist the prediction line, and on the right panel, we plot the sum of
+    the squared residuals on a graph. </p>
+<p><img src="{{url_for('machine_learning.static', filename='linear/regression.gif')}}" class="img-center"></p>
+
+<p>It seems pretty obvious looking at that right panel, that we should stop twisting the prediction line on our third
+    iteration, because at that point the sum of the squared residuals is lowest. Easy right?</p>
+<p><em>Not so fast, hotshot.</em></p>
+<p>We are only showing five possible slopes on that graph. But a line can have an infinite number of slopes right?
+    Perhaps it&#39;s better to think of that chart as a curve rather than five distinct points.</p>
+<p><img src="{{url_for('machine_learning.static', filename='linear/regression.011.png')}}" class="img-center"></p>
+
+<p>Ok, in that case, it&#39;s seems pretty obvious that we should be trying to find the bottom of the curve right?
+    Well,
+    we will need calculus to do that. <em>Oh fuck.</em></p>
+<p>Take a deep breath and remember that I am not going to make you do any math. We are here for the concepts.</p>
+<p>We will take the derivative of the function that produces the curve we see above. The derivative will give us the
+    slope for each point along the curve and where the slope is equal to zero will be the bottom of the curve. Just
+    take
+    a look at the below gif for proof. </p>
+<p><img src="{{url_for('machine_learning.static', filename='linear/slope.gif')}}" class="img-center"></p>
+
+<p>Remember that x axis of our graph corresponds to a slope for our prediction line, which is of course, what
+    we&#39;ve
+    been looking for. </p>
+<p>And there you have it. That&#39;s how you fit a line to a set of data. </p>
+<p>Almost always, unless you are a true masochist, you will use a computer program to fit a trend line to your data,
+    so
+    in reality you don&#39;t really need to know any of this. But remember, this about getting to know Mr. Linear
+    Regression really well. </p>
+<h3>Making Predictions with the Line</h3>
+<p>We have finally fit the line to the data. Now we get to actually use the line. This is the easy part. Given an
+    arbitrary number of comments, you can trace your way straight up to the prediction line from the x axis and then
+    straight over to the y axis for your predicted number of views. Follow the dotted lines from a starting point on
+    the
+    x axis and then trace up to the corresponding spot on the y axis. </p>
+
+<p><img src="{{url_for('machine_learning.static', filename='linear/regression.015.png')}}" class="img-center"></p>
+
+<p>You may remember from math class the formula, y = mx + b. It&#39;s the same thing here. &quot;b&quot; is the y
+    intercept, m is the slope of the line and x is the number of comments. </p>
+<p>So for example, if you had no comments at all on your video, you would expect the number of views to be the y
+    intercept of your line. Because it&#39;s a line, its infinite. You can take any random number of comments and
+    use
+    that to predict a number of views. </p>
+<p>&nbsp;</p>
+{% endblock %}

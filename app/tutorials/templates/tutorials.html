@@ -58,6 +58,16 @@
 
         </ul>
     </div>
+    <div class="grid-item order-5" id="ml">
+        <h3>Machine Learning</h3>
+        <ul class="word-list" style="display: none;">
+            <li><a href="{{ url_for('machine_learning.p_values') }}">p values</a></li>
+            <li><a href="{{ url_for('machine_learning.linear') }}">Linear Regression</a></li>
+            <li><a href="{{ url_for('machine_learning.kmeans') }}">K-means Clustering</a></li>
+            <li><a href="{{ url_for('machine_learning.class_tree') }}">Classification Tree</a></li>
+
+        </ul>
+    </div>
 </div>
 
 <script src="{{ url_for('tutorials.static', filename='js/grid.js') }}"></script>
