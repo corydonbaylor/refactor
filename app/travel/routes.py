@@ -3,6 +3,7 @@ from . import travel_bp
 from ..utils import password_required
 
 @travel_bp.route('/')
+@password_required
 def travel():
     return render_template('travel.html', bg_class="heroes")
 
@@ -48,6 +49,7 @@ def puerto_rico():
     return render_template('puerto_rico.html')
 
 @travel_bp.route('/quebec')
+@password_required
 def quebec():
     return render_template('quebec.html')
 
