@@ -9,7 +9,7 @@ from .tutorials.python_package import python_package_bp
 from .tutorials.docker import docker_bp
 from .tutorials.flask_pi import flask_pi_bp
 from .tutorials.machine_learning import machine_learning_bp
-
+from .utils import utils_bp
 
 def create_app():
     app = Flask(__name__)
@@ -27,5 +27,5 @@ def create_app():
 
 
     app.register_blueprint(main_bp)  
-
+    app.register_blueprint(utils_bp)
     return app
