@@ -1,5 +1,6 @@
 from flask import render_template
 from . import travel_bp
+from ..utils import password_required
 
 @travel_bp.route('/')
 def travel():
@@ -30,10 +31,12 @@ def ireland():
     return render_template('ireland.html')
 
 @travel_bp.route('/med')
+@password_required
 def med():
     return render_template('med.html')
 
 @travel_bp.route('/mexico')
+@password_required
 def mexico():
     return render_template('mexico.html')
 
@@ -46,6 +49,7 @@ def quebec():
     return render_template('quebec.html')
 
 @travel_bp.route('/italy')
+@password_required
 def italy():
     return render_template('italy.html')
 
@@ -54,5 +58,6 @@ def southwest():
     return render_template('southwest.html')
 
 @travel_bp.route('/uruguay')
+@password_required
 def uruguay():
     return render_template('uruguay.html')
