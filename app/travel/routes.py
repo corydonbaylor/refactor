@@ -15,10 +15,12 @@ def costa_rica():
     return render_template('costa_rica.html')
 
 @travel_bp.route('/france')
+@password_required
 def france():
     return render_template('france.html')
 
 @travel_bp.route('/hungary')
+@password_required
 def hungary():
     return render_template('hungary.html')
 
@@ -41,6 +43,7 @@ def mexico():
     return render_template('mexico.html')
 
 @travel_bp.route('/puerto_rico')
+@password_required
 def puerto_rico():
     return render_template('puerto_rico.html')
 
