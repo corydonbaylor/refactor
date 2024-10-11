@@ -13,9 +13,6 @@ def login():
         else:
             return "Invalid Password", 403
 
-    return render_template('login.html')  # Ensure this template exists
+    return render_template('login.html', bg_class='index')  # Ensure this template exists
 
-@utils_bp.route('/protected')
-@password_required
-def protected_route():
-    return "This is a protected route!"
+

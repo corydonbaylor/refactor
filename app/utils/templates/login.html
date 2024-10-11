@@ -3,9 +3,35 @@
 {% block title %}Travel{% endblock %}
 
 {% block content %}
-    <form method="POST">
-        <label for="password">The Page You Selected is Under Construction:</label>
-        <input type="password" id="password" name="password" required>
-        <button type="submit">Submit</button>
-    </form>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .centered-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh; /* Adjust height as needed */
+        }
+        .fa-solid {
+            font-size: 20vh; /* Increase icon size */
+            padding: 5vh;
+            color: var(--secondary);
+        }
+        label, input, button {
+            font-size: 20px; /* Increase font size */
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-container">
+        <h2>Oops! This Page is Under Construction</h2>
+        <i class="fa-regular fa-person-digging"></i>
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <form method="POST">
+            <br>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
 {% endblock%}
