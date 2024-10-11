@@ -2,8 +2,8 @@ from flask import request, make_response, render_template, redirect, url_for
 from . import utils_bp  # Correctly importing the blueprint
 from .password import password_required  # Import the decorator directly
 
-@utils_bp.route('/login', methods=['GET', 'POST'])
-def login():
+@utils_bp.route('/error', methods=['GET', 'POST'])
+def error():
     if request.method == 'POST':
         password = request.form.get('password')
         if password == "friends":  # Replace with your actual password
@@ -13,6 +13,6 @@ def login():
         else:
             return "Invalid Password", 403
 
-    return render_template('login.html', bg_class='index')  # Ensure this template exists
+    return render_template('error.html', bg_class='index')  # Ensure this template exists
 
 

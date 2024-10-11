@@ -12,7 +12,7 @@ def password_required(f):
 
         if password_cookie != PASSWORD:
             # If the password is incorrect or not set, redirect to a login page or show an error
-            return redirect(url_for('utils.login'))
+            return redirect(url_for('utils.error'))
 
         return f(*args, **kwargs)
 
