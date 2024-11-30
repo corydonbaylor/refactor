@@ -5,6 +5,10 @@ from . import gds_bp
 def dijkstra():
     return render_template('shortest.html')
 
+@gds_bp.route('/centrality')
+def centrality():
+    return render_template('centrality.html')
+
 @gds_bp.route('/pagerank')
 def pagerank():
     return render_template('pagerank.html')

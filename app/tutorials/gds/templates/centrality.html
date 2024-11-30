@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Basic Centrality Measures</h1>
+<p>Conceptually&mdash; what node is the most central in a graph is a somewhat intuitive concept.  But on second glance, there might be a little more to that question than first appears.</p>
+<p>Do we simply mean what node has the most connections in a graph? Do we mean what node is most important for the flow of information and goods through a graph? Do we mean what node is closest to all the other nodes, even if its not the most connected?</p>
+<p>At its core, centrality is measuring the <strong>importance of a given node.</strong></p>
+<p><img src="{{url_for('gds.static', filename='centrality/centrality.001.jpeg')}}" class="img-center"></p>
+
+<h2>Degree Centrality </h2>
+<p>Degree centrality is the most straightforward measure of centrality in the graph. It simply assigns an importance score based on the number of links held by each node. </p>
+<p>Let&#39;s imagine we have a graph of office workers. Each relationship represents office workers who know each other. If we use degree centrality, we would simply be saying that the office worker who knows the most colleagues is the most important in the graph.</p>
+<p><img src="{{url_for('gds.static', filename='centrality/centrality.002.jpeg')}}" class="img-center"></p>
+
+<h2>Betweenness Centrality</h2>
+<p>Degree centrality might be useful in determing the most popular office worker but perhaps not the most important. Who best controls the <em>flow of information?</em> Someone might be really popular among the accountants but has no idea what is happening with the salespeople. </p>
+<p>Betweeness centrality measures the number of times a node lies on the shortest path between other nodes.</p>
+<p>So we might use something like Dijkstra&#39;s algorithm or a breadth-first search to determine the shortest paths and then see which node is most commonly on a shortest path. </p>
+<p>Look at our graph, we can see how our new most central node no longer the node with the most relationships but the node that sits between different groups of nodes.</p>
+<p><img src="{{url_for('gds.static', filename='centrality/centrality.003.jpeg')}}" class="img-center"></p>
+
+<h2>Closeness Centrality</h2>
+<p>Closeness centrality does something similar to betweeness centrality. Instead this time, we are focusing on how quickly a node can get to all other nodes in a graph. </p>
+<p>Here&#39;s how we calculate it. </p>
+<ol>
+<li>For each node, find the shortest path to every other node</li>
+<li>Sum up all the lengths of these paths</li>
+<li>Take the reciprocal to get the closeness centrailty </li>
+
+</ol>
+<p>In our office example, we might have a few nodes with similar degrees of closness centrality. This is because its not about being on the shortest path the most but simply being closest to the most nodes. So our very between node is only one hop from three nodes but isnt particularly close to the nodes farther on the edges.</p>
+<p><img src="{{url_for('gds.static', filename='centrality/centrality.004.jpeg')}}" class="img-center"></p>
+
+
+{% endblock %}
