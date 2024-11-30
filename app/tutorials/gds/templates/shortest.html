@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Dijkstra&#39;s Algorithm </h1>
+<p>Over a cup of coffee in 1956, the young dutch mathematician devised one of the most famous formulas in graph&mdash; Dijkstra&#39;s algorithm. He was chatting with his then fiancee about what would be the shortest path between Rotterdam and Groningen in an Amsterdam cafe. How lovely and how dutch. </p>
+<p>So what did he come up with?</p>
+<h2>Setting the Stage</h2>
+<p>Let&#39;s imagine a set of nodes&mdash; these could be cities, subway stops, stores, whatever&mdash; and lines connecting them. In our example, we are interested in finding the shortest path between &quot;A&quot; and &quot;F&quot;.</p>
+<p>In reality, our algorithm will calculate the distance between A and <strong>all other nodes</strong>, rather than just the shortest distance between A and F. In fact, what our algorithm will do is track and update the shortest distance between A and a given node over the course of multiple iterations.</p>
+<p>It does this by keeping track of a few things. </p>
+<ul>
+<li>What nodes have been visited and what nodes have not been visited</li>
+<li>The <em>current</em> shortest distance between the starting node and the node of interest</li>
+<li>And the previous node that leads us to the current shortest distance</li>
+
+</ul>
+<h2>Inside the Caves</h2>
+<p>Imagine this. You are trapped in deep in an old mine at the bottom of a cave. You have a map to get out detailing all the different tunnels and how to get to the exit. You want to find the quickest way to get out. </p>
+<p>Let&#39;s imagine each node in our graph as a chamber cave in the mine.  We stuck in Cave A and are trying to get to Cave F, which has an elevator out. </p>
+<p>You could simply walk out but that would be too reasonable. Instead, you want to quickly figure out the fastest way to walk out. </p>
+<p>What dijkstra&#39;s algorithm does is it calculates the current shortest distance from Cave A to all other caves by iterating through &quot;unvisited&quot; caves. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.001.jpeg')}}" class="img-center"></p>
+
+<h2>Iterate through</h2>
+<p>You have to give Dijkstra a starting node, which in our case is Cave A. </p>
+<p>We can update the table to show that the distance from Cave A to Cave A is 0.   </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.002.jpeg')}}" class="img-center"></p>
+
+<p>Now we need to calculate this distance between Cave A and <em>all unvisited neighbors of A</em>, which in this case is Cave B and Cave C.</p>
+<p>So what do we mean by unvisited here? A cave can be considered as visited when we know the shortest distance between Cave A, the given cave, and all its neighboring caves.</p>
+<p>Because we calculated the distance between &quot;A&quot; and all its neighboring nodes, we can call A visited. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.003.jpeg')}}" class="img-center"></p>
+
+<p><strong>The second iteration</strong></p>
+<p>Here comes the genius of the algorithm. Next we choose the neighboring unvisited cave with the shortest distance, which in this case is C, to be our cave of interest. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.004.jpeg')}}" class="img-center"></p>
+
+<p>We repeat the process here. We now calculate the difference between C and all unvisited caves of C:</p>
+<ul>
+<li>&quot;A&quot; is visited at this point (we know the distance to all its neighboring nodes)</li>
+<li>&quot;D&quot; has not been explored at all at this point, so it definitely counts as unvisited</li>
+<li>&quot;B&quot; has been explored, but we do not yet know the distance to all its neighboring nodes, so it is considered unvisited. </li>
+
+</ul>
+<p>Now we update the table. Let&#39;s focus in on B. The current shortest distance between A and B is 6. But by going through C, the newest shortest distance will be 5, so we will update the table. </p>
+<p>We also update the distance for D to be 10. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.005.jpeg')}}" class="img-center"></p>
+
+<p>Ok so now we are finished with C because we have measured all previously unvisited nodes of C. </p>
+<p>We then choose the nodes from C&#39;s unvisited neighbors with the shortest distance which in this case is B, as 5 is less than 10.</p>
+<p><strong>The third and fourth iteration</strong></p>
+<p>B only has one unvisited neighbor&mdash; &quot;E&quot;. It takes a length of 9 to reach E, so we update the table. We now mark B as visited and make E our node of observation. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.006.jpeg')}}" class="img-center"></p>
+<p>E has two unvisited neighbors&mdash; D and F. The quickest path to D through E would be 16 compared to just 10 when going through C, and F&#39;s would be 12. We can now mark E as visited.</p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.007.jpeg')}}" class="img-center"></p>
+<p>Look at our table. At this point, D has the shortest distance of our unvisited neighbors, even though we are off what had previously been the &quot;shortest path&quot;.</p>
+<p>D has only one unvisited neighbor&mdash; &quot;F&quot;. Our previous shortest distance to D was 10, so the shortest path through D to F would be 13, which &mdash; devastatingly &mdash; is longer than the path through E. </p>
+<p><img src="{{url_for('gds.static', filename='shortest/shortest.008.jpeg')}}" class="img-center"></p>
+<h2>Now What?</h2>
+<p>Our table shows us the shortest possible distance between Cave A and everything other cave. Our previous node gives us a clue to what path we would need to take. </p>
+<p>Its 12 tunnel units (or whatever) from Cave A to Cave F. The previous node is was Cave E. It&#39;s previous was B, and so on all the way back to A. </p>
+
+
+{% endblock %}

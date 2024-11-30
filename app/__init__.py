@@ -9,6 +9,7 @@ from .tutorials.python_package import python_package_bp
 from .tutorials.docker import docker_bp
 from .tutorials.flask_pi import flask_pi_bp
 from .tutorials.machine_learning import machine_learning_bp
+from .tutorials.gds import gds_bp
 from .examples.nyc_subway import nyc_subway_bp
 from .utils import utils_bp
 
@@ -30,6 +31,8 @@ def create_app():
     app.register_blueprint(docker_bp, url_prefix='/tutorials/docker')
     app.register_blueprint(flask_pi_bp, url_prefix='/tutorials/flask-pi')
     app.register_blueprint(machine_learning_bp, url_prefix='/tutorials/machine_learning')
+    app.register_blueprint(gds_bp, url_prefix='/tutorials/gds')
+
 
     app.register_blueprint(nyc_subway_bp, url_prefix='/examples/nyc')
 
