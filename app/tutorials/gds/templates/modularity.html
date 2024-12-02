@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Modularity</h1>
+<p>An essential task in graph data science is to find communities with your graph. In unneccesary data science speak this is called <strong>graph partitioning</strong>, which is just splitting your graph into different clusters, bubbles or communities. Really whatever you want to call it.</p>
+<p>But how can we tell how good of a job we did in splitting our graph into clusters?</p>
+<p>Enter modularity. </p>
+<p>The essential goal of modularity is to tell how well a graph is partitioned. Let&#39;s consider the below graph:</p>
+<p><img src="{{url_for('gds.static', filename='modularity/modularity.001.jpeg')}}" class="img-center"></p>
+
+<p>It is somewhat inuititve to say there is three, maybe four different partitions to this graph but how can we codify this suspicion?</p>
+<h2>Simple Modularity</h2>
+<p>Well one way would be to say <strong>there should be more relationships within a cluster than between a cluster</strong>. </p>
+<p>Now we have a number we want to optimize. And smarter minds are really good at optimizing so surely this will work, right?</p>
+<p><img src="{{url_for('gds.static', filename='modularity/modularity.002.jpeg')}}" class="img-center"></p>
+
+<p>Let&#39;s take a look at what this would mean with the three inuititve communities. We have a total of 17 different relationships or edges between all the nodes. Just looking at our graph we can see that there is only two edges that run between communities so there is 15 edges that run within a community. </p>
+<p>That means that we have a &quot;modularity score&quot; of 88%! Wow that&#39;s really high!</p>
+<p>But what would happen if we brute forced our way through every possible combination of paritions. Could we beat 88%?</p>
+<p>I guarantee it.</p>
+<p>If we are looking to simply optimize this number that we would just put all nodes in one partition and have a modularity score of 100%.</p>
+<h2>Actual Modularity</h2>
+<blockquote><p>A good division of a network into communities is not merely one in which there are few edges between communities; it is <strong>one in which there are fewer than expected edges between communities</strong>.</p>
+<p>&mdash; M.E.J. Newman</p>
+</blockquote>
+<p>A data scientist&#39;s best friend is beating random chance. In general, if you are doing better than a simple measure, you are doing something useful.</p>
+<p>The above quoted Newman fellow made this point. If we are the number of edges between communities is no better than random chance, than who would find that interesting. But conversely, if the number of edges between groups is much better than random chance, than baby, you got yourself a stew going.</p>
+<p>So what is modularity now.</p>
+<p>Its the <strong>fraction of edges that fall within a given community</strong> <em><u>MINUS</u></em> <strong>fraction of edges that fall within the given communities if the edges were distributed at random</strong>.</p>
+<p>Basically, we compare the actual number to a random baseline.</p>
+<h2>Building a Random Baseline</h2>
+<p>So what do we mean exactly by a random baseline? Well first we should set some parameters for what would constitute a random baseline.</p>
+<ul>
+<li>There should be the same number of nodes</li>
+<li>There should be the same number of edges</li>
+<li>The number or the weight of the edges coming off an node should be the same (this is called node degree)</li>
+<li>The edges between the nodes should be assigned randomly</li>
+
+</ul>
+
+<p><img src="{{url_for('gds.static', filename='modularity/modularity.003.jpeg')}}" class="img-center"></p>
+
+<p><em>Note: I am building my little diagrams in powerpoint, so I will not be preserving the node degree but consider the picture as illustrative.</em></p>
+<h2>Evaluating a Modularity Score</h2>
+<p>Modularity can fall between -0.5 and 1. Let&#39;s run through some different scenarios, remembering the broad formula of (edges within communities) - (random edges within communities).</p>
+<ul>
+<li>If there were only edges within communties and no edges between communities, than we would have a modularity of 1.</li>
+<li>If there were only edges between communities and no edges within, than we would have a modularity of -0.5.</li>
+<li>If there was the same number of edges within communities as there were random edges within those communities, than we would have a modularity of 0.</li>
+
+</ul>
+<p>This actually helps solve our one big community problem. If the edges in a big community were distributed randomly than according to modularity, its no different than if they weren&#39;t. Thats because the number of edges within a community does not change, and thus, we have a modularity of 0.</p>
+<p>&nbsp;</p>
+<p> </p>
+
+
+{% endblock %}

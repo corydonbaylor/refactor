@@ -68,6 +68,16 @@
 
         </ul>
     </div>
+    <div class="grid-item order-5" id="gds">
+        <h3>Graph Data Science</h3>
+        <ul class="word-list" style="display: none;">
+            <li><a href="{{ url_for('gds.dijkstra') }}">Path Finding: Dijkstra's Algo</a></li>
+            <li><a href="{{ url_for('gds.centrality') }}">Centrality I: Basic Centrality</a></li>
+            <li><a href="{{ url_for('gds.pagerank') }}">Centrality II: PageRank</a></li>
+            <li><a href="{{ url_for('gds.modularity') }}">Communities I: Modularity</a></li>
+
+        </ul>
+    </div>
 </div>
 
 <script src="{{ url_for('tutorials.static', filename='js/grid.js') }}"></script>
