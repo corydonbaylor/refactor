@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Louvain</h1>
+<p>At this point, we have a good understanding of what <a href='https://www.corydonbaylor.com/tutorials/gds/modularity'>modularity</a> is, but now we need to find a good way to optimize it. Enter Louvain. </p>
+<p>Take a look at the below graph.</p>
+<p><img src="{{url_for('gds.static', filename='louvain/louvain.001.jpeg')}}" class="img-center"></p>
+
+<p>As usual, we can spot what we would imagine the two partitions to be. But how can we formalize our logic so that we can repeat it at scale?</p>
+<p>Louvain works in two phases: local modularity optimization and then community aggregation. These two steps loop through each other until there are no more gains in modularity. </p>
+<h2>Phase I: Modularity Optimization</h2>
+<p>Initially, Louvain each node belongs in its own cluster&mdash; called singleton communities.</p>
+<p>For each node, we remove it from its current community and add it to the community of one of its neighbors where the gain in modularity is at its greatest. This makes Louvain a greedy algorithm as we are trying to optmize the locally optimal choice. </p>
+<p>We repeat this process until no nodes move from their current choice. </p>
+<p><img src="{{url_for('gds.static', filename='louvain/local_louvain.gif')}}" class="img-center"></p>
+
+<h2>Phase II: Community Aggregation</h2>
+<p>Next we treat all nodes within a community as one big node. So practically, what does this look like.</p>
+<p><img src="{{url_for('gds.static', filename='louvain/louvain.002.jpeg')}}" class="img-center"></p>
+
+<p>Relationships within communities are counted as self loops and edges between communities are merged together and their weights are added. </p>
+<p>There is some tricky math stuff going on here to ensure that the current modularity score is maintained throughout this transformation that we will not dive into, but know in your heart of hearts that it is happening. </p>
+<p>Louvain then tries to optimize our new nodes into communities. And in our example, it looks like it merges two communities.</p>
+<p><img src="{{url_for('gds.static', filename='louvain/louvain.003.jpeg')}}" class="img-center"></p>
+
+<p>It will keep attempting this loop of local modularity optimization and community aggregation until there is no more gains in modularity. </p>
+<p>And voila! We have, at least a locally optimized, set of communities! Huge Success!</p>
+
+
+{% endblock %}

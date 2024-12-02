@@ -16,3 +16,7 @@ def pagerank():
 @gds_bp.route('/modularity')
 def modularity():
     return render_template('modularity.html')
+
+@gds_bp.route('/louvain')
+def louvain():
+    return render_template('louvain.html')
