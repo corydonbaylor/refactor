@@ -20,3 +20,7 @@ def modularity():
 @gds_bp.route('/louvain')
 def louvain():
     return render_template('louvain.html')
+
+@gds_bp.route('/link_prediction')
+def link_prediction():
+    return render_template('link_prediction.html')
