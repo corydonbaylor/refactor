@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Topological Sorting</h1>
+<p>Think back to when you were in college. </p>
+<p>You declared your major in Graph Theory, and you were given a list required classes that you must take. Some of those classes had prerequisites. Therefore, there is a certain order in which you had to take the classes. As Graph Theory major, your first thought will be to immediately put all your required classes in a <strong>directed acyclic graph</strong> and perform a <strong>topological sort</strong> to determine when you will take each class. </p>
+<h2>Directed Acyclic Graph</h2>
+<p>For all those who did not major in graph theory, you might be wondering&mdash; what&#39;s a <strong>directed acyclic graph</strong>? </p>
+<p>A directed acyclic graph is a special kind of graph, which typically represents a series of activities performed in a given order. In this type of graph, each relationship has a defined direction&mdash; thus the <strong>directed</strong> in directed acyclic graphs &mdash; and there is no loops or cycles in the graph &mdash; thus the <strong>acyclic</strong>.</p>
+<p>That means that if you follow the relationships that connect one node to another, there is no path back to the initial node. Here is an example of what this might look like:</p>
+<p><img src="{{url_for('gds.static', filename='top_sort/topological sort.001.jpeg')}}" class="img-center"></p>
+<h2>Topological Sort</h2>
+<p>When we perform a <strong>topological sort</strong> (or top sort for short), we are trying to find <em>a given order</em> for the nodes in our graph. Another way of thinking about this is that: topological sorting means you could put all the nodes in a line and all the edges would point to the right. Below is a sorted directed acyclic graph:</p>
+<p><img src="{{url_for('gds.static', filename='top_sort/DAG.001.jpeg')}}" class="img-center"></p>
+<p>As we will see, this doesn&#39;t necessarily mean that there is one canonical order in which to sort the nodes. There can be many different orders. But as long as all the relationships point in the same direction, it has been successfully sorted.</p>
+<p>Let&#39;s think about why this type of graph is needed for a topological sort. If you had nodes with undirected relationships, when you go to order those two nodes, you wouldn&#39;t be able to determine which one <em>should</em> come first. And the same is true for graphs with loops. </p>
+<p>Imagine you had if &quot;Intro to Graphs&quot; course that required &quot;Intro to Cypher&quot; but that &quot;Intro to Cypher&quot; course required &quot;Intro to Graphs&quot; as prerequisite. What sort of terrible kafkaesque school would that be?</p>
+<h2>The Algorithm</h2>
+<p>Top sort will sort all of the nodes in your graph or subgraph. As with most algorithms, we will perform a set of steps on a loop until exhaustion. So let&#39;s get started. </p>
+<p>First, we pick a random node in the graph or subgraph. In this case H:</p>
+<p><img src="{{url_for('gds.static', filename='top_sort/topological sort.002.jpeg')}}" class="img-center"></p>
+<p>Then we perform a depth first search, adding each node to our call stack as we go, until we can no longer go any further. </p>
+<p><img src="{{url_for('gds.static', filename='top_sort/topological sort.gif')}}" class="img-center"></p>
+<p>At this point, we end on Node E. We then pop this off our call stack and put it at the end of our topological ordering. </p>
+<p>Now the recursion.</p>
+<p>We go back to Node G and continue our depth first search. This time excluding Node E since we have already visited it. Instead, we go to Node I, which is also a dead end. So we will pop that off the call stack as well and add it to our topological ordering. </p>
+<p>You may be wondering why we didn&#39;t go to Node F at this point. And you are right we <em>could have gone to Node F.</em> This is why topological ordering does not have <strong>one</strong> given order. Rather it gives you <strong>one possible order</strong>. </p>
+<p>Let&#39;s watch how the algorithm sorts through this graph in full.</p>
+<p><img src="{{url_for('gds.static', filename='top_sort/full_sort.gif')}}" class="img-center"></p>
+<h2>Limitations</h2>
+<p>Another important limitation is that this sorts the <em>entire</em> graph. Think about if our course requirements example. This graph could potentially include required course in majors that you are not taking. So how would you exclude those courses?</p>
+<p>You would have to take a subgraph. One method would be to do some form of dependency filtering before performing a top sort. So for example, if you just wanted to know what nodes E depends on, you could do a reverse depth first search to create a subgraph and then perform a top sort on that. This would exclude Nodes D and I. </p>
+<p>So there you have it! A quick and easy way to see when you should take what classes! And you didn&#39;t even need to go to college to learn how to do that!</p>
+
+
+{% endblock %}

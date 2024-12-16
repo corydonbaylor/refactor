@@ -24,3 +24,8 @@ def louvain():
 @gds_bp.route('/link_prediction')
 def link_prediction():
     return render_template('link_prediction.html')
+
+
+@gds_bp.route('/top_sort')
+def top_sort():
+    return render_template('top_sort.html')
