@@ -13,6 +13,10 @@ def centrality():
 def pagerank():
     return render_template('pagerank.html')
 
+@gds_bp.route('/connected_components')
+def connected():
+    return render_template('connected.html')
+
 @gds_bp.route('/modularity')
 def modularity():
     return render_template('modularity.html')
