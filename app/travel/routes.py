@@ -3,11 +3,11 @@ from . import travel_bp
 from ..utils import password_required
 
 @travel_bp.route('/')
-@password_required
 def travel():
     return render_template('travel.html', bg_class="heroes")
 
 @travel_bp.route('/argentina')
+@password_required
 def argentina():
     return render_template('argentina.html')
 
@@ -57,6 +57,10 @@ def quebec():
 @password_required
 def italy():
     return render_template('italy.html')
+
+@travel_bp.route('/nyc')
+def nyc():
+    return render_template('nyc.html')
 
 @travel_bp.route('/southwest')
 def southwest():
