@@ -58,6 +58,10 @@ def quebec():
 def italy():
     return render_template('italy.html')
 
+@travel_bp.route('/portugal')
+def portugal():
+    return render_template('portugal.html')
+
 @travel_bp.route('/nyc')
 def nyc():
     return render_template('nyc.html')
