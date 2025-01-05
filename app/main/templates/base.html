@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Flask App{% endblock %}</title>
+    <title>{% block title %}Baylor{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('main.static', filename='icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('main.static', filename='css/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('main.static', filename='css/content.css') }}">
     <link rel="stylesheet" href="{{ url_for('main.static', filename='css/typora.css') }}">
