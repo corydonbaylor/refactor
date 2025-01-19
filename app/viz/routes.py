@@ -40,7 +40,7 @@ def rock():
 # Dictionary of available CSV files
 CSV_FILES = {
     'NYC': 'app/viz/resources/maps/nyc.csv',
-    'LA': 'resources/maps/la.csv',
+    'Boston': 'app/viz/resources/maps/boston.csv',
     'Chicago': 'resources/maps/chicago.csv'
 }
 
@@ -48,7 +48,6 @@ CSV_FILES = {
 def map_view():
     selected_file = None  # Default value for selected file
     map_html = None       # Default value for the map HTML
-    print("test")
     if request.method == 'POST':
         # Get the selected file from the form
         selected_file = request.form.get('csv_file')
@@ -64,16 +63,16 @@ def map_view():
 
         # Create a Folium map centered at the average coordinates
         center = [data['lat'].mean(), data['long'].mean()]
-        m = folium.Map(location=center, zoom_start=14)
+        m = folium.Map(location=center, zoom_start=12, tiles="cartodb positron")
 
         # Add circles for each coordinate in the CSV
         for _, row in data.iterrows():
             folium.Circle(
                 location=(row['lat'], row['long']),
                 radius=500,  # Set the desired radius in meters
-                color='blue',
+                color='#2a66ad',
                 fill=True,
-                fill_color='blue',
+                fill_color='#2a66ad',
                 fill_opacity=0.5,
             ).add_to(m)
 
