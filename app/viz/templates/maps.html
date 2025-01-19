@@ -1,8 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Folium Map with Circle</h1>
-    <div>
-        {{ map_html|safe }}
-    </div>
+    <h1>Subway Walksheds</h1>
+    <form action="{{ url_for('viz.map_view') }}" method="POST">
+        <select id="csv_file" name="csv_file">
+            {% for file_name in csv_files %}
+                <option value="{{ file_name }}" {% if file_name == selected_file %}selected{% endif %}>
+                    {{ file_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Load Map</button>
+    </form>
+    
+    {% if map_html %}
+        <div>
+            {{ map_html|safe }}
+        </div>
+    {% else %}
+        <p>Please select a CSV file to load.</p>
+    {% endif %}
 {% endblock %}

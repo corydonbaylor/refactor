@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, request
 from . import viz_bp
 import folium
 import pandas as pd
@@ -36,27 +36,48 @@ def powerfive():
 def rock():
     return render_template('rock.html')
 
-@viz_bp.route('/map')
+
+# Dictionary of available CSV files
+CSV_FILES = {
+    'NYC': 'app/viz/resources/maps/nyc.csv',
+    'LA': 'resources/maps/la.csv',
+    'Chicago': 'resources/maps/chicago.csv'
+}
+
+@viz_bp.route('/map', methods=['GET', 'POST'])
 def map_view():
-    # Load coordinates from CSV
-    data = pd.read_csv('app/viz/resources/maps/nyc.csv')
+    selected_file = None  # Default value for selected file
+    map_html = None       # Default value for the map HTML
+    print("test")
+    if request.method == 'POST':
+        # Get the selected file from the form
+        selected_file = request.form.get('csv_file')
 
-    # Create a Folium map centered at the average coordinates
-    center = [data['lat'].mean(), data['long'].mean()]
-    m = folium.Map(location=center, zoom_start=14)
+        # Get the file path based on the selection
+        file_path = CSV_FILES.get(selected_file)
+        print(file_path)
+        if not file_path or not os.path.exists(file_path):
+            return f"Error: The selected file '{selected_file}' does not exist.", 404
 
-    # Add circles for each coordinate in the CSV
-    for _, row in data.iterrows():
-        folium.Circle(
-            location=(row['lat'], row['long']),
-            radius=804,  # Set the desired radius in meters
-            color='blue',
-            fill=True,
-            fill_color='blue',
-            fill_opacity=0.3,
-        ).add_to(m)
+        # Load coordinates from the selected CSV file
+        data = pd.read_csv(file_path)
 
-    # Render the map as HTML
-    map_html = m._repr_html_()
+        # Create a Folium map centered at the average coordinates
+        center = [data['lat'].mean(), data['long'].mean()]
+        m = folium.Map(location=center, zoom_start=14)
 
-    return render_template('maps.html', map_html=map_html)
+        # Add circles for each coordinate in the CSV
+        for _, row in data.iterrows():
+            folium.Circle(
+                location=(row['lat'], row['long']),
+                radius=500,  # Set the desired radius in meters
+                color='blue',
+                fill=True,
+                fill_color='blue',
+                fill_opacity=0.5,
+            ).add_to(m)
+
+        # Render the map as HTML
+        map_html = m._repr_html_()
+
+    return render_template('maps.html', csv_files=CSV_FILES.keys(), selected_file=selected_file, map_html=map_html)
