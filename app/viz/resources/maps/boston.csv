@@ -1,0 +1,79 @@
+﻿station,url,name,lat,long
+Airport ‡,https://en.wikipedia.org/wiki/Airport_station_(MBTA),Airport_station_(MBTA),42.374374,-71.030243
+Alewife †,https://en.wikipedia.org/wiki/Alewife_station,Alewife_station,42.3964,-71.142
+Andrew,https://en.wikipedia.org/wiki/Andrew_station,Andrew_station,42.33019,-71.05712
+Aquarium,https://en.wikipedia.org/wiki/Aquarium_station_(MBTA),Aquarium_station_(MBTA),42.3593,-71.0531
+Ashmont †‡,https://en.wikipedia.org/wiki/Ashmont_station,Ashmont_station,42.2843,-71.0638
+Assembly,https://en.wikipedia.org/wiki/Assembly_station,Assembly_station,42.39235556,-71.07733333
+Back Bay ‡,https://en.wikipedia.org/wiki/Back_Bay_station,Back_Bay_station,42.3473,-71.0755
+Beachmont,https://en.wikipedia.org/wiki/Beachmont_station,Beachmont_station,42.3975,-70.9922
+Beaconsfield,https://en.wikipedia.org/wiki/Beaconsfield_station_(MBTA),Beaconsfield_station_(MBTA),42.33583333,-71.14055556
+Bowdoin †,https://en.wikipedia.org/wiki/Bowdoin_station,Bowdoin_station,42.3614,-71.0622
+Braintree †‡,https://en.wikipedia.org/wiki/Braintree_station_(MBTA),Braintree_station_(MBTA),42.2074,-71.0014
+Broadway,https://en.wikipedia.org/wiki/Broadway_station_(MBTA),Broadway_station_(MBTA),42.3429,-71.0572
+Brookline Hills,https://en.wikipedia.org/wiki/Brookline_Hills_station,Brookline_Hills_station,42.33138889,-71.12666667
+Brookline Village,https://en.wikipedia.org/wiki/Brookline_Village_station,Brookline_Village_station,42.3325,-71.11694444
+Butler,https://en.wikipedia.org/wiki/Butler_station_(MBTA),Butler_station_(MBTA),42.272253,-71.062453
+Capen Street,https://en.wikipedia.org/wiki/Capen_Street_station,Capen_Street_station,42.26762,-71.08744
+Cedar Grove,https://en.wikipedia.org/wiki/Cedar_Grove_station,Cedar_Grove_station,42.27969,-71.06039
+Central,https://en.wikipedia.org/wiki/Central_station_(MBTA),Central_station_(MBTA),42.365,-71.1034
+Central Avenue,https://en.wikipedia.org/wiki/Central_Avenue_station_(MBTA),Central_Avenue_station_(MBTA),42.26997,-71.07325
+Charles/MGH,https://en.wikipedia.org/wiki/Charles/MGH_station,MGH_station,42.3613,-71.0714
+Chestnut Hill,https://en.wikipedia.org/wiki/Chestnut_Hill_station_(MBTA),Chestnut_Hill_station_(MBTA),42.32694444,-71.16472222
+Chinatown ‡,https://en.wikipedia.org/wiki/Chinatown_station_(MBTA),Chinatown_station_(MBTA),42.3522,-71.0627
+Community College,https://en.wikipedia.org/wiki/Community_College_station,Community_College_station,42.3737,-71.0702
+Davis,https://en.wikipedia.org/wiki/Davis_station_(MBTA),Davis_station_(MBTA),42.3969,-71.1225
+Downtown Crossing ‡,https://en.wikipedia.org/wiki/Downtown_Crossing_station,Downtown_Crossing_station,42.35536,-71.06068
+Eliot,https://en.wikipedia.org/wiki/Eliot_station,Eliot_station,42.31888889,-71.21638889
+Fenway,https://en.wikipedia.org/wiki/Fenway_station,Fenway_station,42.34504167,-71.104825
+Fields Corner,https://en.wikipedia.org/wiki/Fields_Corner_station,Fields_Corner_station,42.3,-71.0617
+Forest Hills †‡,https://en.wikipedia.org/wiki/Forest_Hills_station_(MBTA),Forest_Hills_station_(MBTA),42.30073,-71.11406
+Government Center †‡,https://en.wikipedia.org/wiki/Government_Center_station_(MBTA),Government_Center_station_(MBTA),42.35944444,-71.05944444
+Green Street,https://en.wikipedia.org/wiki/Green_Street_station,Green_Street_station,42.3102,-71.1078
+Harvard ‡,https://en.wikipedia.org/wiki/Harvard_station,Harvard_station,42.3734,-71.1193
+Haymarket ‡,https://en.wikipedia.org/wiki/Haymarket_station_(MBTA),Haymarket_station_(MBTA),42.3633,-71.0582
+Hynes Convention Center,https://en.wikipedia.org/wiki/Hynes_Convention_Center_station,Hynes_Convention_Center_station,42.3478,-71.0878
+Jackson Square,https://en.wikipedia.org/wiki/Jackson_Square_station,Jackson_Square_station,42.3229,-71.1
+JFK/UMass ‡,https://en.wikipedia.org/wiki/JFK/UMass_station,UMass_station,42.1914,-71.0309
+Kendall/MIT,https://en.wikipedia.org/wiki/Kendall/MIT_station,MIT_station,42.3623,-71.0862
+Kenmore ‡,https://en.wikipedia.org/wiki/Kenmore_station,Kenmore_station,42.348925,-71.09560833
+Lechmere,https://en.wikipedia.org/wiki/Lechmere_station,Lechmere_station,42.37125,-71.0761
+Longwood,https://en.wikipedia.org/wiki/Longwood_station_(MBTA),Longwood_station_(MBTA),42.34166667,-71.11
+Malden Center ‡,https://en.wikipedia.org/wiki/Malden_Center_station,Malden_Center_station,42.426715,-71.074349
+Massachusetts Avenue,https://en.wikipedia.org/wiki/Massachusetts_Avenue_station,Massachusetts_Avenue_station,42.3416,-71.0833
+Mattapan †,https://en.wikipedia.org/wiki/Mattapan_station,Mattapan_station,42.2675,-71.09305556
+Maverick,https://en.wikipedia.org/wiki/Maverick_station,Maverick_station,42.3691,-71.0395
+Milton,https://en.wikipedia.org/wiki/Milton_station_(MBTA),Milton_station_(MBTA),42.27035,-71.06727
+Newton Centre,https://en.wikipedia.org/wiki/Newton_Centre_station,Newton_Centre_station,42.32944444,-71.1925
+Newton Highlands,https://en.wikipedia.org/wiki/Newton_Highlands_station,Newton_Highlands_station,42.3225,-71.20555556
+North Quincy,https://en.wikipedia.org/wiki/North_Quincy_station,North_Quincy_station,42.2758,-71.0302
+North Station ‡,https://en.wikipedia.org/wiki/North_Station_(subway),North_Station_(subway),42.36523,-71.06012
+Oak Grove †,https://en.wikipedia.org/wiki/Oak_Grove_station,Oak_Grove_station,42.436942,-71.070889
+Orient Heights,https://en.wikipedia.org/wiki/Orient_Heights_station,Orient_Heights_station,42.3871,-71.0042
+Park Street ‡,https://en.wikipedia.org/wiki/Park_Street_station_(MBTA),Park_Street_station_(MBTA),42.3563,-71.0625
+Porter,https://en.wikipedia.org/wiki/Porter_station,Porter_station,42.38833333,-71.11902778
+Quincy Adams,https://en.wikipedia.org/wiki/Quincy_Adams_station,Quincy_Adams_station,42.232894,-71.008083
+Quincy Center ‡,https://en.wikipedia.org/wiki/Quincy_Center_station,Quincy_Center_station,42.25194444,-71.00555556
+Reservoir ‡,https://en.wikipedia.org/wiki/Reservoir_station_(MBTA),Reservoir_station_(MBTA),42.33527778,-71.14805556
+Revere Beach,https://en.wikipedia.org/wiki/Revere_Beach_station,Revere_Beach_station,42.4078,-70.9926
+Riverside †,https://en.wikipedia.org/wiki/Riverside_station_(MBTA),Riverside_station_(MBTA),42.3372,-71.2521
+Roxbury Crossing,https://en.wikipedia.org/wiki/Roxbury_Crossing_station,Roxbury_Crossing_station,42.3313,-71.0956
+Ruggles ‡,https://en.wikipedia.org/wiki/Ruggles_station,Ruggles_station,42.3362,-71.0895
+Savin Hill,https://en.wikipedia.org/wiki/Savin_Hill_station,Savin_Hill_station,42.3109,-71.0535
+Science Park,https://en.wikipedia.org/wiki/Science_Park_station_(MBTA),Science_Park_station_(MBTA),42.36666667,-71.06763889
+Shawmut,https://en.wikipedia.org/wiki/Shawmut_station,Shawmut_station,42.29371,-71.06591
+South Station †‡,https://en.wikipedia.org/wiki/South_Station_(subway),South_Station_(subway),42.35261,-71.05536
+State ‡,https://en.wikipedia.org/wiki/State_station,State_station,42.3587,-71.0578
+Stony Brook,https://en.wikipedia.org/wiki/Stony_Brook_station_(MBTA),Stony_Brook_station_(MBTA),42.3172,-71.1043
+Suffolk Downs,https://en.wikipedia.org/wiki/Suffolk_Downs_station,Suffolk_Downs_station,42.3904,-70.997
+Sullivan Square,https://en.wikipedia.org/wiki/Sullivan_Square_station,Sullivan_Square_station,42.384031,-71.07697
+Tufts Medical Center ‡,https://en.wikipedia.org/wiki/Tufts_Medical_Center_station,Tufts_Medical_Center_station,42.3486,-71.0645
+Union Square †,https://en.wikipedia.org/wiki/Union_Square_station_(Somerville),Union_Square_station_(Somerville),42.37714444,-71.09429167
+Valley Road,https://en.wikipedia.org/wiki/Valley_Road_station,Valley_Road_station,42.267772,-71.083025
+Waban,https://en.wikipedia.org/wiki/Waban_station,Waban_station,42.32583333,-71.23055556
+Wellington,https://en.wikipedia.org/wiki/Wellington_station_(MBTA),Wellington_station_(MBTA),42.401907,-71.077096
+Wollaston,https://en.wikipedia.org/wiki/Wollaston_station,Wollaston_station,42.265638,-71.01953
+Wonderland †,https://en.wikipedia.org/wiki/Wonderland_station,Wonderland_station,42.4135,-70.9918
+Wood Island,https://en.wikipedia.org/wiki/Wood_Island_station,Wood_Island_station,42.3797,-71.023
+Woodland,https://en.wikipedia.org/wiki/Woodland_station,Woodland_station,42.33305556,-71.24361111
+Woodland,https://en.wikipedia.org/wiki/Woodland_station,Woodland_station,42.33305556,-71.24361111

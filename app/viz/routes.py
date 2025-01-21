@@ -41,7 +41,7 @@ def rock():
 CSV_FILES = {
     'NYC': 'app/viz/resources/maps/nyc.csv',
     'Boston': 'app/viz/resources/maps/boston.csv',
-    'Chicago': 'resources/maps/chicago.csv'
+    'Chicago': 'app/viz/resources/maps/chicago.csv'
 }
 
 @viz_bp.route('/map', methods=['GET', 'POST'])
@@ -69,7 +69,7 @@ def map_view():
         for _, row in data.iterrows():
             folium.Circle(
                 location=(row['lat'], row['long']),
-                radius=500,  # Set the desired radius in meters
+                radius=600,  # Set the desired radius in meters
                 color='#2a66ad',
                 fill=True,
                 fill_color='#2a66ad',
