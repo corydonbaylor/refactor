@@ -65,3 +65,10 @@ a{
     /* color: var(--cornsilk); */
     text-decoration: none;
 }
+
+select{
+    font-size: clamp(14px, 3vw, 16px); /* Minimum size of 16px, maximum size of 24px */
+    padding: 1vw;
+    margin: 0 2vw 2vw 0vw;
+    min-width: 30vh;
+}

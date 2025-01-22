@@ -2,22 +2,33 @@
 
 {% block content %}
     <h1>Subway Walksheds</h1>
-    <form action="{{ url_for('viz.map_view') }}" method="POST">
-        <select id="csv_file" name="csv_file">
+
+    <p>I will not walk more than 20 minutes to a subway station. Well, maybe I would in a pinch. But I would not as part of a every day commute. It is simply too far. What if it rains? What if it snows? Or most importantly, what if I am simply tired and do not want to. For transit planning purposes, a 15 minute walk shed is as far as planners expect people to walk. You will not get many riders outside of that walk shed. </p>
+    <p>For the purposes of this analysis, I am defining a walk shed as the 600 meters immediately surrounding a subway station. I was originally going to do half a mile, which is 804 meters, but I decided that was a bit too generous. People do not walk as the crow flies. So while half a mile is a reasonable amount for people to walk to the subway, half a mile around a station is not accurate to how far people actually have to go.</p>
+
+    <form action="{{ url_for('viz.map_view') }}" method="POST" class="custom-select">
+        <select id="csv_file" name="csv_file" onchange="this.form.submit()">
             {% for file_name in csv_files %}
                 <option value="{{ file_name }}" {% if file_name == selected_file %}selected{% endif %}>
                     {{ file_name }}
                 </option>
             {% endfor %}
         </select>
-        <button type="submit">Load Map</button>
     </form>
     
-    {% if map_html %}
-        <div>
+    <div id="map-container">
+        {% if map_html %}
             {{ map_html|safe }}
-        </div>
-    {% else %}
-        <p>Please select a CSV file to load.</p>
-    {% endif %}
+        {% else %}
+            <p>Please select a CSV file to load.</p>
+        {% endif %}
+    </div>
+    <h2>What Makes a Good System?</h2>
+    <p>I have had the privilege of never owning a car. That is not typical in America. Not because everyone wants to own and manage a car but because most people do not have a viable alternative to a car.</p>
+    <p>So what makes a subway system a replacement for a car? Coverage and frequency. </p>
+    <p>Look at the coverage map for Washington DC. Almost the entire downtown is has a station within 600 meters. And much of the suburbs also have a station somewhat nearby. </p>
+    <p>Now compare this to San Francisco&#39;s subway. There are 4-6 stations in the inner core of San Francisco. Their system more closely aligns to what you would expect out of a commuter rail system. You simply cannot use this to &quot;get around&quot; San Francisco. And that is a real shame. San Francisco is a compact city. A line running down Geary and Sunset Boulevards would likely provide adequate coverage to make commuting around San Fran a breeze.</p>
+    <p>Alas&mdash;</p>
+    <p>We have what we have. Compare all these systems to truly world class public transit system in the United States if you want to feel sad. Maybe that why New York City has 2 <strong>billion</strong> riders each year compared to just 140 million in second place Washington DC.  </p>
+
 {% endblock %}
