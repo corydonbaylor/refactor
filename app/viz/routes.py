@@ -83,7 +83,7 @@ def map_view():
     map_html = m._repr_html_()
 
     return render_template(
-        'maps.html',
+        'subways.html',
         csv_files=CSV_FILES.keys(),
         selected_file=selected_file,
         map_html=map_html

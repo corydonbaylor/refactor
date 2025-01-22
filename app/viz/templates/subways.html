@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Subway Walksheds</h1>
+
+    <p>I will not walk more than 20 minutes to a subway station. Well, maybe I would in a pinch. But I would not as part of a every day commute. It is simply too far. What if it rains? What if it snows? Or most importantly, what if I am simply tired and do not want to. For transit planning purposes, a 15 minute walk shed is as far as planners expect people to walk. You will not get many riders outside of that walk shed. </p>
+    <p>For the purposes of this analysis, I am defining a walk shed as the 600 meters immediately surrounding a subway station. I was originally going to do half a mile, which is 804 meters, but I decided that was a bit too generous. People do not walk as the crow flies. So while half a mile is a reasonable amount for people to walk to the subway, half a mile around a station is not accurate to how far people actually have to go.</p>
+
+    <form action="{{ url_for('viz.map_view') }}" method="POST" class="custom-select">
+        <select id="csv_file" name="csv_file" onchange="this.form.submit()">
+            {% for file_name in csv_files %}
+                <option value="{{ file_name }}" {% if file_name == selected_file %}selected{% endif %}>
+                    {{ file_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    
+    <div id="map-container">
+        {% if map_html %}
+            {{ map_html|safe }}
+        {% else %}
+            <p>Please select a CSV file to load.</p>
+        {% endif %}
+    </div>
+    <h2>What Makes a Good System?</h2>
+    <p>I have had the privilege of never owning a car. That is not typical in America. Not because everyone wants to own and manage a car but because most people do not have a viable alternative to a car.</p>
+    <p>So what makes a subway system a replacement for a car? Coverage and frequency. </p>
+    <p>Look at the coverage map for Washington DC. Almost the entire downtown is has a station within 600 meters. And much of the suburbs also have a station somewhat nearby. </p>
+    <p>Now compare this to San Francisco&#39;s subway. There are 4-6 stations in the inner core of San Francisco. Their system more closely aligns to what you would expect out of a commuter rail system. You simply cannot use this to &quot;get around&quot; San Francisco. And that is a real shame. San Francisco is a compact city. A line running down Geary and Sunset Boulevards would likely provide adequate coverage to make commuting around San Fran a breeze.</p>
+    <p>Alas&mdash;</p>
+    <p>We have what we have. Compare all these systems to truly world class public transit system in the United States if you want to feel sad. Maybe that why New York City has 2 <strong>billion</strong> riders each year compared to just 140 million in second place Washington DC.  </p>
+
+    <h2>Code Walkthrough</h2>
+<p>This was my first &quot;interactive&quot; visualization for my website, but certainly not in my career (I&#39;ve been slinging Shiny dashboards since 2016). I will say that the challenge here had more to do with wrangling the data than actually creating the visualization. </p>
+<p>In this case, only New York City and Chicago had flat files with latitude and longitude of their subway stations. Otherwise, I had do some very tedious work copying tables from wikipedia and querying their api for the latitude and longitude of their stations. </p>
+<p>So how did I do it?</p>
+<h3>Creating a Form</h3>
+<p>First, we had to create a form so that the user could select what subway system they want to view.</p>
+<pre><code>{% raw %}&lt;form action=&quot;{{ url_for(&#39;viz.map_view&#39;) }}&quot; method=&quot;POST&quot; class=&quot;custom-select&quot;&gt;
+            &lt;select id=&quot;csv_file&quot; name=&quot;csv_file&quot; onchange=&quot;this.form.submit()&quot;&gt;
+                {% for file_name in csv_files %}
+                    &lt;option value=&quot;{{ file_name }}&quot; {% if file_name == selected_file %}selected{% endif %}&gt;
+                        {{ file_name }}
+                    &lt;/option&gt;
+                {% endfor %}
+            &lt;/select&gt;
+        &lt;/form&gt;{% endraw %}
+    </code></pre>
+    
+    
+    
+<p>Under the <code>&lt;form&gt;</code> tag, we have the following:</p>
+<ul>
+<li><code>action</code> - specifies where the data will be sent, which will be a route in flask in our case</li>
+<li><code>method</code> - specifies in what manner the data will be sent. In this case, it&#39;s a <code>POST</code> request. This means that we are sending data over to flask and that it might change the state of the flask server.</li>
+
+</ul>
+<p>Under the <code>&lt;select&gt;</code> tag, we have a few things:</p>
+<ul>
+<li> <code>onchange=this.form.submit()</code> - resubmits the form each time the user makes a selection</li>
+<li><code>id=&quot;csv_file&quot;</code> - this is the name of the variable that will be passed to flask </li>
+<li>Next we have a loop that creates options for our form based on the jinja values in <code>csv_files</code></li>
+
+</ul>
+<h3>Receiving the Form Response</h3>
+<p>Ok now we are sending a variable called <code>csv_file</code> that is being sent to flask with the value that the user selected. Now we are going to create a route for the map:</p>
+<pre><code class='language-python' lang='python'>@viz_bp.route(&#39;/subways&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+def map_view():
+    # Default to washington map if no file is selected
+    selected_file = &#39;Washington DC&#39;
+    if request.method == &#39;POST&#39;:
+        # Get the selected file from the form submission
+        selected_file = request.form.get(&#39;csv_file&#39;, &#39;NYC&#39;)
+</code></pre>
+<p>We are doing a few things here. First, we have a default value. If nothing was selected (such as when the user first loads the page), than we will have &quot;Washington DC&quot; be the <code>selected_file</code>. Otherwise, in the case of the <code>POST</code> request such as when the user makes a selection, we receive the request like so:</p>
+<pre><code class='language-python' lang='python'>selected_file = request.form.get(&#39;csv_file&#39;, &#39;NYC&#39;)
+</code></pre>
+<h3>Picking the CSV</h3>
+<p>I created some CSVs with the latitude and longitude of each station in each system. Our selection &mdash; which was passed to us in the <code>POST</code> request and now exists in our flask app as <code>selected_file</code> &mdash; is then used to filter a dictionary of file paths within our app:</p>
+<pre><code class='language-python' lang='python'># the dictionary
+CSV_FILES = {
+    &#39;Boston&#39;: &#39;maps/boston.csv&#39;,
+    &#39;Chicago&#39;: &#39;maps/chicago.csv&#39;,
+    &#39;New York City&#39;: &#39;maps/nyc.csv&#39;,
+    &#39;Philadelphia&#39;: &#39;maps/philly.csv&#39;,
+    &#39;San Francisco&#39;: &#39;maps/sanfran.csv&#39;,
+    &#39;Washington DC&#39;: &#39;maps/washington.csv&#39;,
+
+}
+
+# how we get the data
+file_path = CSV_FILES.get(selected_file)
+if not file_path or not os.path.exists(file_path):
+    return f&quot;Error: The selected file &#39;{selected_file}&#39; does not exist.&quot;, 404
+
+# Load coordinates from the selected CSV file
+data = pd.read_csv(file_path)
+</code></pre>
+<h3>Creating the Map</h3>
+<p>Now comes the easy part. Actually creating the map.</p>
+<pre><code class='language-python' lang='python'>  # Create a Folium map centered at the average coordinates
+  center = [data[&#39;lat&#39;].mean(), data[&#39;long&#39;].mean()]
+  m = folium.Map(location=center, zoom_start=12, tiles=&quot;cartodb positron&quot;)
+
+  # Add circles for each coordinate in the CSV
+  for _, row in data.iterrows():
+      folium.Circle(
+          location=(row[&#39;lat&#39;], row[&#39;long&#39;]),
+          radius=600,  # Set the desired radius in meters
+          color=&#39;#2a66ad&#39;,
+          fill=True,
+          fill_color=&#39;#2a66ad&#39;,
+          fill_opacity=0.5,
+      ).add_to(m)
+
+  # Render the map as HTML
+  map_html = m._repr_html_()
+</code></pre>
+<p>We do a few things here. First we create a center point for our map by taking the average of the lats and longs in our dataset. Then we initialize our map like so:</p>
+<pre><code class='language-python' lang='python'>  m = folium.Map(location=center, zoom_start=12, tiles=&quot;cartodb positron&quot;)
+</code></pre>
+<p>Then we add circles for each row in our dataset, and finally render the map as html. </p>
+<h3>Passing Things Back to the Template</h3>
+<p>Now comes the fun part. We pass some arguments to our &quot;subways template&quot; like so:</p>
+<pre><code class='language-python' lang='python'>{% raw %}
+return render_template(
+    &#39;subways.html&#39;,
+    csv_files=CSV_FILES.keys(),
+    selected_file=selected_file,
+    map_html=map_html
+)
+{% endraw %}</code></pre>
+<p><code>csv_files=CSV_FILES.keys()</code> passes the keys of the <code>CSV_FILES</code> dictionary to our template. If you remember, we iterate through those values to get options in the form. </p>
+<p><code>selected_file=selected_file</code> send the user selected value over to template. In it accessed like so:</p>
+<pre><code>{% raw %}&lt;option value=&quot;{{ file_name }}&quot; {% if file_name == selected_file %}selected{% endif %}&gt;
+    {% endraw %}</code></pre>
+<p>Basically, if the <code>selected_file</code> is the same as the <code>file_name</code>, it will be the default option when the page loads. </p>
+<p>Finally we send over the <code>map_html</code>. We use that like so in our template:</p>
+<pre><code class='language-html' lang='html'> {%raw%}   &lt;div id=&quot;map-container&quot;&gt;
+        {% if map_html %}
+            {{ map_html|safe }}
+        {% else %}
+            &lt;p&gt;Please select a CSV file to load.&lt;/p&gt;
+        {% endif %}
+    &lt;/div&gt;
+{%endraw%}</code></pre>
+<p>If a <code>map_html</code> object exists, we render it and if not (which should never happen), we then put up an error message. </p>
+
+{% endblock %}
