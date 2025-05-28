@@ -74,3 +74,8 @@ def southwest():
 @password_required
 def uruguay():
     return render_template('uruguay.html')
+
+@travel_bp.route('/japan')
+@password_required
+def japan():
+    return render_template('japan.html')
