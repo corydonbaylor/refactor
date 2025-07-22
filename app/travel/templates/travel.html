@@ -6,7 +6,7 @@
 <head>
     <link rel="stylesheet" href="{{ url_for('travel.static', filename='css/travel_landing.css') }}">
 </head>
-<h1>Round the World in Time to Write</h1>
+<h1>International Musings</h1>
 <object id="world-map" type="image/svg+xml" data="{{ url_for('travel.static', filename='images/world.svg') }}" class="svg-object"></object>
 <script src="{{ url_for('travel.static', filename='js/map.js') }}"></script>
 
@@ -25,6 +25,7 @@
     </div>
     <div class="grid-item">
         <p class="list-header">Europe</p>
+        <a href="{{ url_for('travel.germany') }}">Germany</a><br>
         <a href="{{ url_for('travel.portugal') }}">Portugal</a><br>
         <a href="{{ url_for('travel.italy') }}">Italy</a><br>
         <a href="{{ url_for('travel.france') }}">France</a><br>
