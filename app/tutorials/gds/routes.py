@@ -33,3 +33,7 @@ def link_prediction():
 @gds_bp.route('/top_sort')
 def top_sort():
     return render_template('top_sort.html')
+
+@gds_bp.route('/fastrp')
+def fastrp():
+    return render_template('fastrp.html')
