@@ -89,3 +89,8 @@ def germany():
 @password_required
 def denmark():
     return render_template('denmark.html')
+
+@travel_bp.route('/netherlands')
+@password_required
+def netherlands():
+    return render_template('netherlands.html')

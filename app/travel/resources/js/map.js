@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'Uruguay',
         'Japan',
         'Germany',
-        'Denmark'
+        'Denmark',
+        'Belgium',
+        'Netherlands'
     
     ]; // Add desired country names here
     const svgObject = document.getElementById('world-map');
