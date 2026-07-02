@@ -70,7 +70,8 @@
 #webdev,
 #docker,
 #gds,
-#ml {
+#ml,
+#cr {
     background-size: 90%;
     background-position: center;
     background-attachment: fixed;
@@ -114,6 +115,14 @@
 #docker .word-list {
     text-align: left; /* Right-aligns the content within the ul */
 }
+
+#cr {
+    background-image: url('../images/wonder.png');
+}
+
+#cr .word-list {
+    text-align: right; /* Right-aligns the content within the ul */
+}
 .word-list a {
     text-decoration: none; /* Removes underline from links */
     color: #333; /* Sets link color */
@@ -135,6 +144,7 @@
 .order-4 { order: 4; }
 .order-5 { order: 5; }
 .order-6 { order: 6; }
+.order-7 { order: 7; }
 
 .full-width {
     grid-column: span 2; /* Makes the box take full width of the two columns */

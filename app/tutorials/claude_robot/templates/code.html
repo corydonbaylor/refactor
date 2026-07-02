@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1>Adding Software</h1>
+<p>Ok the hard part is over. Now we just need to actually write a script to cause these silly little wheels to turn.</p>
+<p>Now as I alluded to, with tools like Claude, creating the actual code is very simple. I simply ask Claude to create one for me and it does. Yawn.</p>
+<pre><code class='language-python' lang='python'>import RPi.GPIO as GPIO
+import time
+
+# Your wiring: RIGHT side on OUT1/OUT2, LEFT side on OUT3/OUT4
+# IN1/IN2 drive the right side, IN3/IN4 drive the left side.
+IN1, IN2 = 18, 17   # right side (OUT1/OUT2)
+IN3, IN4 = 22, 27   # left side  (OUT3/OUT4)
+ENA, ENB = 25, 24
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup([IN1, IN2, IN3, IN4, ENA, ENB], GPIO.OUT)
+GPIO.output(ENA, GPIO.HIGH)
+GPIO.output(ENB, GPIO.HIGH)
+
+def forward():
+    GPIO.output(IN1, GPIO.HIGH); GPIO.output(IN2, GPIO.LOW)
+    GPIO.output(IN3, GPIO.HIGH); GPIO.output(IN4, GPIO.LOW)
+
+def stop():
+    GPIO.output([IN1, IN2, IN3, IN4], GPIO.LOW)
+
+try:
+    print(&quot;Forward for 2 seconds...&quot;)
+    forward()
+    time.sleep(2)
+    stop()
+    print(&quot;Done.&quot;)
+finally:
+    GPIO.cleanup()
+    print(&quot;GPIO cleaned up.&quot;)
+</code></pre>
+<p>But let&#39;s actually examine what is happening in the code. It&#39;s a very simple script, so this shouldn&#39;t take too long.</p>
+<p>After loading in the necessary packages, we assign GPIO pin numbers based on which L298N they are connected to:</p>
+<pre><code class='language-python' lang='python'># Your wiring: RIGHT side on OUT1/OUT2, LEFT side on OUT3/OUT4
+# IN1/IN2 drive the right side, IN3/IN4 drive the left side.
+IN1, IN2 = 18, 17   # right side (OUT1/OUT2)
+IN3, IN4 = 22, 27   # left side  (OUT3/OUT4)
+ENA, ENB = 25, 24
+</code></pre>
+<p>This is kind of ironic given my earlier complaint about the difference between the physical pin numbers and the GPIO numbers, which is actually called Broadcom (BCM) numbers. Anyways, the next line here chooses between which numbering scheme to use. Claude, in its machine like wisdom, choose to use the BCM numbers rather than the physical pin location numbers: </p>
+<pre><code class='language-python' lang='python'>GPIO.setmode(GPIO.BCM)
+</code></pre>
+<p>We then set each of our assigned pins as output pins, meaning we can change their settings between <code>HIGH</code> and <code>LOW</code>:</p>
+<pre><code class='language-python' lang='python'>GPIO.setup([IN1, IN2, IN3, IN4, ENA, ENB], GPIO.OUT)
+GPIO.output(ENA, GPIO.HIGH)
+GPIO.output(ENB, GPIO.HIGH)
+</code></pre>
+<p>Now it gets real simple. We create two functions. First, we create a forward function. We set <code>IN1</code> and <code>IN3</code> to <code>HIGH</code> and <code>IN2</code> and <code>IN4</code> to <code>LOW</code>, which of course makes the IN1 and IN3 terminals to positive and IN2 and IN4 to negative. That in turn creates a current in the wire, which causes the rotor to spin! And voila, the wheels go forward!</p>
+<pre><code class='language-python' lang='python'>def forward():
+    GPIO.output(IN1, GPIO.HIGH); GPIO.output(IN2, GPIO.LOW)
+    GPIO.output(IN3, GPIO.HIGH); GPIO.output(IN4, GPIO.LOW)
+
+def stop():
+    GPIO.output([IN1, IN2, IN3, IN4], GPIO.LOW)
+</code></pre>
+<p>And finally, we actually execute the function:</p>
+<pre><code class='language-python' lang='python'>try:
+    print(&quot;Forward for 2 seconds...&quot;)
+    forward()
+    time.sleep(2)
+    stop()
+    print(&quot;Done.&quot;)
+finally:
+    GPIO.cleanup()
+    print(&quot;GPIO cleaned up.&quot;)
+</code></pre>
+<p>A video of the magic moment</p>
+<iframe 
+  width="560" 
+  height="315" 
+  src="https://www.youtube.com/embed/YrOGqgwB4is" 
+  title="Initial Testing of the RC Car" 
+  frameborder="0" 
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+  referrerpolicy="strict-origin-when-cross-origin" 
+  allowfullscreen>
+</iframe>
+{% endblock %}

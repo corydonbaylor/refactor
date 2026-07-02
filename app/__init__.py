@@ -10,6 +10,8 @@ from .tutorials.docker import docker_bp
 from .tutorials.flask_pi import flask_pi_bp
 from .tutorials.machine_learning import machine_learning_bp
 from .tutorials.gds import gds_bp
+from .tutorials.claude_robot import claude_robot_bp
+
 from .utils import utils_bp
 
 from dotenv import load_dotenv
@@ -31,6 +33,7 @@ def create_app():
     app.register_blueprint(flask_pi_bp, url_prefix='/tutorials/flask-pi')
     app.register_blueprint(machine_learning_bp, url_prefix='/tutorials/machine_learning')
     app.register_blueprint(gds_bp, url_prefix='/tutorials/gds')
+    app.register_blueprint(claude_robot_bp, url_prefix='/tutorials/claude_robot')
 
     app.register_blueprint(main_bp)  
     app.register_blueprint(utils_bp)
