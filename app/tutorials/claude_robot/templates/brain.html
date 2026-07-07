@@ -1,0 +1,274 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1>Adding a Brain</h1>
+<p>At this point, we have a working car, but unfortunately, one without a brain. Pre-chatgpt, this next part would have been insanely difficult but now it is actually quite easy. Matter of fact, we accomplish the whole thing in just one prompt in Claude Code:</p>
+<blockquote><p>the next step i am on is that i need to create some python code. basically, i want to have code for moving the rc car forward and back and left and right. my ultimate goal is to use the camera attached to the car to take snapshots. and then use an api call to claude to choose what to do next. the working folder is a git repo. so i want the code written here before i get pull it over to the raspberry pi</p>
+</blockquote>
+<p>But we are going to be good little citizens and actually examine what claude code did here. So let&#39;s walk through the code from our <a href='https://github.com/corydonbaylor/claude_car/releases/tag/1.0.0'>first release</a>, starting with the directory structure:</p>
+<pre><code>claude_car/
+├── camera.py
+├── motor_control.py
+├── vision_loop.py
+├── .gitignore
+├── test_motors.py
+└── README.md
+</code></pre>
+<p>Basically, we have three main python files that control the car: <code>camera.py</code>, <code>motor_control.py</code>, and <code>vision_loop.py</code>. Additionally, we have a few other files that set up the environment and do miscellaneous things that aren&#39;t particularly relevant to our discussion today.</p>
+<h2>The eyes...</h2>
+<p>If we are hoping to code up a brain for our RC car, we first need to wire in a nervous system. The code in these <code>camera.py</code> and <code>motor_control.py</code> will give our car&#39;s brain the tools it needs to connect to its eyes and legs. Let&#39;s start with the camera. I am going to be spending a pretty minimal time going through each line because I did not write it, and it is likely to change in the next round of commits.</p>
+<p>But basically, we create a class called <code>Camera</code> that has three different methods: <code>capture_image</code>, <code>get_image_base64</code>, and <code>mock_capture</code>.  Additionally, our class has a few properties:</p>
+<ul>
+<li><code>self.output_dir</code> - this is actually set as <code>./captures</code></li>
+<li><code>self.last_image_path</code> - which is initially set to <code>none</code> but gets updated each time the <code>capture_image</code> method runs.</li>
+
+</ul>
+<p>The first one, <code>capture_image</code> does pretty much what you would expect. It takes an image and returns the path where that image was saved. It also updates the <code>last_image_path</code> property, which is in tun used by the next method, <code>get_image_base64</code>.</p>
+<p>This function takes the last captured image and converts it to <code>base64</code>, which will be sent off to Claude for processing. Nifty!</p>
+<p>Finally, we have <code>mock_capture</code>, which just creates a mock image to be used in case of testing. </p>
+<h2>... the Legs... </h2>
+<p>Next, we have <code>motor_control.py</code>. This will basically be an amped up version of code from our <a href='https://www.corydonbaylor.com/tutorials/claude_robot/code'>last tutorial</a>. At the top of our script, we have a little bit of set up that defines which pins on the Raspberry Pi correspond to which pins on the L298N. When the class is initialized these will be passed into the instance:</p>
+<pre><code class='language-python' lang='python'># GPIO pins (BCM numbering)
+# Right side on OUT1/OUT2, Left side on OUT3/OUT4
+IN1, IN2 = 18, 17   # right side: forward/backward
+IN3, IN4 = 22, 27   # left side: forward/backward
+ENA, ENB = 25, 24   # enable pins for speed control
+
+PINS = [IN1, IN2, IN3, IN4, ENA, ENB]
+</code></pre>
+<p>For actually controlling things, we create a class called <code>MotorController</code>.  It will have a good amount of methods:</p>
+<ul>
+<li><code>_setup_gpio</code> - this configures which pin is which and uses the <code>PINS</code> constant at the top of the module.</li>
+<li><code>_set_pins</code> - this actually changes the value of the pins. So for example, if the car is to move forward, then the IN1 and IN3 will be set to<code>HIGH</code> and all the wheels will turn clockwise. </li>
+<li><code>forward</code> - makes all the wheels turn clockwise</li>
+<li><code>backward</code> makes all the wheels turn counterclockwise</li>
+<li><code>left</code> - makes the left wheels turn clockwise and the right wheels turn counterclockwise</li>
+<li><code>right</code> - makes the right wheels turn clockwise and the left wheels turn counterclockwise</li>
+<li><code>stop</code> - stops all wheels turning</li>
+<li><code>move</code> - executes a command based on the response from Claude.</li>
+
+</ul>
+<p>Now let&#39;s examine three of these methods more closely, starting with <code>_set_pins</code>:</p>
+<pre><code class='language-python' lang='python'>    def _set_pins(self, in1, in2, in3, in4):
+        &quot;&quot;&quot;Set individual motor direction pins (internal helper).&quot;&quot;&quot;
+        if not self.use_gpio or not self.gpio:
+            # Simulation: just log
+            state = f&quot;IN1={in1} IN2={in2} IN3={in3} IN4={in4}&quot;
+            logger.debug(f&quot;GPIO state: {state}&quot;)
+            return
+
+        self.gpio.output(IN1, in1)
+        self.gpio.output(IN2, in2)
+        self.gpio.output(IN3, in3)
+        self.gpio.output(IN4, in4)
+</code></pre>
+<p>Basically, you are going to pass four different values to this helper function. And it will change the value of IN pins on the L298N to either <code>HIGH</code> or <code>LOW</code>. As a reminder this determines the direction of the current through the rotor, which changes the direction that the wheels spin. </p>
+<p>So let&#39;s take a look at the <code>forward</code> method. We can see that here we want the current to run from IN1 to IN2 and from IN3 to IN4. IN1 and IN2 control the direction of the right side wheels and IN3 and IN4 control the left side wheels.</p>
+<pre><code class='language-python' lang='python'>    def forward(self):
+        &quot;&quot;&quot;Drive car forward.&quot;&quot;&quot;
+        self._set_pins(
+            self.gpio.HIGH if self.use_gpio else True,   # IN1
+            self.gpio.LOW if self.use_gpio else False,   # IN2
+            self.gpio.HIGH if self.use_gpio else True,   # IN3
+            self.gpio.LOW if self.use_gpio else False    # IN4
+        )
+        logger.debug(&quot;Moving forward&quot;)
+</code></pre>
+<p>Now, let&#39;s look at the <code>move</code> method:</p>
+<pre><code class='language-python' lang='python'>    def move(self, direction, duration=0.5):
+        &quot;&quot;&quot;
+        Execute a movement command for a given duration.
+
+        Args:
+            direction: One of &#39;forward&#39;, &#39;backward&#39;, &#39;left&#39;, &#39;right&#39;, &#39;stop&#39;
+            duration: How long to move (seconds)
+        &quot;&quot;&quot;
+        direction = direction.lower().strip()
+
+        if direction == &#39;forward&#39;:
+            self.forward()
+        elif direction == &#39;backward&#39;:
+            self.backward()
+        elif direction == &#39;left&#39;:
+            self.left()
+        elif direction == &#39;right&#39;:
+            self.right()
+        elif direction == &#39;stop&#39;:
+            self.stop()
+        else:
+            logger.warning(f&quot;Unknown direction: {direction}&quot;)
+            self.stop()
+            return
+
+        if duration &gt; 0:
+            time.sleep(duration)
+            self.stop()
+</code></pre>
+<p>This will take five different direction options and call the appropriate direction method. But where does it get that direction? Ah sweet child, we will see in the next section.</p>
+<h2>... and the Brain </h2>
+<p>Ok now we get to the fun part. Actually running the code we just created. Most of the action will be happening in the <code>VisionControlLoop</code> class. </p>
+<p>First let&#39;s get the  <code>__init__</code> the class out of the way. Here we load the previous classes that claude built into our new class. Note that we also set up out client to interact with Claude here:</p>
+<pre><code class='language-python' lang='python'>    def __init__(self, use_gpio: bool = True, headless: bool = False):
+        &quot;&quot;&quot;
+        Initialize vision control loop.
+
+        Args:
+            use_gpio: If False, runs in simulation mode (no real GPIO)
+            headless: If True, doesn&#39;t require display for camera preview
+        &quot;&quot;&quot;
+        self.motor = MotorController(use_gpio=use_gpio)
+        self.camera = Camera()
+        self.client = anthropic.Anthropic(api_key=os.environ.get(&quot;ANTHROPIC_API_KEY&quot;))
+        self.headless = headless
+</code></pre>
+<p>Next, we create a class called <code>get_next_action</code>. This one will be all about preparing a prompt to send to Claude, so we are now entering the world of prompt engineering.  Once Claude gets the prompt, it will then parse that message and send it back an instruction to us.  Our basic prompt to Claude is as follows:</p>
+<blockquote><p>You are controlling an RC car with a camera. Look at this image and decide what the car should do next. Move forward when possible. Do not let the car run into anything. Respond with ONLY ONE word from this list: forward, backward, left, right, or stop. No explanations, just the word.</p>
+</blockquote>
+<pre><code class='language-python' lang='python'>      def get_next_action(self, image_base64: str) -&gt; str:
+        &quot;&quot;&quot;
+        Send image to Claude and get next action.
+
+        Args:
+            image_base64: Base64-encoded image string
+
+        Returns:
+            One of: &#39;forward&#39;, &#39;backward&#39;, &#39;left&#39;, &#39;right&#39;, &#39;stop&#39;
+        &quot;&quot;&quot;      
+  			try:
+            message = self.client.messages.create(
+                model=&quot;claude-haiku-4-5-20251001&quot;,
+                max_tokens=100,
+                messages=[
+                    {
+                        &quot;role&quot;: &quot;user&quot;,
+                        &quot;content&quot;: [
+                            {
+                                &quot;type&quot;: &quot;image&quot;,
+                                &quot;source&quot;: {
+                                    &quot;type&quot;: &quot;base64&quot;,
+                                    &quot;media_type&quot;: &quot;image/jpeg&quot;,
+                                    &quot;data&quot;: image_base64,
+                                },
+                            },
+                            {
+                                &quot;type&quot;: &quot;text&quot;,
+                                &quot;text&quot;: (
+                                    &quot;You are controlling an RC car with a camera. &quot;
+                                    &quot;Look at this image and decide what the car should do next. Move forward when possible. Do not let the car run into anything.&quot;
+                                    &quot;Respond with ONLY ONE word from this list: &quot;
+                                    &quot;forward, backward, left, right, or stop. &quot;
+                                    &quot;No explanations, just the word.&quot;
+                                ),
+                            },
+                        ],
+                    }
+                ],
+            )
+</code></pre>
+<p>We actually use this method in the <code>run</code> method. This starts out with a while loop. We need to determine how long we will send prompts back and forth to Claude. By convention, Claude landed on 5 iterations. </p>
+<pre><code class='language-python' lang='python'>    def run(self, iterations: int = None, duration_per_action: float = 0.5):
+        &quot;&quot;&quot;
+        Run the vision control loop.
+
+        Args:
+            iterations: Number of action cycles to run. None = infinite.
+            duration_per_action: How long to execute each action (seconds)
+        &quot;&quot;&quot;
+        logger.info(&quot;Starting vision control loop...&quot;)
+        logger.info(
+            f&quot;Configuration: iterations={iterations}, &quot;
+            f&quot;duration={duration_per_action}s, headless={self.headless}&quot;
+        )
+
+        iteration = 0
+        try:
+            while iterations is None or iteration &lt; iterations:
+                iteration += 1
+                logger.info(f&quot;\n--- Iteration {iteration} ---&quot;)
+
+                # Capture image
+                try:
+                    image_path = self.camera.capture_image()
+                except FileNotFoundError:
+                    logger.info(
+                        &quot;Camera not available (not on Pi). Using mock image.&quot;
+                    )
+                    image_path = self.camera.mock_capture()
+
+                # Encode to base64
+                image_b64 = self.camera.get_image_base64(image_path)
+                logger.info(f&quot;Captured: {image_path.name} ({len(image_b64)} bytes)&quot;)
+
+                # Get decision from Claude
+                logger.info(&quot;Sending to Claude for vision analysis...&quot;)
+                action = self.get_next_action(image_b64)
+                logger.info(f&quot;Claude decided: {action}&quot;)
+
+                # Execute action
+                logger.info(f&quot;Executing: {action} for {duration_per_action}s&quot;)
+                self.motor.move(action, duration=duration_per_action)
+
+        except KeyboardInterrupt:
+            logger.info(&quot;\nInterrupt received, stopping...&quot;)
+        except Exception as e:
+            logger.error(f&quot;Unexpected error: {e}&quot;, exc_info=True)
+        finally:
+            self.cleanup()
+</code></pre>
+<p>Let&#39;s examine some of this more closely. First, see where we actually capture the image. We finally get to use the <code>capture_image</code> method from the <code>camera</code> class:</p>
+<pre><code class='language-python' lang='python'>                # Capture image
+                try:
+                    image_path = self.camera.capture_image()
+                except FileNotFoundError:
+                    logger.info(
+                        &quot;Camera not available (not on Pi). Using mock image.&quot;
+                    )
+                    image_path = self.camera.mock_capture()
+</code></pre>
+<p>We then encode it before we send it to Claude:</p>
+<pre><code class='language-python' lang='python'>                # Encode to base64
+                image_b64 = self.camera.get_image_base64(image_path)
+                logger.info(f&quot;Captured: {image_path.name} ({len(image_b64)} bytes)&quot;)
+</code></pre>
+<p>Claude then reads the image and the prompt using the <code>get_next_action</code> method:</p>
+<pre><code class='language-python' lang='python'>                # Get decision from Claude
+                logger.info(&quot;Sending to Claude for vision analysis...&quot;)
+                action = self.get_next_action(image_b64)
+                logger.info(f&quot;Claude decided: {action}&quot;)
+</code></pre>
+<p>And finally, we execute movement:</p>
+<pre><code class='language-python' lang='python'>                # Execute action
+                logger.info(f&quot;Executing: {action} for {duration_per_action}s&quot;)
+                self.motor.move(action, duration=duration_per_action)
+</code></pre>
+<p>And that&#39;s how we get a little robot wants to move forward and makes five different decisions on if it can safely do that. I will admit that it is tediously slow at this point, and I want to sniff out some improvements to make this run a bit quicker. </p>
+
+{% endblock %}

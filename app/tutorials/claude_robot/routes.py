@@ -9,3 +9,6 @@ def assemble():
 def code():
     return render_template('code.html')
 
+@claude_robot_bp.route('/brain')
+def brain():
+    return render_template('brain.html')
