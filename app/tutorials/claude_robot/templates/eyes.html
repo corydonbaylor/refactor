@@ -1,0 +1,213 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .toc_list p {
+    margin-bottom: 0;
+  }
+  code {
+    font-size: 90%;
+  }
+
+  .dataframe{
+    font-size: 9pt;
+  }
+
+  strong {
+    font-weight: bold;
+}
+.dataframe{
+  color:black;
+  border: #f5f5f5;
+  margin-bottom: 10px;
+
+}
+.dataframe > tbody > tr:nth-child(2n+1) > td, .dataframe > tbody > tr:nth-child(2n+1) > th {
+   background-color: #f5f5f5;
+}
+
+</style>
+<h1>Fixing the Eyes</h1>
+<p>Currently, my little robot has no way to actually look for a target. Our little raspberry pi camera just flaccidly flops across the top of the build. Now that is a problem. If the shoe or whatever target is even slightly off center, the whole chassis has to turn, kind of like Michael Keaton in the old Batman Movies.</p>
+<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@propway/video/7243053012543999274" data-video-id="7243053012543999274" style="max-width: 605px;min-width: 325px;" > <section> <a target="_blank" title="@propway" href="https://www.tiktok.com/@propway?refer=embed">@propway</a> If Keaton couldn’t turn his head, then its only right that I can’t either! <a title="batman" target="_blank" href="https://www.tiktok.com/tag/batman?refer=embed">#batman</a> <a title="thebatman" target="_blank" href="https://www.tiktok.com/tag/thebatman?refer=embed">#thebatman</a> <a title="theflash" target="_blank" href="https://www.tiktok.com/tag/theflash?refer=embed">#theflash</a> <a title="dc" target="_blank" href="https://www.tiktok.com/tag/dc?refer=embed">#dc</a> <a title="dcuniverse" target="_blank" href="https://www.tiktok.com/tag/dcuniverse?refer=embed">#dcuniverse</a> <a title="cosplay" target="_blank" href="https://www.tiktok.com/tag/cosplay?refer=embed">#cosplay</a> <a title="flash" target="_blank" href="https://www.tiktok.com/tag/flash?refer=embed">#flash</a> <a title="superman" target="_blank" href="https://www.tiktok.com/tag/superman?refer=embed">#superman</a> <a title="supergirl" target="_blank" href="https://www.tiktok.com/tag/supergirl?refer=embed">#supergirl</a> <a target="_blank" title="♬ Batman (1989): Main Theme - Dominik Hauser" href="https://www.tiktok.com/music/Batman-1989-6791755045336516610?refer=embed">♬ Batman (1989): Main Theme - Dominik Hauser</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
+<p><a href='https://www.amazon.com/dp/B08PK9N9T4?ref=ppx_yo2ov_dt_b_fed_asin_title'>Enter the Servos</a>. This little $25 camera attachment will let Claude turn its little camera a glorious 180 degrees of motion. This will be more than enough for our purposes. </p>
+<h2>A Long Terrible Side Adventure</h2>
+<p>Now at this point in the build, I had experienced very little heart ache. I would even go as far as to say that <em>most</em> things worked as they expected. This was about to end in a stunning way. I hooked up the servos pretty easily. </p>
+<p>You see, the L298N requires both a 5V pin and a ground on the raspberry pi to work. And so does the Servos. And fortunately, there are two 5V pins and like five or so grounds on the raspberry pi, so one would imagine that the I could simply plug in the Servos to the spare 5V pin, and we would be cooking. But one would be wrong. </p>
+<p>I did that and at first, everything seemed fine. I had Claude write some code to test out the camera controls, but once I tried integrating them into the actual <code>vision_loop.py</code> script I noticed that the left wheels started spinning whenever the camera was working. Further, when I ran <code>test_motors.py</code>, the car refused to go backward. Eventually Claude was able to identify the culprit. Apparently, the IN1 pin would carry a high current even when the raspberry pi did not signal one.</p>
+<p>Claude would tell me very confidently that the L298N was dead. But the solution was to simply clean a little piece of duct tap that had attached itself to the bottom of the chip. At least, I think that was the solution. I unplugged everything and plugged it back in and it suddenly worked again!</p>
+<p>Hooray!</p>
+<p>But now the servos was unresponsive. Claude then confidently told me that the raspberry pi recognized that there was a device plugged into it but would drop the connection whenever a signal was sent to it, so I needed to buy a new servos. Clearly whatever short had temporarily fried my L298N had permanently killed my Servos.</p>
+<p>So I ordered a new one. </p>
+<p>Same issue.</p>
+<p>Then I tried switching the Servos to be on the 5V pin that L298N was on and vice versa. Against all logic, that fixed everything. Long story short, this thing SUCKS.</p>
+<h2>What Them Wires Do</h2>
+<p>The Servos has 4 wires that plug into the Raspberry Pi. This one is remarkably simpler than the L298N.</p>
+<ul>
+<li><strong>VCC</strong> — Power (5V from your Pi&#39;s 5V pin)</li>
+
+</ul>
+<ul>
+<li><strong>GND</strong> — Ground</li>
+
+</ul>
+<ul>
+<li><strong>SDA</strong> — I2C data line (GPIO 2 on Pi)</li>
+
+</ul>
+<ul>
+<li><strong>SCL</strong> — I2C clock line (GPIO 3 on Pi)</li>
+
+</ul>
+<p>Basically, Servos uses something called the I2C protocol to allow the chip on the Servos to communicate with the raspberry pi. You can read more about it <a href='https://www.circuitbasics.com/basics-of-the-i2c-communication-protocol/'>here</a> if this is interesting to you. </p>
+<h2>Wiring Table</h2>
+<p>At this point, it is worth just keeping track of exactly what is plugged into what.</p>
+<figure class='table-figure'><table>
+<thead>
+<tr><th style='text-align:left;' >Pi physical pin</th><th style='text-align:left;' >What&#39;s on it</th><th style='text-align:left;' >Detail</th></tr></thead>
+<tbody><tr><td style='text-align:left;' ><strong>2</strong> (5V)</td><td style='text-align:left;' ><strong>Servo board V+</strong></td><td style='text-align:left;' >moved here 2026-07-13 (fresh contact)</td></tr><tr><td style='text-align:left;' ><strong>3</strong> (GPIO2)</td><td style='text-align:left;' ><strong>Servo board SDA</strong></td><td style='text-align:left;' >I2C data</td></tr><tr><td style='text-align:left;' ><strong>4</strong> (5V)</td><td style='text-align:left;' ><strong>L298N +5V logic</strong></td><td style='text-align:left;' >the worn pin — OK for the L298N&#39;s tiny draw; watch it</td></tr><tr><td style='text-align:left;' ><strong>5</strong> (GPIO3)</td><td style='text-align:left;' ><strong>Servo board SCL</strong></td><td style='text-align:left;' >I2C clock</td></tr><tr><td style='text-align:left;' ><strong>6</strong> (GND)</td><td style='text-align:left;' ><strong>Servo board GND</strong></td><td style='text-align:left;' >moved here 2026-07-13</td></tr><tr><td style='text-align:left;' ><strong>11</strong> (GPIO17)</td><td style='text-align:left;' ><strong>L298N IN2</strong></td><td style='text-align:left;' >right side backward</td></tr><tr><td style='text-align:left;' ><strong>13</strong> (GPIO27)</td><td style='text-align:left;' ><strong>L298N IN4</strong></td><td style='text-align:left;' >left side backward</td></tr><tr><td style='text-align:left;' ><strong>14</strong> (GND)</td><td style='text-align:left;' ><strong>L298N GND</strong></td><td style='text-align:left;' >fresh ground, assigned at the rebuild</td></tr><tr><td style='text-align:left;' ><strong>15</strong> (GPIO22)</td><td style='text-align:left;' ><strong>L298N IN3</strong></td><td style='text-align:left;' >left side forward</td></tr><tr><td style='text-align:left;' ><strong>16</strong> (GPIO23)</td><td style='text-align:left;' ><strong>L298N IN1</strong></td><td style='text-align:left;' >right side forward — remapped, was pin 12</td></tr><tr><td style='text-align:left;' ><strong>18</strong> (GPIO24)</td><td style='text-align:left;' ><strong>L298N ENB</strong></td><td style='text-align:left;' >left enable</td></tr><tr><td style='text-align:left;' ><strong>22</strong> (GPIO25)</td><td style='text-align:left;' ><strong>L298N ENA</strong></td><td style='text-align:left;' >right enable</td></tr></tbody>
+</table></figure>
+<h2>Now for the Code</h2>
+<p>Actually controlling the Servos is pretty simple. First we are going to create a couple of constants at the top of the script. </p>
+<pre><code class='language-python' lang='python'>PAN_CHANNEL = 1
+TILT_CHANNEL = 0
+
+# Calibrated on hardware 2026-07-09: for both axes, 0=left/down, 180=right/up,
+# 90=forward. See handoff.md before changing these.
+PAN_FORWARD = 90
+TILT_FORWARD = 90
+
+# Default resting tilt: 30° below level, so the camera looks down at the
+# floor ahead (where a shoe would be) instead of dead level.
+TILT_DEFAULT = 60
+</code></pre>
+<p>The <code>PAN_CHANNEL</code> and <code>TILT_CHANNEL</code> simply specify which motor needs to be adjusted on the servos. We also need some defaults. The Servos can pan 180 degrees, so <code>PAN_FORWARD</code> is set to 90 degrees which is the middle. The same is true of the <code>TILT_FORWARD</code> . However, I noticed that too much ceiling was being captured by the camera, so I actually had it rest at 60 degrees instead.</p>
+<p>We will create a class called <code>PanTilt</code> to control the Servos. On initialization, we set two values, one to control the angle of the tilt and one for the angle of the pan:</p>
+<pre><code class='language-python' lang='python'>        self.pan_angle = PAN_FORWARD
+        self.tilt_angle = TILT_DEFAULT
+</code></pre>
+<p>Our <code>PanTilt</code> class has only a few methods that are worth covering. Starting with the <code>set_pan</code> method, we basically pass one argument into it, the angle, which we use to update <code>self.pan_angle</code> :</p>
+<pre><code class='language-python' lang='python'>    def set_pan(self, angle: float):
+        angle = max(0, min(180, angle))
+        if self.use_gpio and self.kit:
+            self.kit.servo[PAN_CHANNEL].angle = angle
+        self.pan_angle = angle
+        logger.info(f&quot;[SERVO] pan -&gt; {angle}° (channel {PAN_CHANNEL})&quot;)
+</code></pre>
+<p><code>set_tilt</code> does the same but for the tilt angle:</p>
+<pre><code class='language-python' lang='python'>    def set_tilt(self, angle: float):
+        angle = max(0, min(180, angle))
+        if self.use_gpio and self.kit:
+            self.kit.servo[TILT_CHANNEL].angle = angle
+        self.tilt_angle = angle
+        logger.info(f&quot;[SERVO] tilt -&gt; {angle}° (channel {TILT_CHANNEL})&quot;)
+</code></pre>
+<p>Next we have the <code>center</code> method which just puts everything back to default:</p>
+<pre><code class='language-python' lang='python'>    def center(self):
+        &quot;&quot;&quot;Return pan to forward and tilt to the default 10°-down resting angle.&quot;&quot;&quot;
+        self.set_pan(PAN_FORWARD)
+        self.set_tilt(TILT_DEFAULT)
+</code></pre>
+<p>After the <strong>days</strong> I spent debugging issues with both the servos and the L298N, I wanted to ensure that both devices were NEVER drawing power at the same time, so I wrote in a little function to cut all power the Servos, which will be called before its time to use the L298N:</p>
+<pre><code class='language-python' lang='python'>    def relax(self):
+        &quot;&quot;&quot;
+        Stop sending pulses to both servos so they draw no holding current
+        (the gear train holds the lightweight camera on its own — confirmed
+        on this hardware, the mount doesn&#39;t droop unpowered). Any later
+        set_pan/set_tilt/center re-energizes them automatically.
+        &quot;&quot;&quot;
+        if self.use_gpio and self.kit:
+            self.kit.servo[PAN_CHANNEL].angle = None
+            self.kit.servo[TILT_CHANNEL].angle = None
+        logger.info(&quot;[SERVO] relaxed -&gt; pulses off, no holding current&quot;)
+</code></pre>
+<p>Here&#39;s the full code:</p>
+<pre><code class='language-python' lang='python'>import logging
+
+logger = logging.getLogger(__name__)
+
+PAN_CHANNEL = 1
+TILT_CHANNEL = 0
+
+# Calibrated on hardware 2026-07-09: for both axes, 0=left/down, 180=right/up,
+# 90=forward. See handoff.md before changing these.
+PAN_FORWARD = 90
+TILT_FORWARD = 90
+
+# Default resting tilt: 30° below level, so the camera looks down at the
+# floor ahead (where a shoe would be) instead of dead level.
+TILT_DEFAULT = 60
+
+
+class PanTilt:
+    &quot;&quot;&quot;
+    Controls the Arducam pan-tilt mount (PCA9685, I2C 0x40) that the camera
+    is mounted on. Simulation mode auto-fallback if the servo board isn&#39;t
+    reachable, mirroring MotorController&#39;s use_gpio pattern.
+
+    Per handoff.md&#39;s hard rule, callers are responsible for never moving
+    these servos while the drive motors are active, and for settling
+    (&gt;=500ms) after a servo move before touching the motors, and vice versa
+    — this class only knows about the servos.
+    &quot;&quot;&quot;
+
+    def __init__(self, use_gpio: bool = True):
+        self.use_gpio = use_gpio
+        self.kit = None
+
+        if use_gpio:
+            try:
+                from adafruit_servokit import ServoKit
+                self.kit = ServoKit(channels=16)
+            except ImportError:
+                logger.warning(&quot;adafruit-circuitpython-servokit not available; running pan-tilt in simulation mode&quot;)
+                self.use_gpio = False
+            except Exception as e:
+                logger.warning(f&quot;Could not connect to pan-tilt servo board ({e}); running pan-tilt in simulation mode&quot;)
+                self.use_gpio = False
+        else:
+            logger.info(&quot;Running pan-tilt in simulation mode&quot;)
+
+        self.pan_angle = PAN_FORWARD
+        self.tilt_angle = TILT_DEFAULT
+
+    def set_pan(self, angle: float):
+        angle = max(0, min(180, angle))
+        if self.use_gpio and self.kit:
+            self.kit.servo[PAN_CHANNEL].angle = angle
+        self.pan_angle = angle
+        logger.info(f&quot;[SERVO] pan -&gt; {angle}° (channel {PAN_CHANNEL})&quot;)
+
+    def set_tilt(self, angle: float):
+        angle = max(0, min(180, angle))
+        if self.use_gpio and self.kit:
+            self.kit.servo[TILT_CHANNEL].angle = angle
+        self.tilt_angle = angle
+        logger.info(f&quot;[SERVO] tilt -&gt; {angle}° (channel {TILT_CHANNEL})&quot;)
+
+    def center(self):
+        &quot;&quot;&quot;Return pan to forward and tilt to the default 10°-down resting angle.&quot;&quot;&quot;
+        self.set_pan(PAN_FORWARD)
+        self.set_tilt(TILT_DEFAULT)
+
+    def relax(self):
+        &quot;&quot;&quot;
+        Stop sending pulses to both servos so they draw no holding current
+        (the gear train holds the lightweight camera on its own — confirmed
+        on this hardware, the mount doesn&#39;t droop unpowered). Any later
+        set_pan/set_tilt/center re-energizes them automatically.
+        &quot;&quot;&quot;
+        if self.use_gpio and self.kit:
+            self.kit.servo[PAN_CHANNEL].angle = None
+            self.kit.servo[TILT_CHANNEL].angle = None
+        logger.info(&quot;[SERVO] relaxed -&gt; pulses off, no holding current&quot;)
+
+    def cleanup(self):
+        &quot;&quot;&quot;No GPIO handle to release — the PCA9685 holds its last position in hardware.&quot;&quot;&quot;
+        pass
+
+</code></pre>
+<p>Next, we update <code>vision_loop</code> to handle the car being able to turn its head when it looks.</p>
+
+{% endblock %}

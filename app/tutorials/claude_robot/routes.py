@@ -12,3 +12,7 @@ def code():
 @claude_robot_bp.route('/brain')
 def brain():
     return render_template('brain.html')
+
+@claude_robot_bp.route('/eyes')
+def eyes():
+    return render_template('eyes.html')
